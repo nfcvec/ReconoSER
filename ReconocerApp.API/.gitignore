@@ -1,0 +1,60 @@
+# .gitignore for ASP.NET Core 8 projects
+
+# Build Folders
+bin/
+obj/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.sln.docstates
+
+# Logs
+*.log
+logs/
+
+# Visual Studio Code
+.vscode/
+.vscode/*
+
+# Rider
+.idea/
+.idea/*
+
+# ASP.NET Core
+appsettings*.json
+appsettings*.Development.json
+
+# Dependency directories
+node_modules/
+wwwroot/lib/
+
+# Publish output
+publish/
+out/
+
+# Temporary files
+*.tmp
+*.temp
+*.pid
+*.svclog
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Lock files
+project.lock.json
+*.lock.json
+
+# Backup files
+*.bak
+*.swp
+*.orig
+*.rej
+
+# JetBrains Rider
+.idea/
+*.sln.iml

@@ -1,0 +1,6 @@
+@ReconocerApp.API_HostAddress = http://localhost:5142
+
+GET {{ReconocerApp.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

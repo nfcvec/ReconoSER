@@ -1,0 +1,33 @@
+services:
+  spa:
+    image: ghcr.io/nfcvec/reconoser-spa:latest
+    build:
+      context: ./ReconocerApp.SPA
+      dockerfile: Dockerfile
+    networks:
+      - reconoser-network
+
+  api:
+    image: ghcr.io/nfcvec/reconoser-api:latest
+    build:
+      context: ./ReconocerApp.API
+      dockerfile: Dockerfile
+    networks:
+      - reconoser-network
+    environment:
+      ConnectionStrings__DefaultConnection: "Data Source=/app/reconocer.db"
+      DatabaseProvider: "Sqlite"
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: reconoser
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
+    networks:
+      - reconoser-network
+networks:
+  reconoser-network:
+    external: true
