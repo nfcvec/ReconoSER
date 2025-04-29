@@ -84,6 +84,8 @@ namespace ReconocerApp.API.Controllers
             return Ok(response);
         }
 
+
+
         // GET por ColaboradorId (string sin FK)
         [HttpGet("by-colaborador-id/{colaboradorId}")]
         public async Task<ActionResult<WalletSaldoResponse>> GetByColaboradorId(string colaboradorId)
@@ -93,12 +95,23 @@ namespace ReconocerApp.API.Controllers
 
             if (entity == null)
             {
-                return NotFound();
+
+                entity = new WalletSaldo
+                {
+                    // Si no existe, lo creamos
+                    TokenColaborador = colaboradorId,
+                    SaldoActual = 0
+                };
+                
+                _context.WalletSaldos.Add(entity);
+                await _context.SaveChangesAsync(); // Guardamos en base de datos
             }
 
             var response = _mapper.Map<WalletSaldoResponse>(entity);
             return Ok(response);
         }
+
+
 
         [HttpGet("user-wallet")]
         public async Task<ActionResult<IEnumerable<WalletSaldoResponse>>> GetUserWallet()

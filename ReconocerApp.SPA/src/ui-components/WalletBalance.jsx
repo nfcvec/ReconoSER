@@ -34,7 +34,7 @@ const WalletBalance = ({ id }) => {
           <Typography variant="h6" color="error">{error}</Typography>
         ) : (
           <Typography variant="h5">
-            {balance !== null ? `$${balance.toFixed(2)}` : 'Cargando...'}
+            {balance !== null ? `$${balance.toFixed(2)}` : 'Loading...'}
           </Typography>
         )}
       </Box>

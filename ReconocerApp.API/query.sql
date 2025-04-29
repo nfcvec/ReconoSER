@@ -18,6 +18,8 @@ WHERE type = 'table';
 
 PRAGMA table_info(WalletSaldos);
 
+SELECT * FROM WalletSaldos;
+
 SELECT * 
 FROM WalletTransacciones 
 WHERE WalletSaldoId NOT IN (SELECT WalletSaldoId FROM WalletSaldos);
