@@ -1,45 +1,56 @@
-import { Link } from "react-router-dom";
 import React, { useState, useEffect, useRef } from "react";
-import { Button, Card, CardContent, CardActions, Typography, Grid, Container, Box } from "@mui/material";
+import { Link } from "react-router-dom";
+import { Button, Card, CardActions, CardContent, Grid, Container, Box, Typography } from "@mui/material";
 import { Download as DownloadIcon } from "@mui/icons-material";
+import CertificadoComponent from "./certificadoComponent";
 import { getCertificados } from "../../utils/services/certificado";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import { useMsal } from "@azure/msal-react";
+import { toPng } from "html-to-image";
 
 export default function Certificados() {
+  const { accounts } = useMsal();
+  const user = accounts[0];
+  const oid = user?.idTokenClaims?.oid; // OID del colaborador autenticado
+
   const [certificates, setCertificates] = useState([]);
-  const certificateRefs = useRef({}); // Guardar múltiples refs (uno por certificado)
+  const certificateRefs = useRef({});
+
+  const handleDownload = async (id) => {
+    const ref = certificateRefs.current[id];
+    if (!ref) return;
+
+    try {
+      const dataUrl = await toPng(ref, { cacheBust: true });
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = `certificado-${id}.png`;
+      link.click();
+    } catch (error) {
+      console.error("Error al descargar el certificado:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchCertificados = async () => {
+    const fetchCertificates = async () => {
+      if (!oid) return; // Si aún no hay OID, no hace la llamada
       try {
-        const data = await getCertificados();
-        console.log("Certificados obtenidos:", data);
-        setCertificates(data);
+        const allCertificates = await getCertificados(); // Llama API
+        console.log("Todos los certificados:", allCertificates);
+
+        // Filtra certificados del colaborador actual
+        const filteredCertificates = allCertificates.filter(
+          (cert) => cert.tokenColaborador === oid
+        );
+
+        console.log("Certificados filtrados:", filteredCertificates);
+        setCertificates(filteredCertificates); // Actualiza estado
       } catch (error) {
         console.error("Error al obtener los certificados:", error);
       }
     };
 
-    fetchCertificados();
-  }, []);
-
-  const handleDownload = async (id) => {
-    const element = certificateRefs.current[id];
-    if (!element) return;
-
-    const canvas = await html2canvas(element);
-    const data = canvas.toDataURL("image/png");
-
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "px",
-      format: [canvas.width, canvas.height],
-    });
-
-    pdf.addImage(data, "PNG", 0, 0, canvas.width, canvas.height);
-    pdf.save(`certificado-${id}.pdf`);
-  };
+    fetchCertificates();
+  }, [oid]); // Dependemos del oid
 
   return (
     <Container maxWidth="lg" sx={{ py: 7 }}>
@@ -51,26 +62,27 @@ export default function Certificados() {
       </Typography>
 
       <Grid container spacing={3}>
-        {certificates.map((certificate) => (
-          <Grid item xs={12} sm={6} md={4} key={certificate.id}>
+        {certificates.map((certificate, index) => (
+          <Grid item xs={12} sm={6} md={4} key={certificate.reconocimientoId || index}>
             <Card>
-              {/* Aquí capturamos el contenido que queremos convertir a PDF */}
-              <CardContent ref={(el) => (certificateRefs.current[certificate.id] = el)}>
-                <Typography variant="h6" component="h2">
-                  {certificate.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {certificate.date}
-                </Typography>
+              <CardContent ref={(el) => (certificateRefs.current[certificate.reconocimientoId || index] = el)}>
+                <CertificadoComponent
+                  nombreColaborador={certificate.nombreColaborador}
+                  comportamientosSeleccionados={certificate.comportamientosSeleccionados}
+                  fechaActual={certificate.fechaCreacion}
+                  titulo={certificate.titulo}
+                  texto={certificate.texto}
+                  justificacion={certificate.justificacion}
+                  oid={oid} // Pasamos el OID como prop
+                />
               </CardContent>
-
               <CardActions>
                 <Button
                   variant="outlined"
                   fullWidth
                   size="small"
                   startIcon={<DownloadIcon />}
-                  onClick={() => handleDownload(certificate.id)}
+                  onClick={() => handleDownload(certificate.reconocimientoId || index)}
                 >
                   Descargar Certificado
                 </Button>

@@ -55,7 +55,7 @@ INSERT  INTO Organizaciones (OrganizacionId, Nombre, DominioEmail, Descripcion, 
 (2, 'ULatina', 'ulatina.cr', 'Universidad Latina de Costa Rica', true);
 
 
-SELECT * FROM Organizaciones;
+SELECT * FROM Reconocimientos;
 
 -- 3. Copiar los datos desde la tabla vieja a la nueva
 INSERT INTO WalletTransacciones (TransaccionId, ColaboradorId, CategoriaId, Cantidad, Descripcion, Fecha)
@@ -84,10 +84,10 @@ VALUES
 (1, 1, 'asasasasas', 1, 100, 'Compra de premio 1', '2023-01-01');
 
 
--- actualizar walletsaldo para el colaborador abcde
+-- actualizar walletsaldo para el colaborador 3
 UPDATE WalletSaldos 
-SET SaldoActual = (SELECT COALESCE(SUM(Cantidad), 0) FROM WalletTransacciones WHERE TokenColaborador = 'abcd')
-WHERE TokenColaborador = 'asasasasas';
+SET SaldoActual = (SELECT COALESCE(SUM(Cantidad), 0) FROM WalletTransacciones WHERE TokenColaborador = 3)
+WHERE TokenColaborador = 3;
 
 
 -- Insert
@@ -144,6 +144,23 @@ VALUES
 
 
 
-SELECT * from Comportamientos 
+SELECT * from MarketplacePremios;
+--actulizar imagenURL de  todos los premios de id 1 al 10 de MarketplacePremios
+UPDATE MarketplacePremios
+SET ImagenUrl = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQQz6U1tB5iHhdMElk-2f2AxZ2-aaKQxhc3g&s'
+WHERE PremioId BETWEEN 1 AND 10;
+
+--actualizar el saldo de la wallet del id3
+UPDATE WalletSaldos
+SET SaldoActual = 380
+WHERE WalletSaldoId = 3;
+--actulizar 
 
 SELECT * FROM MarketplacePremios WHERE PremioId = 1;
+
+-- insertar nueva wallet
+INSERT INTO WalletSaldos (WalletSaldoId, TokenColaborador, SaldoActual) VALUES
+(4, 'e5625472-d883-47a2-936a-961b274e5177', 0);
+
+-- eliminar una wallet pr id 
+DELETE FROM WalletSaldos WHERE WalletSaldoId = 4;

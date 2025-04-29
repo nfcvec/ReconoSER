@@ -43,6 +43,7 @@ export default function Home() {
         <Typography variant="h3" component="h1" gutterBottom sx={{ fontSize: { xs: "2rem", md: "3rem" } }}>
           Bienvenido a ReconoSER
         </Typography>
+        <pre>{JSON.stringify(user, null, 2)}</pre>
         <Typography variant="h6" color="text.secondary" sx={{ px: { xs: 2, md: 2 } }}>
           Recompensa comportamientos institucionales y canjea tus ULIs por premios
         </Typography>
@@ -53,7 +54,7 @@ export default function Home() {
           direction={{ xs: "column", md: "row" }} // Vertical en móviles, horizontal en PC
           justifyContent="center" // Centra los elementos en ambas vistas
           alignItems="center"
-          wrap={{ xs: "wrap", md: "nowrap" }} // Permite envolver en móviles, evita en PC
+          wrap="wrap" // Permite envolver en móviles, evita en PC
           sx={{
             px: { xs: 2, sm: 4, md: 6 }, // Espaciado horizontal dinámico
           }}
@@ -130,14 +131,6 @@ export default function Home() {
             </Grid>
           ))}
         </Grid>
-
-        <Typography variant="body1" color="text.secondary" sx={{ mt: 4 }}>
-          Tienes{" "}
-          <Box component="span" sx={{ fontWeight: "bold", color: "primary.main" }}>
-            250 ULIs
-          </Box>{" "}
-          disponibles
-        </Typography>
       </Box>
     </Container>
   );

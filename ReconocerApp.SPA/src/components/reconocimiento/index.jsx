@@ -28,7 +28,7 @@ export default function Reconocimiento() {
   const navigate = useNavigate();
   const { instance } = useMsal(); // Asegúrate de que useMsal esté definido y configurado correctamente
   const [collaborators, setCollaborators] = useState([]); // Estado para colaboradores
-  const [institutionalValues, setInstitutionalValues] = useState([]); // Estado para valores institucionales
+  const [institutionalValues, setInstitutionalValues] = useState([]); // Estado para comportamientos
   const [selectedCollaborator, setSelectedCollaborator] = useState("");
   const [selectedValues, setSelectedValues] = useState([]);
   const [justification, setJustification] = useState("");
@@ -51,51 +51,6 @@ export default function Reconocimiento() {
     fetchOrganizaciones();
   }, []);
 
-  // Cargar comportamientos desde la API
-  useEffect(() => {
-    const fetchComportamientos = async () => {
-      try {
-        const account = instance.getActiveAccount();
-        if (!account) {
-          console.error("No active account! Please log in.");
-          return;
-        }
-
-        // Obtener el dominio del correo electrónico
-        const email = account.username;
-        const domain = email.split("@")[1]; // Extraer el dominio del correo
-        console.log("Dominio del usuario:", domain);
-
-        // Obtener comportamientos desde la API
-        const comportamientos = await getComportamientos();
-        console.log("Datos de comportamientos obtenidos:", comportamientos);
-
-        // Verificar si los datos son válidos
-        if (!Array.isArray(comportamientos)) {
-          console.error("Los comportamientos no son un array válido.");
-          return;
-        }
-
-        // Filtrar comportamientos según el dominio
-        const filteredComportamientos = comportamientos.filter((comportamiento) => {
-          console.log("Procesando comportamiento:", comportamiento);
-          return (
-            comportamiento.organizacion &&
-            comportamiento.organizacion.dominioEmail &&
-            comportamiento.organizacion.dominioEmail.includes(domain)
-          );
-        });
-
-        console.log("Comportamientos filtrados:", filteredComportamientos);
-        setInstitutionalValues(filteredComportamientos);
-      } catch (error) {
-        console.error("Error al obtener los comportamientos:", error.message);
-      }
-    };
-
-    fetchComportamientos();
-  }, [instance]);
-
   // Cargar colaboradores desde la API
   useEffect(() => {
     const fetchColaboradores = async () => {
@@ -111,9 +66,22 @@ export default function Reconocimiento() {
           account: account,
         });
 
-        const colaboradores = await getColaboradores(response.accessToken);
+        let colaboradores = await getColaboradores(response.accessToken);
         console.log("Colaboradores obtenidos:", colaboradores);
-        setCollaborators(colaboradores); // Actualiza el estado con los colaboradores
+
+        // Obtener el correo del usuario que inició sesión
+        const usuarioLogueadoEmail = account.username; // Ejemplo: carlos.guagrilla.chicaiza@udla.edu.ec
+        console.log("Usuario logueado:", usuarioLogueadoEmail);
+
+        // Filtrar para excluir al usuario que inició sesión
+        const colaboradoresFiltrados = colaboradores.filter((colab) => {
+          const colaboradorEmail = colab.mail || colab.userPrincipalName || ""; // Ajusta aquí según qué campo traes
+          return colaboradorEmail.toLowerCase() !== usuarioLogueadoEmail.toLowerCase();
+        });
+
+        console.log("Colaboradores después de filtrar:", colaboradoresFiltrados);
+
+        setCollaborators(colaboradoresFiltrados); // Actualiza el estado con los colaboradores filtrados
       } catch (error) {
         console.error("Error al obtener los colaboradores:", error.message);
       }
@@ -121,6 +89,21 @@ export default function Reconocimiento() {
 
     fetchColaboradores();
   }, [instance]);
+
+  // Cargar comportamientos desde la API
+  useEffect(() => {
+    const fetchComportamientos = async () => {
+      try {
+        const comportamientos = await getComportamientos(); // Llama a la API
+        console.log("Comportamientos obtenidos:", comportamientos);
+        setInstitutionalValues(comportamientos); // Actualiza el estado con los comportamientos
+      } catch (error) {
+        console.error("Error al obtener los comportamientos:", error.message);
+      }
+    };
+
+    fetchComportamientos();
+  }, []);
 
   // Actualizar el total de ULIs cuando cambien los valores seleccionados
   useEffect(() => {
@@ -203,12 +186,15 @@ export default function Reconocimiento() {
                       label="Seleccionar Colaborador"
                       onChange={(e) => setSelectedCollaborator(e.target.value)}
                     >
-                      {collaborators.map((collaborator) => (
-                        <MenuItem key={collaborator.id} value={collaborator.id}>
-                          {collaborator.displayName}
-                        </MenuItem>
-                      ))}
+                      {collaborators
+                        .filter((collaborator) => collaborator.userPrincipalName !== instance.getActiveAccount()?.username)
+                        .map((collaborator) => (
+                          <MenuItem key={collaborator.id} value={collaborator.id}>
+                            {collaborator.displayName}
+                          </MenuItem>
+                        ))}
                     </Select>
+
                   </FormControl>
                   <Box>
                     <Typography variant="subtitle1" gutterBottom>

@@ -2,30 +2,50 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Card, CardContent, Typography, Container, Box } from "@mui/material";
 import { getPremioById } from "../../utils/services/premios";
+import { getWalletBalanceByUserId } from "../../utils/services/walletBalance";
+import { createWalletTransaction } from "../../utils/services/walletTransaccion"; // 👈 Importar API para crear transacción
+import { useMsal } from "@azure/msal-react"; // 👈 MSAL para obtener usuario
 
 export default function PrizeDetail() {
   const navigate = useNavigate();
-  const { id } = useParams(); // Obtiene el ID del premio desde la URL
-  console.log("ID del premio desde la URL:", id);
-  const [prize, setPrize] = useState(null); // Aquí se cargará el premio desde la API
+  const { id } = useParams();
+  const { instance } = useMsal();
+
+  const [prize, setPrize] = useState(null);
+  const [walletData, setWalletData] = useState(null);
 
   useEffect(() => {
-    if (!id) {
-      console.error("El ID del premio no está definido.");
-      return;
-    }
-
-    const fetchPrize = async () => {
+    const fetchPrizeAndWalletData = async () => {
       try {
-        const premio = await getPremioById(id); // Obtiene el premio por ID
+        if (!id) {
+          console.error("El ID del premio no está definido.");
+          return;
+        }
+
+        const account = instance.getActiveAccount();
+        if (!account) {
+          console.error("No active account! Please log in.");
+          return;
+        }
+
+        const userId = account.localAccountId; 
+
+        const premio = await getPremioById(id);
         setPrize(premio);
+
+        const wallet = await getWalletBalanceByUserId(userId);
+        setWalletData(wallet);
+
+        // (Opcional) Puedes loguear para ver que ya tienes todo
+        console.log("Premio obtenido:", premio);
+        console.log("Wallet data obtenida:", wallet);
       } catch (error) {
-        console.error("Error al obtener el premio:", error.message);
+        console.error("Error al obtener datos:", error.message);
       }
     };
 
-    fetchPrize();
-  }, [id]);
+    fetchPrizeAndWalletData();
+  }, [id, instance]);
 
   if (!prize) {
     return (
@@ -38,6 +58,47 @@ export default function PrizeDetail() {
         </Button>
       </Container>
     );
+  }
+
+  function handleConfirm(prizeId) {
+    if (!prize || !walletData) {
+      console.error("Datos incompletos para confirmar canje.");
+      return;
+    }
+  
+    const payload = {
+      WalletSaldo: {
+        walletSaldoId: walletData.walletSaldoId || 0,
+        TokenColaborador: walletData.tokenColaborador || "",
+      },
+      categoriaId: prize.categoria?.categoriaId || 0,
+      cantidad: prize.costoWallet || 0,
+      descripcion: `Canje de premio: ${prize.nombre}`,
+      fecha: new Date().toISOString(),
+    };
+  
+    console.log("Payload enviado:", payload);
+  
+    createWalletTransaction(payload)
+      .then((response) => {
+        console.log("Transacción creada exitosamente:", response);
+        alert("¡Canje exitoso! 🎉");
+        navigate("/marketplace");
+      })
+      .catch((error) => {
+        console.error("Error al crear la transacción:", error.response?.data || error.message);
+        if (error.response && error.response.data) {
+          alert(`Error al procesar el canje: ${error.response.data.title || "Error desconocido"}`);
+          if (error.response.data.errors) {
+            console.error("Errores de validación:", error.response.data.errors);
+            Object.entries(error.response.data.errors).forEach(([field, messages]) => {
+              console.error(`Campo: ${field}, Errores: ${messages.join(", ")}`);
+            });
+          }
+        } else {
+          alert("Hubo un error al procesar tu canje. 😔");
+        }
+      });
   }
 
   return (
@@ -68,9 +129,4 @@ export default function PrizeDetail() {
       </Card>
     </Container>
   );
-
-  function handleConfirm(prizeId) {
-    console.log("Premio confirmado con ID:", prizeId);
-    navigate("/marketplace");
-  }
 }

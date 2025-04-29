@@ -32,3 +32,14 @@ export const getWalletBalanceByUserId = async (id) => {
     }
 }
 
+//Funcion para crear una billetera
+export const createWallet = async (data) => {
+    try {
+        const response = await api.post("/WalletSaldos", data);
+        return response.data; // Devuelve los datos de la respuesta
+    } catch (error) {
+        console.error("Error al crear la billetera:", error.message);
+        throw error; // Lanza el error para manejarlo en el componente
+    }
+}
+

@@ -15,7 +15,7 @@ export default function ConfirmacionReconocimiento({ data, onConfirm, onBack }) 
   const handleConfirm = async () => {
     const payload = {
       reconocimientoId: 0,
-      tokenColaborador: token, // OID del colaborador
+      tokenColaborador: selectedCollaborator, // OID del colaborador seleccionado
       justificacion: justification,
       texto: certificateText,
       titulo: selectedValuesTitles.join(", "), // Nombres de los valores seleccionados
