@@ -79,4 +79,6 @@ public class WalletTransaccionesController : BaseCrudController<WalletTransaccio
         if (item == null) return NotFound();
         return Ok(_mapper.Map<WalletTransaccionResponse>(item));
     }
+
+    
 }

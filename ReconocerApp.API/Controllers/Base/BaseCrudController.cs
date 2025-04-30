@@ -43,13 +43,23 @@ public abstract class BaseCrudController<TEntity, TResponse> : ControllerBase
         return Ok(_mapper.Map<TResponse>(item));
     }
 
-    [HttpPost]
-    public virtual async Task<ActionResult<TResponse>> Create([FromBody] TEntity entity)
+[HttpPost]
+public virtual async Task<ActionResult<TResponse>> Create([FromBody] TEntity entity)
+{
+    // Detectar entidades relacionadas existentes (opcionalmente podés hacer esto de manera más generalizada)
+    foreach (var entry in _context.Entry(entity).References)
     {
-        _dbSet.Add(entity);
-        await _context.SaveChangesAsync();
-        return Ok(_mapper.Map<TResponse>(entity));
+        if (entry.TargetEntry != null)
+        {
+            entry.TargetEntry.State = EntityState.Unchanged;
+        }
     }
+
+    _dbSet.Add(entity);
+    await _context.SaveChangesAsync();
+    return Ok(_mapper.Map<TResponse>(entity));
+}
+
 
     [HttpPut("{id}")]
     public virtual async Task<IActionResult> Update([FromRoute] object id, [FromBody] TEntity entity)

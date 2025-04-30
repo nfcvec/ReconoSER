@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Card, CardContent, Typography, Container, Box } from "@mui/material";
 import { getPremioById } from "../../utils/services/premios";
-import { getWalletBalanceByUserId } from "../../utils/services/walletBalance";
+import { getWalletBalanceByUserId, getWalletBalanceById } from "../../utils/services/walletBalance";
 import { createWalletTransaction } from "../../utils/services/walletTransaccion"; // 👈 Importar API para crear transacción
 import { useMsal } from "@azure/msal-react"; // 👈 MSAL para obtener usuario
 
@@ -28,7 +28,7 @@ export default function PrizeDetail() {
           return;
         }
 
-        const userId = account.localAccountId; 
+        const userId = account.localAccountId;
 
         const premio = await getPremioById(id);
         setPrize(premio);
@@ -60,45 +60,57 @@ export default function PrizeDetail() {
     );
   }
 
-  function handleConfirm(prizeId) {
+  async function handleConfirm(prizeId) {
     if (!prize || !walletData) {
       console.error("Datos incompletos para confirmar canje.");
       return;
     }
   
-    const payload = {
-      WalletSaldo: {
-        walletSaldoId: walletData.walletSaldoId || 0,
-        TokenColaborador: walletData.tokenColaborador || "",
-      },
-      categoriaId: prize.categoria?.categoriaId || 0,
-      cantidad: prize.costoWallet || 0,
-      descripcion: `Canje de premio: ${prize.nombre}`,
-      fecha: new Date().toISOString(),
-    };
+    if (!walletData.walletSaldoId) {
+      console.error("El walletSaldoId no está definido.");
+      alert("Error: El saldo de la billetera no es válido.");
+      return;
+    }
   
-    console.log("Payload enviado:", payload);
+    try {
+      // Obtener los datos completos de WalletSaldo
+      const walletSaldo = await getWalletBalanceById(walletData.walletSaldoId);
   
-    createWalletTransaction(payload)
-      .then((response) => {
-        console.log("Transacción creada exitosamente:", response);
-        alert("¡Canje exitoso! 🎉");
-        navigate("/marketplace");
-      })
-      .catch((error) => {
-        console.error("Error al crear la transacción:", error.response?.data || error.message);
-        if (error.response && error.response.data) {
-          alert(`Error al procesar el canje: ${error.response.data.title || "Error desconocido"}`);
-          if (error.response.data.errors) {
-            console.error("Errores de validación:", error.response.data.errors);
-            Object.entries(error.response.data.errors).forEach(([field, messages]) => {
-              console.error(`Campo: ${field}, Errores: ${messages.join(", ")}`);
-            });
-          }
-        } else {
-          alert("Hubo un error al procesar tu canje. 😔");
+      if (!walletSaldo) {
+        console.error("No se pudo obtener la información completa de WalletSaldo.");
+        alert("Error: No se pudo obtener la información de la billetera.");
+        return;
+      }
+  
+      const payload = {
+        tokenColaborador: walletData.tokenColaborador || "",
+        categoriaId: prize.categoria?.categoriaId || 0,
+        cantidad: prize.costoWallet || 0,
+        descripcion: `Canje de premio: ${prize.nombre}`,
+        fecha: new Date().toISOString(),
+        WalletSaldo: walletSaldo, // 👈 Incluir los datos completos de WalletSaldo
+      };
+  
+      console.log("Payload enviado:", payload);
+  
+      const response = await createWalletTransaction(payload);
+      console.log("Transacción creada exitosamente:", response);
+      alert("¡Canje exitoso! 🎉");
+      navigate("/marketplace");
+    } catch (error) {
+      console.error("Error al crear la transacción:", error.response?.data || error.message);
+      if (error.response && error.response.data) {
+        alert(`Error al procesar el canje: ${error.response.data.title || "Error desconocido"}`);
+        if (error.response.data.errors) {
+          console.error("Errores de validación:", error.response.data.errors);
+          Object.entries(error.response.data.errors).forEach(([field, messages]) => {
+            console.error(`Campo: ${field}, Errores: ${messages.join(", ")}`);
+          });
         }
-      });
+      } else {
+        alert("Hubo un error al procesar tu canje. 😔");
+      }
+    }
   }
 
   return (

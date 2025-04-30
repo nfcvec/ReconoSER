@@ -57,7 +57,7 @@ INSERT  INTO Organizaciones (OrganizacionId, Nombre, DominioEmail, Descripcion, 
 (2, 'ULatina', 'ulatina.cr', 'Universidad Latina de Costa Rica', true);
 
 
-SELECT * FROM Reconocimientos;
+SELECT * FROM WalletSaldos;
 
 -- 3. Copiar los datos desde la tabla vieja a la nueva
 INSERT INTO WalletTransacciones (TransaccionId, ColaboradorId, CategoriaId, Cantidad, Descripcion, Fecha)
@@ -85,11 +85,25 @@ INSERT INTO WalletTransacciones (TransaccionId, WalletSaldoId, TokenColaborador,
 VALUES
 (1, 1, 'asasasasas', 1, 100, 'Compra de premio 1', '2023-01-01');
 
-
 -- actualizar walletsaldo para el colaborador 3
 UPDATE WalletSaldos 
-SET SaldoActual = (SELECT COALESCE(SUM(Cantidad), 0) FROM WalletTransacciones WHERE TokenColaborador = 3)
-WHERE TokenColaborador = 3;
+SET SaldoActual = (SELECT COALESCE(SUM(Cantidad), 0) FROM WalletTransacciones WHERE TokenColaborador = 'e5625472-d883-47a2-936a-961b274e5177')
+WHERE TokenColaborador = 'e5625472-d883-47a2-936a-961b274e5177';
+
+--actualizar el saldo de la wallet del id3
+UPDATE WalletSaldos 
+SET SaldoActual = SaldoActual - (
+  SELECT COALESCE(SUM(Cantidad), 0)
+  FROM WalletTransacciones
+  WHERE TokenColaborador = WalletSaldos.TokenColaborador
+)
+WHERE TokenColaborador = 'e5625472-d883-47a2-936a-961b274e5177';
+
+
+SELECT * FROM WalletSaldos;
+SELECT * FROM WalletTransacciones;
+--eliminar una transaccion de la wallet
+DELETE FROM WalletTransacciones WHERE TransaccionId = 4;
 
 
 -- Insert
@@ -154,7 +168,7 @@ WHERE PremioId BETWEEN 1 AND 10;
 
 --actualizar el saldo de la wallet del id3
 UPDATE WalletSaldos
-SET SaldoActual = 380
+SET SaldoActual = 500
 WHERE WalletSaldoId = 3;
 --actulizar 
 
@@ -166,3 +180,17 @@ INSERT INTO WalletSaldos (WalletSaldoId, TokenColaborador, SaldoActual) VALUES
 
 -- eliminar una wallet pr id 
 DELETE FROM WalletSaldos WHERE WalletSaldoId = 4;
+
+
+select * from WalletTransacciones;
+SELECT * FROM WalletCategorias;
+--agregar una categoria
+INSERT INTO WalletCategorias (CategoriaId, Nombre, Descripcion) VALUES
+(1, 'Categoria 1', 'Descripción de la Categoria 1');
+SELECT * FROM WalletSaldos;
+--agregar transaccion de la waletsaldo con tokencolaborador 3 
+insert into WalletTransacciones (WalletSaldoId, TokenColaborador, CategoriaId, Cantidad, Descripcion, Fecha)
+VALUES
+(3, 'e5625472-d883-47a2-936a-961b274e5177', 1, 100, 'Compra de premio 1', '2023-01-01');
+--eliminar una transaccion de la wallet
+DELETE FROM WalletTransacciones WHERE TransaccionId = 2;
