@@ -16,6 +16,7 @@ import {
   FormControlLabel,
   Checkbox,
   Paper,
+  Autocomplete,
 } from "@mui/material";
 import { getOrganizaciones } from "../../utils/services/organizaciones";
 import { getComportamientos } from "../../utils/services/comportamientos";
@@ -35,6 +36,8 @@ export default function Reconocimiento() {
   const [certificateText, setCertificateText] = useState("");
   const [step, setStep] = useState("form"); // "form" | "confirm"
   const [totalUlis, setTotalUlis] = useState(0);
+  const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
+  const [searchResults, setSearchResults] = useState([]); // Estado para los resultados de búsqueda
 
   // Cargar organizaiones desde la API
   useEffect(() => {
@@ -66,29 +69,26 @@ export default function Reconocimiento() {
           account: account,
         });
 
-        let colaboradores = await getColaboradores(response.accessToken);
+        let colaboradores = await getColaboradores(response.accessToken, searchTerm); // Llama a la API
         console.log("Colaboradores obtenidos:", colaboradores);
 
         // Obtener el correo del usuario que inició sesión
-        const usuarioLogueadoEmail = account.username; // Ejemplo: carlos.guagrilla.chicaiza@udla.edu.ec
-        console.log("Usuario logueado:", usuarioLogueadoEmail);
+        const oid = account.idTokenClaims.oid;
 
-        // Filtrar para excluir al usuario que inició sesión
-        const colaboradoresFiltrados = colaboradores.filter((colab) => {
-          const colaboradorEmail = colab.mail || colab.userPrincipalName || ""; // Ajusta aquí según qué campo traes
-          return colaboradorEmail.toLowerCase() !== usuarioLogueadoEmail.toLowerCase();
-        });
+        // Filtrar los colaboradores para excluir al usuario que inició sesión
+        colaboradores = colaboradores.filter(
+          (colaborador) => colaborador.id !== oid
+        );
 
-        console.log("Colaboradores después de filtrar:", colaboradoresFiltrados);
+        setCollaborators(colaboradores); // Actualiza el estado con los colaboradores
 
-        setCollaborators(colaboradoresFiltrados); // Actualiza el estado con los colaboradores filtrados
       } catch (error) {
         console.error("Error al obtener los colaboradores:", error.message);
       }
     };
 
     fetchColaboradores();
-  }, [instance]);
+  }, [instance, searchTerm]); // Agrega searchTerm como dependencia
 
   // Cargar comportamientos desde la API
   useEffect(() => {
@@ -150,7 +150,7 @@ export default function Reconocimiento() {
     certificateText.trim().length > 0;
 
   return (
-    <Container maxWidth="md" sx={{ py: 7 }}>
+    <>
       {step === "form" ? (
         <Box
           sx={{
@@ -158,8 +158,7 @@ export default function Reconocimiento() {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            minHeight: "80vh",
-            gap: 4,
+            gap: 1,
             textAlign: "center",
           }}
         >
@@ -177,25 +176,24 @@ export default function Reconocimiento() {
                   Reconoce a un Colaborador
                 </Typography>
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 3, mt: 3 }}>
-                  <FormControl fullWidth>
-                    <InputLabel id="collaborator-label">Seleccionar Colaborador</InputLabel>
-                    <Select
-                      labelId="collaborator-label"
-                      id="collaborator"
-                      value={selectedCollaborator}
-                      label="Seleccionar Colaborador"
-                      onChange={(e) => setSelectedCollaborator(e.target.value)}
-                    >
-                      {collaborators
-                        .filter((collaborator) => collaborator.userPrincipalName !== instance.getActiveAccount()?.username)
-                        .map((collaborator) => (
-                          <MenuItem key={collaborator.id} value={collaborator.id}>
-                            {collaborator.displayName}
-                          </MenuItem>
-                        ))}
-                    </Select>
-
-                  </FormControl>
+                  <Autocomplete
+                    id="collaborator-autocomplete"
+                    options={collaborators}
+                    getOptionLabel={(option) => `${option.displayName} (${option.mail || option.userPrincipalName})`}
+                    value={collaborators.find(c => c.id === selectedCollaborator) || null}
+                    onChange={(event, newValue) => {
+                      setSelectedCollaborator(newValue ? newValue.id : "");
+                    }}
+                    filterSelectedOptions
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Seleccionar Colaborador"
+                        placeholder="Busca un colaborador..."
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    )}
+                  />
                   <Box>
                     <Typography variant="subtitle1" gutterBottom>
                       Comportamientos
@@ -288,6 +286,6 @@ export default function Reconocimiento() {
           onBack={handleBack}
         />
       )}
-    </Container>
+    </>
   );
 }

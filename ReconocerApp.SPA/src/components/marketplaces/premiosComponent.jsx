@@ -22,7 +22,7 @@ export default function PremiosComponent({ imagenUrl, nombre, descripcion, costo
         <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
           Costo: {costoWallet} ULIs
         </Typography>
-        <Box sx={{ mt: 2, display: "flex", justifyContent: "space-between" }}>
+        <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
           <Button
             variant="contained"
             color="primary"

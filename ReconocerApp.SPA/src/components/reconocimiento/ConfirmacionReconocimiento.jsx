@@ -35,7 +35,15 @@ export default function ConfirmacionReconocimiento({ data, onConfirm, onBack }) 
   };
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
+    <Box
+    sx={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: 1,
+      textAlign: "center",
+    }}>
       <Card>
         <CardContent sx={{ textAlign: "center", py: 4 }}>
           <Typography variant="h5" component="h1" gutterBottom>
@@ -87,6 +95,6 @@ export default function ConfirmacionReconocimiento({ data, onConfirm, onBack }) 
           </Button>
         </CardActions>
       </Card>
-    </Container>
+    </Box>
   );
 }

@@ -26,10 +26,8 @@ const WalletBalance = ({ id }) => {
   }, [id]);
 
   return (
-    <Paper elevation={3} sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
-      <AccountBalanceWalletIcon sx={{ fontSize: 40, color: 'green', mr: 2 }} />
-      <Box>
-        <Typography variant="subtitle2">Saldo disponible</Typography>
+    <Box sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
+      <AccountBalanceWalletIcon sx={{ fontSize: 40, color: 'white', mr: 2 }} />
         {error ? (
           <Typography variant="h6" color="error">{error}</Typography>
         ) : (
@@ -37,8 +35,7 @@ const WalletBalance = ({ id }) => {
             {balance !== null ? `$${balance.toFixed(2)}` : 'Loading...'}
           </Typography>
         )}
-      </Box>
-    </Paper>
+    </Box>
   );
 };
 

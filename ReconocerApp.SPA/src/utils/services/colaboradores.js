@@ -1,29 +1,26 @@
 import axios from 'axios';
 
-export const getColaboradores = async (accessToken) => {
-  const url = 'https://graph.microsoft.com/v1.0/users';
+export const getColaboradores = async (accessToken, searchTerm) => {
+  const url = `https://graph.microsoft.com/v1.0/users`;
   const headers = {
     Authorization: `Bearer ${accessToken}`, // Token de acceso
     'Content-Type': 'application/json',
   };
 
   let users = [];
-  let nextLink = url;
+
+  if (searchTerm) {
+    url += `?$search="displayName:${searchTerm}" OR "mail:${searchTerm}" OR "userPrincipalName:${searchTerm}"`;
+    headers['ConsistencyLevel'] = 'eventual'; // Para búsquedas
+  }
 
   try {
-    // Manejar la paginación
-    while (nextLink) {
-      const response = await axios.get(nextLink, { headers });
+    const response = await axios.get(url, { headers });
 
-      // Agregar los usuarios obtenidos a la lista
-      if (response.data && response.data.value) {
-        users = users.concat(response.data.value);
-      }
-
-      // Verificar si hay un enlace para la siguiente página
-      nextLink = response.data['@odata.nextLink'] || null;
+    // Agregar los usuarios obtenidos a la lista
+    if (response.data && response.data.value) {
+      users = users.concat(response.data.value);
     }
-
     return users;
   } catch (error) {
     if (error.response && error.response.status === 403) {

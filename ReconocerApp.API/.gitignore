@@ -54,6 +54,8 @@ project.lock.json
 *.swp
 *.orig
 *.rej
+#ignorar la base de datos reconocer
+*.db
 
 # JetBrains Rider
 .idea/

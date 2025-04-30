@@ -6,6 +6,9 @@ import Grid from "@mui/material/Grid";
 import { MsalProvider } from "@azure/msal-react";
 import { CustomNavigationClient } from "./utils/NavigationClient.js";
 
+// Theme Provider import
+import { ThemeProvider } from "./contexts/ThemeContext.jsx";
+
 // Sample app imports
 import { Profile } from "./page/Profile.jsx";
 import { Login } from "./page/Login.jsx";
@@ -23,7 +26,7 @@ import Certificados from "./components/certificados/page.jsx";
 import Marketplace from "./components/marketplaces/page.jsx";
 import PrizeDetail from "./components/marketplaces/index.jsx";
 import ReconocimientoExito from "./components/reconocimiento/page.jsx";
-import IndexReconocimientos from "./components/solicitudes/reconocimiento/index.jsx";
+import IndexReconocimientos from "./components/administrar/solicitudes/reconocimiento/index.jsx";
 
 function App({ pca }) {
   // The next 3 lines are optional. This is how you configure MSAL to take advantage of the router's navigate functions when MSAL redirects between pages in your app
@@ -32,13 +35,15 @@ function App({ pca }) {
   pca.setNavigationClient(navigationClient);
 
   return (
-    <MsalProvider instance={pca}>
-      <PageLayout>
-        <Grid container justifyContent="center">
-          <Pages />
-        </Grid>
-      </PageLayout>
-    </MsalProvider>
+    <ThemeProvider>
+      <MsalProvider instance={pca}>
+        <PageLayout>
+          <Grid container justifyContent="center">
+            <Pages />
+          </Grid>
+        </PageLayout>
+      </MsalProvider>
+    </ThemeProvider>
   );
 }
 
@@ -60,7 +65,7 @@ function Pages() {
       <Route path="/certificados" element={<Certificados />} />
       <Route path="/marketplace" element={<Marketplace />} />
       <Route path="/marketplace/:id" element={<PrizeDetail />} />
-      <Route path="/administrar/solicitudes" element={<IndexReconocimientos/>} />
+      <Route path="/administrar/solicitudes/reconocimiento" element={<IndexReconocimientos/>} />
     </Routes>
   );
 }

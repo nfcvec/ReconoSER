@@ -13,6 +13,9 @@ builder.Logging.AddConsole();
 // Add services
 builder.Services.AddControllers();
 
+// Register MinioService
+builder.Services.AddScoped<MinioService>();
+
 // Configurar AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingProfile)); // 👈 ¡Aquí está el cambio!
 

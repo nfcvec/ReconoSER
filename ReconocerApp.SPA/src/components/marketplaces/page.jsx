@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Container, Typography, Grid, Box, Slider } from "@mui/material";
 import { useMsal } from "@azure/msal-react";
 import { getPremios } from "../../utils/services/premios";
-import { getWalletBalanceByUserId } from "../../utils/services/walletBalance.js"; 
+import { getWalletBalanceByUserId } from "../../utils/services/walletBalance.js";
 import PremiosComponent from "./premiosComponent";
 
 export default function Marketplace() {
@@ -13,7 +13,7 @@ export default function Marketplace() {
   const [priceRange, setPriceRange] = useState([0, 1000]); // Default range
 
   useEffect(() => {
-    const fetchData = async () => { 
+    const fetchData = async () => {
       try {
         const account = instance.getActiveAccount();
         if (!account) {
@@ -46,7 +46,7 @@ export default function Marketplace() {
         setFilteredPrizes(filteredPrizes);
 
         //traer el saldo de la wallet
-        const userId = account.localAccountId; 
+        const userId = account.localAccountId;
         const walletData = await getWalletBalanceByUserId(userId);
         console.log("Wallet data:", walletData);
 
@@ -81,16 +81,26 @@ export default function Marketplace() {
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 10 }}>
-      <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: "bold" }}>
-        Marketplace
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "80vh",
+        gap: 4,
+        textAlign: "center",
+      }}
+    >
+      <Typography variant="h4">
+        <strong>Marketplace</strong>
       </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+      <Typography variant="body1">
         Canjea tus ULIs por premios exclusivos.
       </Typography>
 
       {/* Slider for price range */}
-      <Box sx={{ mb: 4, width: "50%" }}>
+      <Box>
         <Typography gutterBottom>Filtrar por rango de ULIs:</Typography>
         <Slider
           value={priceRange}
@@ -110,9 +120,8 @@ export default function Marketplace() {
         </Box>
       )}
 
-      <Grid container spacing={4}>
+      <Grid spacing={4} sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 2 }}>
         {filteredPrizes.map((premio) => (
-          <Grid item xs={12} sm={6} md={4} key={premio.premioId}>
             <PremiosComponent
               imagenUrl={premio.imagenUrl}
               nombre={premio.nombre}
@@ -121,9 +130,8 @@ export default function Marketplace() {
               canAfford={userBalance >= premio.costoWallet} // Comparar saldo con el costo
               premioId={premio.premioId}
             />
-          </Grid>
         ))}
       </Grid>
-    </Container>
+    </Box>
   );
 }

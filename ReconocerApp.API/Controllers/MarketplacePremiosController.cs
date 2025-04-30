@@ -11,15 +11,26 @@ using ReconocerApp.API.Models;
 using ReconocerApp.API.Models.Responses;
 using ReconocerApp.API.Models.Filters;
 using ReconocerApp.API.Services.Filtering;
-//parse exception
+using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System;
+using System.Linq;
+using ReconocerApp.API.Services;
+using System.Net.Http.Headers;
+using System.Net.Http;
 
 namespace ReconocerApp.API.Controllers;
 
 public class MarketplacePremiosController : BaseCrudController<MarketplacePremio, MarketplacePremioResponse>
 {
-    public MarketplacePremiosController(ApplicationDbContext context, IMapper mapper)
-        : base(context, mapper) { }
+    private readonly MinioService _minioService;
+
+    public MarketplacePremiosController(ApplicationDbContext context, IMapper mapper, MinioService minioService)
+        : base(context, mapper)
+    {
+        _minioService = minioService;
+    }
 
     public override async Task<ActionResult<IEnumerable<MarketplacePremioResponse>>> GetAll(
         [FromQuery] string? filters = null,
@@ -93,4 +104,53 @@ public class MarketplacePremiosController : BaseCrudController<MarketplacePremio
         return Ok(dto);
     }
 
+    [HttpPost("{premioId}/upload-images")]
+    public async Task<IActionResult> UploadImages(int premioId, [FromForm] List<IFormFile> files)
+    {
+        if (files == null || files.Count == 0)
+        {
+            return BadRequest("No files uploaded.");
+        }
+
+        var premio = await _context.MarketplacePremios.FindAsync(premioId);
+        if (premio == null)
+        {
+            return NotFound("Premio not found.");
+        }
+
+        foreach (var file in files)
+        {
+            var objectName = $"premios/{premioId}/{Guid.NewGuid()}_{file.FileName}";
+            using var stream = file.OpenReadStream();
+            await _minioService.UploadImageAsync(objectName, stream, file.ContentType);
+        }
+
+        return Ok("Images uploaded successfully.");
+    }
+
+    [HttpGet("{premioId}/images")]
+    public async Task<IActionResult> GetImages(int premioId)
+    {
+        var premio = await _context.MarketplacePremios.FindAsync(premioId);
+        if (premio == null)
+        {
+            return NotFound("Premio not found.");
+        }
+
+        var images = await _minioService.GetImagesAsync($"premios/{premioId}/");
+        return Ok(images);
+    }
+
+    [HttpDelete("{premioId}/images/{imageName}")]
+    public async Task<IActionResult> DeleteImage(int premioId, string imageName)
+    {
+        var premio = await _context.MarketplacePremios.FindAsync(premioId);
+        if (premio == null)
+        {
+            return NotFound("Premio not found.");
+        }
+
+        await _minioService.DeleteImageAsync($"premios/{premioId}/{imageName}");
+        return Ok("Image deleted successfully.");
+    }
 }
