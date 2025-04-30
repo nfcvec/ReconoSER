@@ -25,7 +25,10 @@ export default function Navbar() {
           </Link>
         </Box>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1, textAlign: "center", fontWeight: 600 }}>
-          ULI Rewards
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <HomeIcon sx={{ mr: 1 }} />
+            ULI Rewards
+          </Box>
         </Typography>
         <Box sx={{ width: 40 }} /> {/* Spacer for alignment */}
       </Toolbar>

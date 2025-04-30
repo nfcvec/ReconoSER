@@ -53,7 +53,17 @@ export default function Certificados() {
   }, [oid]); // Dependemos del oid
 
   return (
-    <Container maxWidth="lg" sx={{ py: 7 }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "80vh",
+        gap: 4,
+        textAlign: "center",
+      }}
+    >
       <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: "bold" }}>
         Mis Certificados
       </Typography>
@@ -103,6 +113,6 @@ export default function Certificados() {
           <Button variant="outlined">Volver al Inicio</Button>
         </Link>
       </Box>
-    </Container>
+    </Box>
   );
 }

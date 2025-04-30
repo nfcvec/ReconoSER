@@ -150,7 +150,7 @@ export default function Reconocimiento() {
     certificateText.trim().length > 0;
 
   return (
-    <Container maxWidth="md" sx={{ py: 7 }}>
+    <>
       {step === "form" ? (
         <Box
           sx={{
@@ -158,8 +158,7 @@ export default function Reconocimiento() {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            minHeight: "80vh",
-            gap: 4,
+            gap: 1,
             textAlign: "center",
           }}
         >
@@ -288,6 +287,6 @@ export default function Reconocimiento() {
           onBack={handleBack}
         />
       )}
-    </Container>
+    </>
   );
 }

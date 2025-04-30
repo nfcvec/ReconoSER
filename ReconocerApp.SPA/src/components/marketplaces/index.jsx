@@ -102,7 +102,7 @@ export default function PrizeDetail() {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: 4 }}>
+    <Box>
       <Card sx={{ p: 4 }}>
         <CardContent>
           <Typography variant="h4" component="h1" gutterBottom>
@@ -127,6 +127,6 @@ export default function PrizeDetail() {
           </Button>
         </Box>
       </Card>
-    </Container>
+    </Box>
   );
 }
