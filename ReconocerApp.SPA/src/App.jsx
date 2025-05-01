@@ -27,6 +27,8 @@ import Marketplace from "./components/marketplaces/page.jsx";
 import PrizeDetail from "./components/marketplaces/index.jsx";
 import ReconocimientoExito from "./components/reconocimiento/page.jsx";
 import IndexReconocimientos from "./components/administrar/solicitudes/reconocimiento/index.jsx";
+import CRUDPremios from "./components/administrar/premios/CRUDPremios.jsx";
+
 
 function App({ pca }) {
   // The next 3 lines are optional. This is how you configure MSAL to take advantage of the router's navigate functions when MSAL redirects between pages in your app
@@ -65,6 +67,8 @@ function Pages() {
       <Route path="/certificados" element={<Certificados />} />
       <Route path="/marketplace" element={<Marketplace />} />
       <Route path="/marketplace/:id" element={<PrizeDetail />} />
+      <Route path="/administrar/premios" element={<CRUDPremios />} />
+      {/* Rutas de Administracion */}
       <Route path="/administrar/solicitudes/reconocimiento" element={<IndexReconocimientos/>} />
     </Routes>
   );
