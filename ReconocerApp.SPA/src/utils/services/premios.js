@@ -22,8 +22,8 @@ export const getPremioById = async (id) => {
   }
 };
 
-// Función para solicitar(canjear) un premio
-export const canjearPremio = async (id, data) => {
+// Función para crear un premio
+export const createPremio = async (id, data) => {
   try {
     const response = await api.post(`/MarketplacePremios/${id}/canjear`, data);
     return response.data; // Devuelve los datos de la respuesta
@@ -34,7 +34,7 @@ export const canjearPremio = async (id, data) => {
 };
 
 // Función para editar un premio
-export const editarPremio = async (id, data) => {
+export const editPremio = async (id, data) => {
   try {
     const response = await api.put(`/MarketplacePremios/${id}`, data);
     return response.data; // Devuelve los datos de la respuesta
@@ -45,7 +45,7 @@ export const editarPremio = async (id, data) => {
 };
 
 // Función para eliminar un premio
-export const eliminarPremio = async (id) => {
+export const deletePremio = async (id) => {
   try {
     const response = await api.delete(`/MarketplacePremios/${id}`);
     return response.data; // Devuelve los datos de la respuesta

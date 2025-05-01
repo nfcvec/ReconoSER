@@ -27,6 +27,9 @@ import Marketplace from "./components/marketplaces/page.jsx";
 import PrizeDetail from "./components/marketplaces/index.jsx";
 import ReconocimientoExito from "./components/reconocimiento/page.jsx";
 import IndexReconocimientos from "./components/administrar/solicitudes/reconocimiento/index.jsx";
+
+// Importar componentes de administración
+import CRUDCategorias from "./components/administrar/categorias/CRUDCategorias.jsx";
 import CRUDPremios from "./components/administrar/premios/CRUDPremios.jsx";
 
 
@@ -70,6 +73,7 @@ function Pages() {
       <Route path="/administrar/premios" element={<CRUDPremios />} />
       {/* Rutas de Administracion */}
       <Route path="/administrar/solicitudes/reconocimiento" element={<IndexReconocimientos/>} />
+      <Route path="/administrar/categorias" element={<CRUDCategorias />} />
     </Routes>
   );
 }

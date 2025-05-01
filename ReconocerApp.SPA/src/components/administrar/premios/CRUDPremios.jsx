@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import {
     DataGrid,
     GridActionsCellItem,
@@ -17,12 +17,12 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {
     getPremios,
-    editarPremio,
-    eliminarPremio,
-    canjearPremio,
+    editPremio,
+    deletePremio,
+    createPremio,
 } from "../../../utils/services/premios";
-// Importar MSAL para obtener información del usuario autenticado
 import { useMsal } from "@azure/msal-react";
+import { AlertContext } from "../../../contexts/AlertContext"; // Importar el contexto de alertas
 
 const CRUDPremios = () => {
     const [premios, setPremios] = useState([]);
@@ -39,15 +39,15 @@ const CRUDPremios = () => {
     });
 
     const { accounts } = useMsal();
+    const { setAlert } = useContext(AlertContext); // Usar el contexto de alertas
 
     // Obtener OrganizacionId basado en el dominio del correo
     const getOrganizacionId = () => {
         const email = accounts[0]?.username || "";
         const domain = email.split("@")[1];
-        // Aquí puedes mapear el dominio al OrganizacionId correspondiente
         if (domain === "example.com") return 1;
         if (domain === "another.com") return 2;
-        return null; // Manejar dominios desconocidos
+        return null;
     };
 
     const organizacionId = getOrganizacionId();
@@ -60,10 +60,11 @@ const CRUDPremios = () => {
                 setPremios(data);
             } catch (error) {
                 console.error("Error al cargar los premios:", error);
+                setAlert({ type: "error", message: "Error al cargar los premios." });
             }
         };
         fetchPremios();
-    }, []);
+    }, [setAlert]);
 
     // Manejar apertura del diálogo
     const handleOpenDialog = (premio = null) => {
@@ -99,17 +100,18 @@ const CRUDPremios = () => {
         try {
             const payload = { ...formValues, organizacionId };
             if (selectedPremio) {
-                // Editar premio
-                await editarPremio(selectedPremio.id, payload);
+                await editPremio(selectedPremio.premioId, payload);
+                setAlert({ type: "success", message: "Premio editado correctamente." });
             } else {
-                // Crear nuevo premio
-                await canjearPremio(null, payload);
+                await createPremio(null, payload);
+                setAlert({ type: "success", message: "Premio creado correctamente." });
             }
             const data = await getPremios();
             setPremios(data);
             handleCloseDialog();
         } catch (error) {
             console.error("Error al guardar el premio:", error);
+            setAlert({ type: "error", message: "Error al guardar el premio." });
         }
     };
 
@@ -117,13 +119,15 @@ const CRUDPremios = () => {
     const handleDelete = useCallback(
         async (id) => {
             try {
-                await eliminarPremio(id);
-                setPremios((prev) => prev.filter((premio) => premio.id !== id));
+                await deletePremio(id);
+                setPremios((prev) => prev.filter((premio) => premio.premioId !== id));
+                setAlert({ type: "success", message: "Premio eliminado correctamente." });
             } catch (error) {
                 console.error("Error al eliminar el premio:", error);
+                setAlert({ type: "error", message: "Error al eliminar el premio." });
             }
         },
-        []
+        [setAlert]
     );
 
     // Columnas de la tabla
@@ -168,7 +172,7 @@ const CRUDPremios = () => {
                 autoHeight
                 pageSize={5}
                 rowsPerPageOptions={[5]}
-                getRowId={(row) => row.premioId} // Especifica que `premioId` es el identificador único
+                getRowId={(row) => row.premioId}
             />
             <Dialog open={openDialog} onClose={handleCloseDialog}>
                 <DialogTitle>
