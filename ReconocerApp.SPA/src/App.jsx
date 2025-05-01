@@ -28,6 +28,7 @@ import PrizeDetail from "./components/marketplaces/index.jsx";
 import ReconocimientoExito from "./components/reconocimiento/page.jsx";
 import IndexReconocimientos from "./components/administrar/solicitudes/reconocimiento/index.jsx";
 import CRUDPremios from "./components/administrar/premios/CRUDPremios.jsx";
+import CRUDReconocimientos from "./components/administrar/solicitudes/CRUDReconocimientos.jsx";
 
 
 function App({ pca }) {
@@ -69,7 +70,8 @@ function Pages() {
       <Route path="/marketplace/:id" element={<PrizeDetail />} />
       <Route path="/administrar/premios" element={<CRUDPremios />} />
       {/* Rutas de Administracion */}
-      <Route path="/administrar/solicitudes/reconocimiento" element={<IndexReconocimientos/>} />
+      <Route path="/administrar/solicitudes/reconocimiento" element={<CRUDReconocimientos/>} />
+
     </Routes>
   );
 }
