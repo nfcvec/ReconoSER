@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const getColaboradores = async (accessToken, searchTerm) => {
-  const url = `https://graph.microsoft.com/v1.0/users`;
+  let url = `https://graph.microsoft.com/v1.0/users`;
   const headers = {
     Authorization: `Bearer ${accessToken}`, // Token de acceso
     'Content-Type': 'application/json',

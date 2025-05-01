@@ -31,6 +31,7 @@ import IndexReconocimientos from "./components/administrar/solicitudes/reconocim
 // Importar componentes de administración
 import CRUDCategorias from "./components/administrar/categorias/CRUDCategorias.jsx";
 import CRUDPremios from "./components/administrar/premios/CRUDPremios.jsx";
+import CRUDReconocimientos from "./components/administrar/solicitudes/CRUDReconocimientos.jsx";
 
 
 function App({ pca }) {
