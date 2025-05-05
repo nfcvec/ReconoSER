@@ -71,10 +71,11 @@ function Pages() {
       <Route path="/certificados" element={<Certificados />} />
       <Route path="/marketplace" element={<Marketplace />} />
       <Route path="/marketplace/:id" element={<PrizeDetail />} />
-      <Route path="/administrar/premios" element={<CRUDPremios />} />
       {/* Rutas de Administracion */}
-      <Route path="/administrar/solicitudes/reconocimiento" element={<IndexReconocimientos/>} />
+      <Route path="/administrar/reconocimiento" element={<IndexReconocimientos/>} />
+      <Route path="/administrar/reconocimientos" element={<CRUDReconocimientos />} />
       <Route path="/administrar/categorias" element={<CRUDCategorias />} />
+      <Route path="/administrar/premios" element={<CRUDPremios />} />
     </Routes>
   );
 }

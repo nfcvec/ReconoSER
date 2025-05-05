@@ -8,7 +8,7 @@ const SelectorPremios = ({ organizacionId, onSelect, multiple = false }) => {
     const [premios, setPremios] = useState([]);
     const [selectedPremios, setSelectedPremios] = useState([]);
     const [loading, setLoading] = useState(false);
-    const showAlert = useAlert();
+    const showAlert = useAlert(); // aquí sí se usa
 
     const fetchPremios = useCallback(async () => {
         setLoading(true);

@@ -23,7 +23,7 @@ export const getPremioById = async (id) => {
 };
 
 // Función para crear un premio
-export const createPremio = async (id, data) => {
+export const createPremio = async (data) => {
   try {
     const response = await api.post(`/MarketplacePremios`, data);
     return response.data; // Devuelve los datos de la respuesta
