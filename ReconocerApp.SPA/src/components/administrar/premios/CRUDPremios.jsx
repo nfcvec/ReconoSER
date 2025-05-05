@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useContext } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
     DataGrid,
     GridActionsCellItem,
@@ -12,6 +12,10 @@ import {
     TextField,
     Box,
     Container,
+    Select,
+    MenuItem,
+    InputLabel,
+    FormControl,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -21,11 +25,14 @@ import {
     deletePremio,
     createPremio,
 } from "../../../utils/services/premios";
+import { getOrganizaciones } from "../../../utils/services/organizaciones";
+import { getCategorias } from "../../../utils/services/categorias";
 import { useMsal } from "@azure/msal-react";
-import { AlertContext } from "../../../contexts/AlertContext"; // Importar el contexto de alertas
+import { useAlert } from "../../../contexts/AlertContext";
 
 const CRUDPremios = () => {
     const [premios, setPremios] = useState([]);
+    const [categorias, setCategorias] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedPremio, setSelectedPremio] = useState(null);
     const [formValues, setFormValues] = useState({
@@ -37,100 +44,142 @@ const CRUDPremios = () => {
         cantidadActual: "",
         ultimaActualizacion: "",
     });
+    const [organizacionId, setOrganizacionId] = useState(null);
 
     const { accounts } = useMsal();
-    const { setAlert } = useContext(AlertContext); // Usar el contexto de alertas
+    const showAlert = useAlert();
 
-    // Obtener OrganizacionId basado en el dominio del correo
-    const getOrganizacionId = () => {
-        const email = accounts[0]?.username || "";
-        const domain = email.split("@")[1];
-        if (domain === "example.com") return 1;
-        if (domain === "another.com") return 2;
-        return null;
-    };
-
-    const organizacionId = getOrganizacionId();
-
-    // Cargar premios al montar el componente
     useEffect(() => {
-        const fetchPremios = async () => {
+        const fetchOrganizacionId = async () => {
+            const email = accounts[0]?.username || "";
+            const domain = email.split("@")[1];
             try {
-                const data = await getPremios();
-                setPremios(data);
+                const organizaciones = await getOrganizaciones();
+                const org = organizaciones.find(
+                    (o) => o?.dominioEmail?.toLowerCase() === domain.toLowerCase()
+                );
+                if (org) {
+                    setOrganizacionId(org.organizacionId);
+                } else {
+                    showAlert("Organización no encontrada para el dominio: " + domain, "error");
+                }
             } catch (error) {
-                console.error("Error al cargar los premios:", error);
-                setAlert({ type: "error", message: "Error al cargar los premios." });
+                console.error("Error al obtener organizaciones:", error);
+                showAlert("Error al obtener las organizaciones", "error");
             }
         };
-        fetchPremios();
-    }, [setAlert]);
 
-    // Manejar apertura del diálogo
+        fetchOrganizacionId();
+    }, [accounts, showAlert]);
+
+    useEffect(() => {
+        const fetchPremios = async () => {
+            if (!organizacionId) return;
+            try {
+                const data = await getPremios();
+                const filtered = data.filter((p) => p.organizacionId === organizacionId);
+                setPremios(filtered);
+            } catch (error) {
+                console.error("Error al cargar los premios:", error);
+                showAlert("Error al cargar los premios", "error");
+            }
+        };
+
+        fetchPremios();
+    }, [organizacionId, showAlert]);
+
+    useEffect(() => {
+        const fetchCategorias = async () => {
+            try {
+                const data = await getCategorias();
+                setCategorias(data);
+            } catch (error) {
+                console.error("Error al cargar las categorías:", error);
+                showAlert("Error al cargar las categorías", "error");
+            }
+        };
+
+        fetchCategorias();
+    }, [showAlert]);
+
     const handleOpenDialog = (premio = null) => {
         setSelectedPremio(premio);
         setFormValues(
-            premio || {
-                categoriaId: "",
-                nombre: "",
-                descripcion: "",
-                costoWallet: "",
-                imagenUrl: "",
-                cantidadActual: "",
-                ultimaActualizacion: "",
-            }
+            premio
+                ? {
+                    categoriaId: premio.categoria?.categoriaId || "",
+                    nombre: premio.nombre || "",
+                    descripcion: premio.descripcion || "",
+                    costoWallet: premio.costoWallet || "",
+                    imagenUrl: premio.imagenUrl || "",
+                    cantidadActual: premio.cantidadActual || "",
+                    ultimaActualizacion: premio.ultimaActualizacion || new Date().toISOString(),
+                }
+                : {
+                    categoriaId: "",
+                    nombre: "",
+                    descripcion: "",
+                    costoWallet: "",
+                    imagenUrl: "",
+                    cantidadActual: "",
+                    ultimaActualizacion: new Date().toISOString(),
+                }
         );
         setOpenDialog(true);
     };
 
-    // Manejar cierre del diálogo
     const handleCloseDialog = () => {
         setOpenDialog(false);
         setSelectedPremio(null);
     };
 
-    // Manejar cambios en el formulario
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormValues((prev) => ({ ...prev, [name]: value }));
     };
 
-    // Guardar o editar premio
     const handleSave = async () => {
         try {
-            const payload = { ...formValues, organizacionId };
+            const payload = {
+                ...formValues,
+                organizacionId: organizacionId,
+                ultimaActualizacion: new Date().toISOString(),
+            };
+
+            payload.costoWallet = parseFloat(payload.costoWallet);
+            payload.cantidadActual = parseInt(payload.cantidadActual, 10);
+
             if (selectedPremio) {
                 await editPremio(selectedPremio.premioId, payload);
-                setAlert({ type: "success", message: "Premio editado correctamente." });
+                showAlert("Premio editado correctamente", "success");
             } else {
-                await createPremio(null, payload);
-                setAlert({ type: "success", message: "Premio creado correctamente." });
+                await createPremio(payload);
+                showAlert("Premio creado correctamente", "success");
             }
+
             const data = await getPremios();
-            setPremios(data);
+            setPremios(data.filter((p) => p.organizacionId === organizacionId));
             handleCloseDialog();
         } catch (error) {
             console.error("Error al guardar el premio:", error);
-            setAlert({ type: "error", message: "Error al guardar el premio." });
+            showAlert("Error al guardar el premio", "error");
         }
     };
 
-    // Eliminar premio
     const handleDelete = useCallback(
         async (id) => {
             try {
                 await deletePremio(id);
-                setPremios((prev) => prev.filter((premio) => premio.premioId !== id));
-                setAlert({ type: "success", message: "Premio eliminado correctamente." });
+                setPremios((prev) => prev.filter((p) => p.premioId !== id));
+                showAlert("Premio eliminado correctamente", "success");
             } catch (error) {
                 console.error("Error al eliminar el premio:", error);
-                setAlert({ type: "error", message: "Error al eliminar el premio." });
+                showAlert("Error al eliminar el premio", "error");
             }
         },
-        [setAlert]
+        [showAlert]
     );
 
-    // Columnas de la tabla
     const columns = [
         { field: "nombre", headerName: "Nombre", width: 200 },
         { field: "descripcion", headerName: "Descripción", width: 300 },
@@ -138,6 +187,14 @@ const CRUDPremios = () => {
         { field: "imagenUrl", headerName: "Imagen URL", width: 200 },
         { field: "cantidadActual", headerName: "Cantidad Actual", width: 150 },
         { field: "ultimaActualizacion", headerName: "Última Actualización", width: 200 },
+        {
+            field: "categoriaNombre",
+            headerName: "Categoría",
+            width: 200,
+            renderCell: (params) => {
+                return params.row?.categoria?.nombre || "No asignada";
+            }
+        },
         {
             field: "actions",
             headerName: "Acciones",
@@ -160,7 +217,7 @@ const CRUDPremios = () => {
 
     return (
         <Container>
-            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2, width: "100%", overflow: "auto" }}>
                 <h1>Administrar Premios</h1>
                 <Button variant="contained" onClick={() => handleOpenDialog()}>
                     Añadir Premio
@@ -169,24 +226,29 @@ const CRUDPremios = () => {
             <DataGrid
                 rows={premios}
                 columns={columns}
-                autoHeight
                 pageSize={5}
                 rowsPerPageOptions={[5]}
                 getRowId={(row) => row.premioId}
             />
             <Dialog open={openDialog} onClose={handleCloseDialog}>
-                <DialogTitle>
-                    {selectedPremio ? "Editar Premio" : "Añadir Premio"}
-                </DialogTitle>
+                <DialogTitle>{selectedPremio ? "Editar Premio" : "Añadir Premio"}</DialogTitle>
                 <DialogContent>
-                    <TextField
-                        margin="dense"
-                        label="Categoría ID"
-                        name="categoriaId"
-                        fullWidth
-                        value={formValues.categoriaId}
-                        onChange={handleChange}
-                    />
+                    <FormControl fullWidth margin="dense">
+                        <InputLabel id="categoria-select-label">Categoría</InputLabel>
+                        <Select
+                            labelId="categoria-select-label"
+                            name="categoriaId"
+                            value={formValues.categoriaId}
+                            onChange={handleChange}
+                            label="Categoría"
+                        >
+                            {categorias.map((categoria) => (
+                                <MenuItem key={categoria.categoriaId} value={categoria.categoriaId}>
+                                    {categoria.nombre}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
                     <TextField
                         margin="dense"
                         label="Nombre"

@@ -25,10 +25,10 @@ export const getPremioById = async (id) => {
 // Función para crear un premio
 export const createPremio = async (id, data) => {
   try {
-    const response = await api.post(`/MarketplacePremios/${id}/canjear`, data);
+    const response = await api.post(`/MarketplacePremios`, data);
     return response.data; // Devuelve los datos de la respuesta
   } catch (error) {
-    console.error(`Error al canjear el premio con ID ${id}:`, error.message);
+    console.error(`Error al crear el premio con ID ${id}:`, error.message);
     throw error; // Lanza el error para manejarlo en el componente
   }
 };

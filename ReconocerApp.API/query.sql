@@ -108,12 +108,12 @@ DELETE FROM WalletTransacciones WHERE TransaccionId = 4;
 
 -- Insert
 SELECT * FROM Categorias;
-INSERT INTO Categorias (CategoriaId, Nombre, Descripcion) VALUES
-(1, 'Categoria 1', 'Descripción de la Categoria 1'),
-(2, 'Categoria 2', 'Descripción de la Categoria 2'),
-(3, 'Categoria 3', 'Descripción de la Categoria 3'),
-(4, 'Categoria 4', 'Descripción de la Categoria 4'),
-(5, 'Categoria 5', 'Descripción de la Categoria 5');
+INSERT INTO Categorias (Nombre, Descripcion) VALUES
+('Categoria 1', 'Descripción de la Categoria 1'),
+('Categoria 2', 'Descripción de la Categoria 2'),
+('Categoria 3', 'Descripción de la Categoria 3'),
+('Categoria 4', 'Descripción de la Categoria 4'),
+('Categoria 5', 'Descripción de la Categoria 5');
 
 INSERT INTO Comportamientos (OrganizacionId, Nombre, Descripcion, WalletOtorgados) VALUES
 (2, 'Inclusión/Humanismo', 'Toma en cuenta las sugerencias y experiencias de los demás, manteniendo una actitud abierta a aprender de otros y fomentando un ambiente de confianza y colaboración.', 2),
@@ -197,7 +197,7 @@ WHERE WalletSaldoId = 3;
 --actulizar 
 
 SELECT * FROM MarketplacePremios WHERE PremioId = 1;
-
+SELECT * FROM Reconocimientos;
 -- insertar nueva wallet
 INSERT INTO WalletSaldos (WalletSaldoId, TokenColaborador, SaldoActual) VALUES
 (4, 'e5625472-d883-47a2-936a-961b274e5177', 0);
