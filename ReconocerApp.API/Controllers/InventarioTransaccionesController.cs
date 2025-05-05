@@ -12,7 +12,7 @@ using System.Linq.Dynamic.Core;
 
 namespace ReconocerApp.API.Controllers;
 
-public class InventarioTransaccionesController : BaseCrudController<InventarioTransaccion, InventarioTransaccionResponse>
+public class InventarioTransaccionesController : BaseCrudController<InventarioTransaccion, InventarioTransaccionResponse, int>
 {
     public InventarioTransaccionesController(ApplicationDbContext context, IMapper mapper)
         : base(context, mapper) { }

@@ -12,7 +12,7 @@ using System.Text.Json;
 
 namespace ReconocerApp.API.Controllers;
 
-public class WalletCategoriasController : BaseCrudController<WalletCategoria, WalletCategoriaResponse>
+public class WalletCategoriasController : BaseCrudController<WalletCategoria, WalletCategoriaResponse, int>
 {
     public WalletCategoriasController(ApplicationDbContext context, IMapper mapper)
         : base(context, mapper) { }

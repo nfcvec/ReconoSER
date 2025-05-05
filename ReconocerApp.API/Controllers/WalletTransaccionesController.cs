@@ -12,7 +12,7 @@ using System.Linq.Dynamic.Core;
 
 namespace ReconocerApp.API.Controllers;
 
-public class WalletTransaccionesController : BaseCrudController<WalletTransaccion, WalletTransaccionResponse>
+public class WalletTransaccionesController : BaseCrudController<WalletTransaccion, WalletTransaccionResponse, int>
 {
     public WalletTransaccionesController(ApplicationDbContext context, IMapper mapper)
         : base(context, mapper) { }

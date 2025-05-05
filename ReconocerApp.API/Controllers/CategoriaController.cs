@@ -12,7 +12,7 @@ using System.Linq.Dynamic.Core;
 
 namespace ReconocerApp.API.Controllers;
 
-public class CategoriaController : BaseCrudController<Categoria, CategoriaResponse>
+public class CategoriaController : BaseCrudController<Categoria, CategoriaResponse, int>
 {
     public CategoriaController(ApplicationDbContext context, IMapper mapper)
         : base(context, mapper) { }

@@ -12,7 +12,7 @@ using System.Linq.Dynamic.Core;
 
 namespace ReconocerApp.API.Controllers;
 
-public class ColaboradoresController : BaseCrudController<Colaborador, ColaboradorResponse>
+public class ColaboradoresController : BaseCrudController<Colaborador, ColaboradorResponse, int>
 {
     public ColaboradoresController(ApplicationDbContext context, IMapper mapper)
         : base(context, mapper) { }

@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 
 namespace ReconocerApp.API.Controllers;
 
-public class OrganizacionesController : BaseCrudController<Organizacion, OrganizacionResponse>
+public class OrganizacionesController : BaseCrudController<Organizacion, OrganizacionResponse, int>
 {
     public OrganizacionesController(ApplicationDbContext context, IMapper mapper)
         : base(context, mapper) { }

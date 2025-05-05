@@ -22,7 +22,7 @@ using System.Net.Http;
 
 namespace ReconocerApp.API.Controllers;
 
-public class MarketplacePremiosController : BaseCrudController<MarketplacePremio, MarketplacePremioResponse>
+public class MarketplacePremiosController : BaseCrudController<MarketplacePremio, MarketplacePremioResponse, int>
 {
     private readonly MinioService _minioService;
 

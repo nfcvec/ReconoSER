@@ -13,7 +13,7 @@ using ReconocerApp.API.Middleware;
 
 namespace ReconocerApp.API.Controllers
 {
-    public class WalletSaldosController : BaseCrudController<WalletSaldo, WalletSaldoResponse>
+    public class WalletSaldosController : BaseCrudController<WalletSaldo, WalletSaldoResponse, int>
     {
         public WalletSaldosController(ApplicationDbContext context, IMapper mapper)
             : base(context, mapper) { }

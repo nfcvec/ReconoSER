@@ -7,7 +7,7 @@ namespace ReconocerApp.API.Controllers.Base;
 
 [ApiController]
 [Route("api/[controller]")]
-public abstract class BaseCrudController<TEntity, TResponse> : ControllerBase
+public abstract class BaseCrudController<TEntity, TResponse, TKey> : ControllerBase
     where TEntity : class
     where TResponse : class
 {
@@ -70,7 +70,7 @@ public virtual async Task<ActionResult<TResponse>> Create([FromBody] TEntity ent
     }
 
     [HttpDelete("{id}")]
-    public virtual async Task<IActionResult> Delete([FromRoute] object id)
+    public virtual async Task<IActionResult> Delete([FromRoute] TKey id)
     {
         var item = await _dbSet.FindAsync(id);
         if (item == null) return NotFound();

@@ -12,7 +12,7 @@ using System.Linq.Dynamic.Core;
 
 namespace ReconocerApp.API.Controllers;
 
-public class MarketplaceComprasController : BaseCrudController<MarketplaceCompra, MarketplaceCompraResponse>
+public class MarketplaceComprasController : BaseCrudController<MarketplaceCompra, MarketplaceCompraResponse, int>
 {
     public MarketplaceComprasController(ApplicationDbContext context, IMapper mapper)
         : base(context, mapper) { }

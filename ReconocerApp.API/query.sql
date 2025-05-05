@@ -179,6 +179,10 @@ VALUES
 (10, 2, 1, 'Premio 5 Org 2', 'Descripción del Premio 5 para Organización 2', 550, 'https://example.com/imagen10.jpg', 55, '2023-02-05');
 
 
+INSERT INTO MarketplacePremios (PremioId, OrganizacionId, CategoriaId, Nombre, Descripcion, CostoWallet, ImagenUrl, CantidadActual, UltimaActualizacion)
+VALUES
+-- Premios para OrganizacionId = 1
+(11, 1, 1, 'Prueba', 'Prueba', 100, 'https://example.com/imagen1.jpg', 10, '2025-05-05');
 
 SELECT * from MarketplacePremios;
 --actulizar imagenURL de  todos los premios de id 1 al 10 de MarketplacePremios

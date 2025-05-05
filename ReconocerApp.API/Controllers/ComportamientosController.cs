@@ -12,7 +12,7 @@ using System.Linq.Dynamic.Core;
 
 namespace ReconocerApp.API.Controllers;
 
-public class ComportamientosController : BaseCrudController<Comportamiento, ComportamientoResponse>
+public class ComportamientosController : BaseCrudController<Comportamiento, ComportamientoResponse, int>
 {
     public ComportamientosController(ApplicationDbContext context, IMapper mapper)
         : base(context, mapper) { }
