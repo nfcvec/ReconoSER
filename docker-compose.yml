@@ -11,7 +11,7 @@ services:
         - VITE_AUTHORITY=https://login.microsoftonline.com/2af6ae87-3287-4e29-a50a-680f5d852aa3
         - VITE_POPUP_REDIRECT_URI=/redirect
         - VITE_TITLE=ReconoSER
-        - VITE_API_URL=https://reconoser-api.lerolero.com.ec
+        - VITE_API_URL=https://reconoser-api.lerolero.com.ec/api
     networks:
       - reconoser-network
 
