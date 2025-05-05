@@ -4,6 +4,14 @@ services:
     build:
       context: ./ReconocerApp.SPA
       dockerfile: Dockerfile
+      args:
+        - SKIP_PREFLIGHT_CHECK=SKIP_PREFLIGHT_CHECK=true
+        - BROWSER=BROWSER=none
+        - VITE_CLIENT_ID=2462d3ca-37eb-4778-98e6-a322b99f5cce
+        - VITE_AUTHORITY=https://login.microsoftonline.com/2af6ae87-3287-4e29-a50a-680f5d852aa3
+        - VITE_POPUP_REDIRECT_URI=/redirect
+        - VITE_TITLE=ReconoSER
+        - VITE_API_URL=https://reconoser-api.lerolero.com.ec
     networks:
       - reconoser-network
 
