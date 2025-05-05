@@ -70,7 +70,7 @@ public virtual async Task<ActionResult<TResponse>> Create([FromBody] TEntity ent
     }
 
     [HttpDelete("{id}")]
-    public virtual async Task<IActionResult> Delete(object id)
+    public virtual async Task<IActionResult> Delete([FromRoute] object id)
     {
         var item = await _dbSet.FindAsync(id);
         if (item == null) return NotFound();
