@@ -40,7 +40,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: reconoser
     volumes:
-      - ./db_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - reconoser-network
 
@@ -51,7 +51,7 @@ services:
       MINIO_ROOT_USER: minioadmin # Usuario de acceso
       MINIO_ROOT_PASSWORD: minioadmin # Contraseña de acceso
     volumes:
-      - ./minio_data:/data # Volumen para persistir datos
+      - minio_data:/data # Volumen para persistir datos
     command: server /data --console-address ":9001"
     networks:
       - reconoser-network
@@ -59,3 +59,7 @@ services:
 networks:
   reconoser-network:
     external: true
+
+volumes:
+  postgres_data:
+  minio_data:
