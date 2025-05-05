@@ -1,0 +1,20 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ "Dev" ]
+  pull_request:
+    branches: [ "Dev" ]
+
+jobs:
+
+  build:
+
+    runs-on: Dev
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build the Docker Compose
+      run: docker compose build
+    - name: Start the Docker Compose
+      run: docker compose up -d

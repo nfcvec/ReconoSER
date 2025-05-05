@@ -15,8 +15,15 @@ services:
     networks:
       - reconoser-network
     environment:
-      ConnectionStrings__DefaultConnection: "Data Source=/app/reconocer.db"
-      DatabaseProvider: "Sqlite"
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Username=postgres;Password=postgres;Database=reconoser"
+      DatabaseProvider: "PostgreSQL"
+      Minio__Endpoint: "minio:9000"
+      Minio__AccessKey: "minioadmin" # Usuario de acceso
+      Minio__SecretKey: "minioadmin" # Contraseña de acceso
+      Minio__BucketName: "reconoser" # Nombre del bucket
+    depends_on:
+      - db
+      - minio
 
   db:
     image: postgres:latest
@@ -28,6 +35,20 @@ services:
       - ./db_data:/var/lib/postgresql/data
     networks:
       - reconoser-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      MINIO_ROOT_USER: minioadmin # Usuario de acceso
+      MINIO_ROOT_PASSWORD: minioadmin # Contraseña de acceso
+    volumes:
+      - ./minio_data:/data # Volumen para persistir datos
+    command: server /data --console-address ":9001"
+    networks:
+      - reconoser-network
+    restart: always
+    depends_on:
 networks:
   reconoser-network:
     external: true

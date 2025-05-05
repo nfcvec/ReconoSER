@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.SqlServer;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 using ReconocerApp.API.Data;
 using ReconocerApp.API.Mappings; // 👈 Asegúrate de tener este using
 using ReconocerApp.API.Middleware;
@@ -27,6 +29,16 @@ if (databaseProvider == "Sqlite")
 {
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlite(connectionString));
+}
+else if (databaseProvider == "PostgreSQL")
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseNpgsql(connectionString));
+}
+else if (databaseProvider == "SQL Server")
+{
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlServer(connectionString));
 }
 else
 {
