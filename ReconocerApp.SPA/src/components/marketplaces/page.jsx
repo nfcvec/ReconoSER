@@ -10,7 +10,7 @@ export default function Marketplace() {
   const [prizes, setPrizes] = useState([]);
   const [filteredPrizes, setFilteredPrizes] = useState([]);
   const [userBalance, setUserBalance] = useState(null);
-  const [priceRange, setPriceRange] = useState([0, 1000]); // Default range
+  const [priceRange, setPriceRange] = useState([0, 1000]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,34 +23,28 @@ export default function Marketplace() {
 
         const email = account.username;
         const domain = email.split("@")[1].toLowerCase();
-        console.log("Dominio del usuario:", domain);
 
         const premios = await getPremios();
-        console.log("Datos de premios obtenidos:", premios);
 
         if (!Array.isArray(premios)) {
           console.error("Los premios no son un array válido.");
           return;
         }
 
-        const filteredPrizes = premios.filter((premio) => {
-          return (
+        const filteredPrizes = premios
+          .filter((premio) => (
             premio.organizacion &&
             premio.organizacion.dominioEmail &&
             premio.organizacion.dominioEmail.toLowerCase().includes(domain)
-          );
-        });
+          ))
+          .sort((a, b) => a.costoWallet - b.costoWallet); // orden menor a mayor
 
-        console.log("Premios filtrados:", filteredPrizes);
         setPrizes(filteredPrizes);
         setFilteredPrizes(filteredPrizes);
 
-        //traer el saldo de la wallet
         const userId = account.localAccountId;
         const walletData = await getWalletBalanceByUserId(userId);
-        console.log("Wallet data:", walletData);
-
-        setUserBalance(walletData.saldoActual); // saldo real
+        setUserBalance(walletData.saldoActual);
       } catch (error) {
         console.error("Error al obtener datos:", error.message);
       }
@@ -59,12 +53,13 @@ export default function Marketplace() {
     fetchData();
   }, [instance]);
 
-  // Filter prizes based on price range
   useEffect(() => {
-    const filtered = prizes.filter(
-      (premio) =>
-        premio.costoWallet >= priceRange[0] && premio.costoWallet <= priceRange[1]
-    );
+    const filtered = prizes
+      .filter((premio) =>
+        premio.costoWallet >= priceRange[0] &&
+        premio.costoWallet <= priceRange[1]
+      )
+      .sort((a, b) => a.costoWallet - b.costoWallet); // aseguro orden aquí también
     setFilteredPrizes(filtered);
   }, [priceRange, prizes]);
 
@@ -99,7 +94,6 @@ export default function Marketplace() {
         Canjea tus ULIs por premios exclusivos.
       </Typography>
 
-      {/* Slider for price range */}
       <Box>
         <Typography gutterBottom>Filtrar por rango de ULIs:</Typography>
         <Slider
@@ -107,7 +101,7 @@ export default function Marketplace() {
           onChange={handleSliderChange}
           valueLabelDisplay="auto"
           min={0}
-          max={1000} // Adjust max value as needed
+          max={1000}
         />
         <Typography>
           Rango seleccionado: {priceRange[0]} - {priceRange[1]} ULIs
@@ -120,16 +114,18 @@ export default function Marketplace() {
         </Box>
       )}
 
-      <Grid spacing={4} sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 2 }}>
+      <Grid container spacing={4} justifyContent="center">
         {filteredPrizes.map((premio) => (
+          <Grid item key={premio.premioId}>
             <PremiosComponent
               imagenUrl={premio.imagenUrl}
               nombre={premio.nombre}
               descripcion={premio.descripcion}
               costoWallet={premio.costoWallet}
-              canAfford={userBalance >= premio.costoWallet} // Comparar saldo con el costo
+              canAfford={userBalance >= premio.costoWallet}
               premioId={premio.premioId}
             />
+          </Grid>
         ))}
       </Grid>
     </Box>

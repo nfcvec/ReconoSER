@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Card, CardContent, Typography, Container, Box } from "@mui/material";
 import { getPremioById } from "../../utils/services/premios";
-import { getWalletBalanceByUserId, getWalletBalanceById } from "../../utils/services/walletBalance";
-import { createWalletTransaction } from "../../utils/services/walletTransaccion"; // 👈 Importar API para crear transacción
-import { useMsal } from "@azure/msal-react"; // 👈 MSAL para obtener usuario
+import { getWalletBalanceByUserId } from "../../utils/services/walletBalance";
+import { createPremioCompra } from "../../utils/services/premiosCompra"; // ✅ Import correcto
+import { useMsal } from "@azure/msal-react";
 
 export default function PrizeDetail() {
   const navigate = useNavigate();
@@ -36,7 +36,6 @@ export default function PrizeDetail() {
         const wallet = await getWalletBalanceByUserId(userId);
         setWalletData(wallet);
 
-        // (Opcional) Puedes loguear para ver que ya tienes todo
         console.log("Premio obtenido:", premio);
         console.log("Wallet data obtenida:", wallet);
       } catch (error) {
@@ -65,48 +64,30 @@ export default function PrizeDetail() {
       console.error("Datos incompletos para confirmar canje.");
       return;
     }
-  
-    if (!walletData.walletSaldoId) {
-      console.error("El walletSaldoId no está definido.");
-      alert("Error: El saldo de la billetera no es válido.");
-      return;
-    }
-  
+
     try {
-      // Obtener los datos completos de WalletSaldo
-      const walletSaldo = await getWalletBalanceById(walletData.walletSaldoId);
-  
-      if (!walletSaldo) {
-        console.error("No se pudo obtener la información completa de WalletSaldo.");
-        alert("Error: No se pudo obtener la información de la billetera.");
-        return;
-      }
-  
       const payload = {
-        tokenColaborador: walletData.tokenColaborador || "",
-        categoriaId: prize.categoria?.categoriaId || 0,
-        cantidad: prize.costoWallet || 0,
-        descripcion: `Canje de premio: ${prize.nombre}`,
-        fecha: new Date().toISOString(),
-        WalletSaldo: walletSaldo, // 👈 Incluir los datos completos de WalletSaldo
+        tokenColaborador: walletData.tokenColaborador,
+        premioId: prize.premioId,
+        fechaCompra: new Date().toISOString(),
+        estado: "Pendiente",
+        comentarioRevision: "",
       };
-  
+
       console.log("Payload enviado:", payload);
-  
-      const response = await createWalletTransaction(payload);
-      console.log("Transacción creada exitosamente:", response);
-      alert("¡Canje exitoso! 🎉");
+
+      const response = await createPremioCompra(payload); // ✅ Aquí el cambio
+      console.log("Solicitud creada exitosamente:", response);
+      alert("¡Solicitud exitosa! 🎉");
       navigate("/marketplace");
     } catch (error) {
-      console.error("Error al crear la transacción:", error.response?.data || error.message);
-      if (error.response && error.response.data) {
-        alert(`Error al procesar el canje: ${error.response.data.title || "Error desconocido"}`);
-        if (error.response.data.errors) {
-          console.error("Errores de validación:", error.response.data.errors);
-          Object.entries(error.response.data.errors).forEach(([field, messages]) => {
-            console.error(`Campo: ${field}, Errores: ${messages.join(", ")}`);
-          });
-        }
+      console.error("Error al crear la solicitud:", error.response?.data || error.message);
+      if (error.response?.data?.errors) {
+        console.error("Errores de validación:", error.response.data.errors);
+        Object.entries(error.response.data.errors).forEach(([field, messages]) => {
+          console.error(`Campo: ${field}, Errores: ${messages.join(", ")}`);
+        });
+        alert("Error al procesar el canje: " + error.response.data.title);
       } else {
         alert("Hubo un error al procesar tu canje. 😔");
       }

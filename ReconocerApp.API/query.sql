@@ -179,6 +179,14 @@ VALUES
 (10, 2, 1, 'Premio 5 Org 2', 'Descripción del Premio 5 para Organización 2', 550, 'https://example.com/imagen10.jpg', 55, '2023-02-05');
 
 
+---marketplacecompras
+SELECT * FROM MarketplaceCompras;
+SELECT * FROM MarketplacePremios WHERE premioId = 2;
+SELECT * FROM WalletSaldos WHERE walletSaldoId = 1;
+
+
+
+
 INSERT INTO MarketplacePremios (PremioId, OrganizacionId, CategoriaId, Nombre, Descripcion, CostoWallet, ImagenUrl, CantidadActual, UltimaActualizacion)
 VALUES
 -- Premios para OrganizacionId = 1
