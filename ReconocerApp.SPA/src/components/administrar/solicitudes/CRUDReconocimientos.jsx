@@ -12,6 +12,10 @@ import {
   TextField,
   Box,
   Container,
+  Select,
+  MenuItem,
+  InputLabel,
+  FormControl,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -104,11 +108,17 @@ const CRUDReconocimientos = () => {
 
   const handleSave = async () => {
     try {
+      const payload = {
+        ...formValues,
+        fechaResolucion: selected ? new Date().toISOString() : "",
+      };
+
       if (selected) {
-        await editReconocimiento(selected.reconocimientoId, formValues);
+        await editReconocimiento(selected.reconocimientoId, payload);
       } else {
-        await createReconocimiento(formValues);
+        await createReconocimiento(payload);
       }
+
       const updated = await getReconocimientos();
       setReconocimientos(updated);
       handleCloseDialog();
@@ -163,13 +173,18 @@ const CRUDReconocimientos = () => {
     },
   ];
 
+  const colaboradorOptions = Object.entries(colaboradores).map(([id, name]) => ({
+    id,
+    name,
+  }));
+
   return (
     <Container>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <h1>Administrar Reconocimientos</h1>
-        <Button variant="contained" onClick={() => handleOpenDialog()}>
+        {/* <Button variant="contained" onClick={() => handleOpenDialog()}>
           Añadir Reconocimiento
-        </Button>
+        </Button> */}
       </Box>
       <DataGrid
         rows={reconocimientos}
@@ -182,16 +197,24 @@ const CRUDReconocimientos = () => {
       <Dialog open={openDialog} onClose={handleCloseDialog}>
         <DialogTitle>{selected ? "Editar" : "Añadir"} Reconocimiento</DialogTitle>
         <DialogContent>
-          {[
-            "tokenColaborador",
-            "justificacion",
-            "texto",
-            "titulo",
-            "fechaCreacion",
-            "estado",
-            "comentarioRevision",
-            "fechaResolucion",
-          ].map((field) => (
+          <FormControl fullWidth margin="dense" disabled>
+            <InputLabel id="colaborador-select-label">Colaborador</InputLabel>
+            <Select
+              labelId="colaborador-select-label"
+              name="tokenColaborador"
+              value={formValues.tokenColaborador}
+              onChange={handleChange}
+              label="Colaborador"
+            >
+              {colaboradorOptions.map((colab) => (
+                <MenuItem key={colab.id} value={colab.id}>
+                  {colab.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          {["justificacion", "texto", "titulo", "fechaCreacion"].map((field) => (
             <TextField
               key={field}
               margin="dense"
@@ -200,8 +223,46 @@ const CRUDReconocimientos = () => {
               fullWidth
               value={formValues[field]}
               onChange={handleChange}
+              disabled
             />
           ))}
+
+          {/* Campo editable: estado */}
+          <FormControl fullWidth margin="dense">
+            <InputLabel id="estado-select-label">Estado</InputLabel>
+            <Select
+              labelId="estado-select-label"
+              name="estado"
+              value={formValues.estado}
+              onChange={handleChange}
+              label="Estado"
+            >
+              <MenuItem value="pendiente">Pendiente</MenuItem>
+              <MenuItem value="procesando">Procesando</MenuItem>
+              <MenuItem value="completado">Completado</MenuItem>
+              <MenuItem value="rechazado">Rechazado</MenuItem>
+            </Select>
+          </FormControl>
+
+          {/* Campo editable */}
+          <TextField
+            margin="dense"
+            label="Comentario Revisión"
+            name="comentarioRevision"
+            fullWidth
+            value={formValues.comentarioRevision}
+            onChange={handleChange}
+          />
+
+          {/* Campo de solo lectura */}
+          <TextField
+            margin="dense"
+            label="Fecha Resolución"
+            name="fechaResolucion"
+            fullWidth
+            value={selected ? new Date().toISOString() : formValues.fechaResolucion}
+            disabled
+          />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancelar</Button>

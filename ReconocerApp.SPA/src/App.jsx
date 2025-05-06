@@ -32,6 +32,7 @@ import IndexReconocimientos from "./components/administrar/solicitudes/reconocim
 import CRUDCategorias from "./components/administrar/categorias/CRUDCategorias.jsx";
 import CRUDPremios from "./components/administrar/premios/CRUDPremios.jsx";
 import CRUDReconocimientos from "./components/administrar/solicitudes/CRUDReconocimientos.jsx";
+import CRUDWalletSaldos from "./components/administrar/wallet/CRUDWalletSaldos.jsx";
 
 
 function App({ pca }) {
@@ -76,6 +77,7 @@ function Pages() {
       <Route path="/administrar/reconocimientos" element={<CRUDReconocimientos />} />
       <Route path="/administrar/categorias" element={<CRUDCategorias />} />
       <Route path="/administrar/premios" element={<CRUDPremios />} />
+      <Route path="/administrar/wallet" element={<CRUDWalletSaldos />} />
     </Routes>
   );
 }

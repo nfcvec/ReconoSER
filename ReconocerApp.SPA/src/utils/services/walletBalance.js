@@ -43,3 +43,14 @@ export const createWallet = async (data) => {
     }
 }
 
+//Funcion para actualizar una billetera
+export const updateWallet = async (id, data) => {
+    try {
+        const response = await api.put(`/WalletSaldos/${id}`, data);
+        return response.data; // Devuelve los datos de la respuesta
+    } catch (error) {
+        console.error("Error al actualizar la billetera:", error.message);
+        throw error; // Lanza el error para manejarlo en el componente
+    }
+}
+

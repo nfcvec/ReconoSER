@@ -190,13 +190,14 @@ UPDATE MarketplacePremios
 SET ImagenUrl = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSQQz6U1tB5iHhdMElk-2f2AxZ2-aaKQxhc3g&s'
 WHERE PremioId BETWEEN 1 AND 10;
 
+ SELECT * FROM WalletSaldos;
 --actualizar el saldo de la wallet del id3
 UPDATE WalletSaldos
-SET SaldoActual = 500
-WHERE WalletSaldoId = 3;
+SET SaldoActual = 5000
+WHERE WalletSaldoId = 1;
 --actulizar 
 
-SELECT * FROM MarketplacePremios WHERE PremioId = 1;
+SELECT * FROM MarketplacePremios;
 SELECT * FROM Reconocimientos;
 -- insertar nueva wallet
 INSERT INTO WalletSaldos (WalletSaldoId, TokenColaborador, SaldoActual) VALUES

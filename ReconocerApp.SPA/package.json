@@ -17,6 +17,7 @@
     "@mui/icons-material": "^7.0.1",
     "@mui/material": "^7.0.2",
     "@mui/x-data-grid": "^8.2.0",
+    "@mui/x-date-pickers": "^8.2.0",
     "axios": "^1.8.4",
     "html-to-image": "^1.11.13",
     "html2canvas": "^1.4.1",
