@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace ReconocerApp.API.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -14,10 +15,10 @@ namespace ReconocerApp.API.Migrations
                 name: "Categorias",
                 columns: table => new
                 {
-                    CategoriaId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Nombre = table.Column<string>(type: "TEXT", nullable: false),
-                    Descripcion = table.Column<string>(type: "TEXT", nullable: false)
+                    CategoriaId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "text", nullable: false),
+                    Descripcion = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -28,12 +29,12 @@ namespace ReconocerApp.API.Migrations
                 name: "Organizaciones",
                 columns: table => new
                 {
-                    OrganizacionId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Nombre = table.Column<string>(type: "TEXT", nullable: false),
-                    Descripcion = table.Column<string>(type: "TEXT", nullable: false),
-                    DominioEmail = table.Column<string>(type: "TEXT", nullable: false),
-                    Activa = table.Column<bool>(type: "INTEGER", nullable: false)
+                    OrganizacionId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "text", nullable: false),
+                    Descripcion = table.Column<string>(type: "text", nullable: false),
+                    DominioEmail = table.Column<string>(type: "text", nullable: false),
+                    Activa = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -44,16 +45,16 @@ namespace ReconocerApp.API.Migrations
                 name: "Reconocimientos",
                 columns: table => new
                 {
-                    ReconocimientoId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    TokenColaborador = table.Column<string>(type: "TEXT", nullable: false),
-                    Justificacion = table.Column<string>(type: "TEXT", nullable: false),
-                    Texto = table.Column<string>(type: "TEXT", nullable: false),
-                    Titulo = table.Column<string>(type: "TEXT", nullable: false),
-                    FechaCreacion = table.Column<string>(type: "TEXT", nullable: false),
-                    Estado = table.Column<string>(type: "TEXT", nullable: false),
-                    ComentarioRevision = table.Column<string>(type: "TEXT", nullable: false),
-                    FechaResolucion = table.Column<string>(type: "TEXT", nullable: false)
+                    ReconocimientoId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TokenColaborador = table.Column<string>(type: "text", nullable: false),
+                    Justificacion = table.Column<string>(type: "text", nullable: false),
+                    Texto = table.Column<string>(type: "text", nullable: false),
+                    Titulo = table.Column<string>(type: "text", nullable: false),
+                    FechaCreacion = table.Column<string>(type: "text", nullable: false),
+                    Estado = table.Column<string>(type: "text", nullable: false),
+                    ComentarioRevision = table.Column<string>(type: "text", nullable: false),
+                    FechaResolucion = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -64,10 +65,10 @@ namespace ReconocerApp.API.Migrations
                 name: "WalletCategorias",
                 columns: table => new
                 {
-                    CategoriaId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Nombre = table.Column<string>(type: "TEXT", nullable: false),
-                    Descripcion = table.Column<string>(type: "TEXT", nullable: false)
+                    CategoriaId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "text", nullable: false),
+                    Descripcion = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -78,10 +79,10 @@ namespace ReconocerApp.API.Migrations
                 name: "WalletSaldos",
                 columns: table => new
                 {
-                    WalletSaldoId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    TokenColaborador = table.Column<string>(type: "TEXT", nullable: false),
-                    SaldoActual = table.Column<int>(type: "INTEGER", nullable: false)
+                    WalletSaldoId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TokenColaborador = table.Column<string>(type: "text", nullable: false),
+                    SaldoActual = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -92,9 +93,9 @@ namespace ReconocerApp.API.Migrations
                 name: "Colaboradores",
                 columns: table => new
                 {
-                    ColaboradorId = table.Column<string>(type: "TEXT", nullable: false),
-                    OrganizacionId = table.Column<int>(type: "INTEGER", nullable: false),
-                    ExcepcionConfiguracion = table.Column<bool>(type: "INTEGER", nullable: false)
+                    ColaboradorId = table.Column<string>(type: "text", nullable: false),
+                    OrganizacionId = table.Column<int>(type: "integer", nullable: false),
+                    ExcepcionConfiguracion = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -111,12 +112,12 @@ namespace ReconocerApp.API.Migrations
                 name: "Comportamientos",
                 columns: table => new
                 {
-                    ComportamientoId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    OrganizacionId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Nombre = table.Column<string>(type: "TEXT", nullable: false),
-                    Descripcion = table.Column<string>(type: "TEXT", nullable: false),
-                    WalletOtorgados = table.Column<int>(type: "INTEGER", nullable: false)
+                    ComportamientoId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    OrganizacionId = table.Column<int>(type: "integer", nullable: false),
+                    Nombre = table.Column<string>(type: "text", nullable: false),
+                    Descripcion = table.Column<string>(type: "text", nullable: false),
+                    WalletOtorgados = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -133,16 +134,16 @@ namespace ReconocerApp.API.Migrations
                 name: "MarketplacePremios",
                 columns: table => new
                 {
-                    PremioId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    OrganizacionId = table.Column<int>(type: "INTEGER", nullable: false),
-                    CategoriaId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Nombre = table.Column<string>(type: "TEXT", nullable: false),
-                    Descripcion = table.Column<string>(type: "TEXT", nullable: false),
-                    CostoWallet = table.Column<int>(type: "INTEGER", nullable: false),
-                    ImagenUrl = table.Column<string>(type: "TEXT", nullable: false),
-                    CantidadActual = table.Column<int>(type: "INTEGER", nullable: false),
-                    UltimaActualizacion = table.Column<string>(type: "TEXT", nullable: false)
+                    PremioId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    OrganizacionId = table.Column<int>(type: "integer", nullable: false),
+                    CategoriaId = table.Column<int>(type: "integer", nullable: false),
+                    Nombre = table.Column<string>(type: "text", nullable: false),
+                    Descripcion = table.Column<string>(type: "text", nullable: false),
+                    CostoWallet = table.Column<int>(type: "integer", nullable: false),
+                    ImagenUrl = table.Column<string>(type: "text", nullable: false),
+                    CantidadActual = table.Column<int>(type: "integer", nullable: false),
+                    UltimaActualizacion = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -165,14 +166,14 @@ namespace ReconocerApp.API.Migrations
                 name: "WalletTransacciones",
                 columns: table => new
                 {
-                    TransaccionId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    WalletSaldoId = table.Column<int>(type: "INTEGER", nullable: false),
-                    TokenColaborador = table.Column<string>(type: "TEXT", nullable: false),
-                    CategoriaId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Cantidad = table.Column<int>(type: "INTEGER", nullable: false),
-                    Descripcion = table.Column<string>(type: "TEXT", nullable: false),
-                    Fecha = table.Column<string>(type: "TEXT", nullable: false)
+                    TransaccionId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    WalletSaldoId = table.Column<int>(type: "integer", nullable: false),
+                    TokenColaborador = table.Column<string>(type: "text", nullable: false),
+                    CategoriaId = table.Column<int>(type: "integer", nullable: false),
+                    Cantidad = table.Column<int>(type: "integer", nullable: false),
+                    Descripcion = table.Column<string>(type: "text", nullable: false),
+                    Fecha = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -195,22 +196,22 @@ namespace ReconocerApp.API.Migrations
                 name: "ReconocimientoComportamientos",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    ReconocimientoId = table.Column<int>(type: "INTEGER", nullable: false),
-                    ComportamientoId = table.Column<int>(type: "INTEGER", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ReconocimientoId = table.Column<int>(type: "integer", nullable: false),
+                    ComportamientoId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ReconocimientoComportamientos", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ReconocimientoComportamientos_Comportamientos_ComportamientoId",
+                        name: "FK_ReconocimientoComportamientos_Comportamientos_Comportamient~",
                         column: x => x.ComportamientoId,
                         principalTable: "Comportamientos",
                         principalColumn: "ComportamientoId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ReconocimientoComportamientos_Reconocimientos_ReconocimientoId",
+                        name: "FK_ReconocimientoComportamientos_Reconocimientos_Reconocimient~",
                         column: x => x.ReconocimientoId,
                         principalTable: "Reconocimientos",
                         principalColumn: "ReconocimientoId",
@@ -221,13 +222,13 @@ namespace ReconocerApp.API.Migrations
                 name: "InventarioTransacciones",
                 columns: table => new
                 {
-                    TransaccionId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    PremioId = table.Column<int>(type: "INTEGER", nullable: false),
-                    TipoMovimiento = table.Column<string>(type: "TEXT", nullable: false),
-                    Cantidad = table.Column<int>(type: "INTEGER", nullable: false),
-                    Descripcion = table.Column<string>(type: "TEXT", nullable: false),
-                    Fecha = table.Column<string>(type: "TEXT", nullable: false)
+                    TransaccionId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PremioId = table.Column<int>(type: "integer", nullable: false),
+                    TipoMovimiento = table.Column<string>(type: "text", nullable: false),
+                    Cantidad = table.Column<int>(type: "integer", nullable: false),
+                    Descripcion = table.Column<string>(type: "text", nullable: false),
+                    Fecha = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -244,14 +245,14 @@ namespace ReconocerApp.API.Migrations
                 name: "MarketplaceCompras",
                 columns: table => new
                 {
-                    CompraId = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    TokenColaborador = table.Column<string>(type: "TEXT", nullable: false),
-                    PremioId = table.Column<int>(type: "INTEGER", nullable: false),
-                    FechaCompra = table.Column<string>(type: "TEXT", nullable: false),
-                    Estado = table.Column<string>(type: "TEXT", nullable: false),
-                    ComentarioRevision = table.Column<string>(type: "TEXT", nullable: false),
-                    FechaResolucion = table.Column<string>(type: "TEXT", nullable: false)
+                    CompraId = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    TokenColaborador = table.Column<string>(type: "text", nullable: false),
+                    PremioId = table.Column<int>(type: "integer", nullable: false),
+                    FechaCompra = table.Column<string>(type: "text", nullable: false),
+                    Estado = table.Column<string>(type: "text", nullable: false),
+                    ComentarioRevision = table.Column<string>(type: "text", nullable: false),
+                    FechaResolucion = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
