@@ -30,9 +30,6 @@ WORKDIR /app
 # Copy the published output from the build stage
 COPY --from=build /out .
 
-# Copy the SQLite database file from the build stage
-COPY --from=build /app/reconocer.db .
-
 # Expose the port the application runs on
 EXPOSE 8080
  
