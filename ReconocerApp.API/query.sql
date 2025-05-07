@@ -165,18 +165,18 @@ SELECT * FROM MarketplacePremios;
 INSERT INTO MarketplacePremios (PremioId, OrganizacionId, CategoriaId, Nombre, Descripcion, CostoWallet, ImagenUrl, CantidadActual, UltimaActualizacion)
 VALUES
 -- Premios para OrganizacionId = 1
-(1, 1, 1, 'Premio 1 Org 1', 'Descripción del Premio 1 para Organización 1', 100, 'https://example.com/imagen1.jpg', 10, '2023-01-01'),
-(2, 1, 1, 'Premio 2 Org 1', 'Descripción del Premio 2 para Organización 1', 200, 'https://example.com/imagen2.jpg', 20, '2023-01-02'),
-(3, 1, 1, 'Premio 3 Org 1', 'Descripción del Premio 3 para Organización 1', 300, 'https://example.com/imagen3.jpg', 30, '2023-01-03'),
-(4, 1, 1, 'Premio 4 Org 1', 'Descripción del Premio 4 para Organización 1', 400, 'https://example.com/imagen4.jpg', 40, '2023-01-04'),
-(5, 1, 1, 'Premio 5 Org 1', 'Descripción del Premio 5 para Organización 1', 500, 'https://example.com/imagen5.jpg', 50, '2023-01-05'),
+(1, 1, 1, 'Premio 1 Org 1', 'Descripción del Premio 1 para Organización 1', 100, 'https://www.vinccihoteles.com/uploads/cms_apps/imagenes/disposicion-articulos-viaje-angulo-alto.jpg', 10, '2023-01-01'),
+(2, 1, 1, 'Premio 2 Org 1', 'Descripción del Premio 2 para Organización 1', 200, 'https://www.vinccihoteles.com/uploads/cms_apps/imagenes/disposicion-articulos-viaje-angulo-alto.jpg', 20, '2023-01-02'),
+(3, 1, 1, 'Premio 3 Org 1', 'Descripción del Premio 3 para Organización 1', 300, 'https://www.vinccihoteles.com/uploads/cms_apps/imagenes/disposicion-articulos-viaje-angulo-alto.jpg', 30, '2023-01-03'),
+(4, 1, 1, 'Premio 4 Org 1', 'Descripción del Premio 4 para Organización 1', 400, 'https://www.vinccihoteles.com/uploads/cms_apps/imagenes/disposicion-articulos-viaje-angulo-alto.jpg', 40, '2023-01-04'),
+(5, 1, 1, 'Premio 5 Org 1', 'Descripción del Premio 5 para Organización 1', 500, 'https://www.vinccihoteles.com/uploads/cms_apps/imagenes/disposicion-articulos-viaje-angulo-alto.jpg', 50, '2023-01-05'),
 
 -- Premios para OrganizacionId = 2
-(6, 2, 1, 'Premio 1 Org 2', 'Descripción del Premio 1 para Organización 2', 150, 'https://example.com/imagen6.jpg', 15, '2023-02-01'),
-(7, 2, 1, 'Premio 2 Org 2', 'Descripción del Premio 2 para Organización 2', 250, 'https://example.com/imagen7.jpg', 25, '2023-02-02'),
-(8, 2, 1, 'Premio 3 Org 2', 'Descripción del Premio 3 para Organización 2', 350, 'https://example.com/imagen8.jpg', 35, '2023-02-03'),
-(9, 2, 1, 'Premio 4 Org 2', 'Descripción del Premio 4 para Organización 2', 450, 'https://example.com/imagen9.jpg', 45, '2023-02-04'),
-(10, 2, 1, 'Premio 5 Org 2', 'Descripción del Premio 5 para Organización 2', 550, 'https://example.com/imagen10.jpg', 55, '2023-02-05');
+(6, 2, 1, 'Premio 1 Org 2', 'Descripción del Premio 1 para Organización 2', 150, 'https://www.vinccihoteles.com/uploads/cms_apps/imagenes/disposicion-articulos-viaje-angulo-alto.jpg', 15, '2023-02-01'),
+(7, 2, 1, 'Premio 2 Org 2', 'Descripción del Premio 2 para Organización 2', 250, 'https://www.vinccihoteles.com/uploads/cms_apps/imagenes/disposicion-articulos-viaje-angulo-alto.jpg', 25, '2023-02-02'),
+(8, 2, 1, 'Premio 3 Org 2', 'Descripción del Premio 3 para Organización 2', 350, 'https://www.vinccihoteles.com/uploads/cms_apps/imagenes/disposicion-articulos-viaje-angulo-alto.jpg', 35, '2023-02-03'),
+(9, 2, 1, 'Premio 4 Org 2', 'Descripción del Premio 4 para Organización 2', 450, 'https://www.vinccihoteles.com/uploads/cms_apps/imagenes/disposicion-articulos-viaje-angulo-alto.jpg', 45, '2023-02-04'),
+(10, 2, 1, 'Premio 5 Org 2', 'Descripción del Premio 5 para Organización 2', 550, 'https://www.vinccihoteles.com/uploads/cms_apps/imagenes/disposicion-articulos-viaje-angulo-alto.jpg', 55, '2023-02-05');
 
 
 ---marketplacecompras
