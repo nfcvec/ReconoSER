@@ -78,6 +78,7 @@ function Pages() {
       <Route path="/administrar/categorias" element={<CRUDCategorias />} />
       <Route path="/administrar/premios" element={<CRUDPremios />} />
       <Route path="/administrar/wallet" element={<CRUDWalletSaldos />} />
+
     </Routes>
   );
 }
