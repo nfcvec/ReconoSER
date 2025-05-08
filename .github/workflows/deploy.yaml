@@ -16,5 +16,11 @@ jobs:
     - uses: actions/checkout@v4
     - name: Build the Docker Compose
       run: docker compose build
+    - name: Push the Docker Compose
+      run: docker compose push
+    - name: Get the Docker Compose
+      run: docker compose pull
+    - name: Stop the Docker Compose
+      run: docker compose down
     - name: Start the Docker Compose
       run: docker compose up -d
