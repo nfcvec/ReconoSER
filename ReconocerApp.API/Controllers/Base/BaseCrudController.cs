@@ -28,7 +28,7 @@ public abstract class BaseCrudController<TEntity, TResponse, TKey> : ControllerB
         [FromQuery] string? orderBy = null,
         [FromQuery] string? orderDirection = null,
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 10
+        [FromQuery] int pageSize = 100
     )
     {
         var list = await _dbSet.ToListAsync();

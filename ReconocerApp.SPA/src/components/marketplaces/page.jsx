@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Typography, Grid, Box, Slider } from "@mui/material";
+import { Container, Typography, Grid, Box, Slider, Pagination } from "@mui/material";
 import { useMsal } from "@azure/msal-react";
 import { getPremios } from "../../utils/services/premios";
 import { getWalletBalanceByUserId } from "../../utils/services/walletBalance.js";
@@ -11,6 +11,10 @@ export default function Marketplace() {
   const [filteredPrizes, setFilteredPrizes] = useState([]);
   const [userBalance, setUserBalance] = useState(null);
   const [priceRange, setPriceRange] = useState([0, 1000]);
+
+  // Estados para la paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const prizesPerPage = 10; // Cantidad de premios por página
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,13 +41,15 @@ export default function Marketplace() {
             premio.organizacion.dominioEmail &&
             premio.organizacion.dominioEmail.toLowerCase().includes(domain)
           ))
-          .sort((a, b) => a.costoWallet - b.costoWallet); // orden menor a mayor
+          .sort((a, b) => a.costoWallet - b.costoWallet);
 
         setPrizes(filteredPrizes);
         setFilteredPrizes(filteredPrizes);
 
         const userId = account.localAccountId;
         const walletData = await getWalletBalanceByUserId(userId);
+
+        console.log("Premios obtenidos:", filteredPrizes);
         setUserBalance(walletData.saldoActual);
       } catch (error) {
         console.error("Error al obtener datos:", error.message);
@@ -59,13 +65,23 @@ export default function Marketplace() {
         premio.costoWallet >= priceRange[0] &&
         premio.costoWallet <= priceRange[1]
       )
-      .sort((a, b) => a.costoWallet - b.costoWallet); // aseguro orden aquí también
+      .sort((a, b) => a.costoWallet - b.costoWallet);
     setFilteredPrizes(filtered);
+    setCurrentPage(1); // Reinicia la página al filtrar
   }, [priceRange, prizes]);
 
   const handleSliderChange = (event, newValue) => {
     setPriceRange(newValue);
   };
+
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
+  };
+
+  // Calcular los premios de la página actual
+  const indexOfLastPrize = currentPage * prizesPerPage;
+  const indexOfFirstPrize = indexOfLastPrize - prizesPerPage;
+  const currentPrizes = filteredPrizes.slice(indexOfFirstPrize, indexOfLastPrize);
 
   if (userBalance === null) {
     return (
@@ -108,14 +124,14 @@ export default function Marketplace() {
         </Typography>
       </Box>
 
-      {filteredPrizes.length === 0 && (
+      {currentPrizes.length === 0 && (
         <Box sx={{ textAlign: "center", py: 6 }}>
           <Typography color="text.secondary">No se encontraron premios disponibles.</Typography>
         </Box>
       )}
 
       <Grid container spacing={4} justifyContent="center">
-        {filteredPrizes.map((premio) => (
+        {currentPrizes.map((premio) => (
           <Grid item key={premio.premioId}>
             <PremiosComponent
               imagenUrl={premio.imagenUrl}
@@ -128,6 +144,14 @@ export default function Marketplace() {
           </Grid>
         ))}
       </Grid>
+
+      <Pagination
+        count={Math.ceil(filteredPrizes.length / prizesPerPage)}
+        page={currentPage}
+        onChange={handlePageChange}
+        color="primary"
+        sx={{ mt: 4 }}
+      />
     </Box>
   );
 }
