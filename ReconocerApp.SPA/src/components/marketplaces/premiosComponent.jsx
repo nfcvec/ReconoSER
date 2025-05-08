@@ -10,7 +10,20 @@ export default function PremiosComponent({ imagenUrl, nombre, descripcion, costo
   };
 
   return (
-    <Card>
+    <Card
+      sx={{
+        width: 250, // Cambiado para mantener un ancho fijo
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        transition: "transform 0.3s, box-shadow 0.3s",
+        "&:hover": {
+          transform: "translateY(-5px)",
+          boxShadow: 6
+        }
+      }}
+    >
       <CardMedia component="img" height="140" image={imagenUrl} alt={nombre} />
       <CardContent>
         <Typography variant="h6" component="div">
