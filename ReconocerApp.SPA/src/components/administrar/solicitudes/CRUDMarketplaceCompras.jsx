@@ -70,29 +70,74 @@ const CRUDMarketplaceCompras = () => {
 
   const fetchData = useCallback(async () => {
     try {
-      const data = await getPremiosCompras();
-      const filtered = data.filter((item) => item.organizacionId === organizacionId);
-      setCompras(filtered);
+        const data = await getPremiosCompras();
+        console.log("Datos obtenidos de getPremiosCompras:", data);
+        console.log("Valor de organizacionId:", organizacionId);
 
-      console.log("Datos de compras filtrados:", filtered); // Corregido
+        const filtered = data.filter((item) => item.organizacionId === organizacionId);
+        if (filtered.length === 0) {
+            console.warn("No se encontraron compras para la organización:", organizacionId);
+        }
+        console.log("Datos de compras filtrados:", filtered);
+        setCompras(filtered);
 
-      const colaboradoresData = await getColaboradores();
-      const colaboradoresMap = {};
-      colaboradoresData.forEach((colaborador) => {
-        colaboradoresMap[colaborador.id] = colaborador.displayName;
-      });
-      setColaboradores(colaboradoresMap);
+        try {
+            console.log("Intentando obtener el token de acceso...");
+            const response = await instance.acquireTokenSilent({
+                account: accounts[0],
+                scopes: ["User.Read.All"], // Asegúrate de que este permiso esté configurado en Azure AD
+            });
+            console.log("Token de acceso obtenido:", response.accessToken);
 
-      const premiosData = await getPremios();
-      const premiosMap = {};
-      premiosData.forEach((premio) => {
-        premiosMap[premio.premioId] = premio.nombre;
-      });
-      setPremios(premiosMap);
+            const colaboradoresData = await getColaboradores(response.accessToken);
+            console.log("Datos obtenidos de getColaboradores:", colaboradoresData);
+
+            const colaboradoresMap = {};
+            colaboradoresData.forEach((colaborador) => {
+                colaboradoresMap[colaborador.id] = colaborador.displayName;
+            });
+            setColaboradores(colaboradoresMap);
+        } catch (error) {
+            if (error.name === "InteractionRequiredAuthError") {
+                console.warn("El token ha expirado. Intentando obtener un nuevo token...");
+                try {
+                    const response = await instance.acquireTokenPopup({
+                        scopes: ["User.Read.All"],
+                    });
+                    const colaboradoresData = await getColaboradores(response.accessToken);
+                    console.log("Datos obtenidos de getColaboradores:", colaboradoresData);
+
+                    const colaboradoresMap = {};
+                    colaboradoresData.forEach((colaborador) => {
+                        colaboradoresMap[colaborador.id] = colaborador.displayName;
+                    });
+                    setColaboradores(colaboradoresMap);
+                } catch (popupError) {
+                    console.error("Error al obtener el token mediante popup:", popupError);
+                }
+            } else {
+                console.error("Error al obtener el token:", error);
+            }
+        }
+
+        try {
+            const premiosData = await getPremios();
+            const premiosMap = {};
+            premiosData.forEach((premio) => {
+                premiosMap[premio.premioId] = premio.nombre;
+            });
+            setPremios(premiosMap);
+        } catch (error) {
+            if (error.response?.status === 401) {
+                console.error("No autorizado al obtener premios. Verifica el token.");
+            } else {
+                console.error("Error al obtener premios:", error);
+            }
+        }
     } catch (error) {
-      console.error("Error al cargar datos:", error);
+        console.error("Error al cargar datos:", error);
     }
-  }, [organizacionId]);
+}, [organizacionId, instance, accounts]);
 
   useEffect(() => {
     if (organizacionId) {

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Box, Button } from "@mui/material";
+import { useTheme } from "../../contexts/ThemeContext"; // Importar el contexto del tema
 import CRUDWalletSaldos from "./wallet/CRUDWalletSaldos";
 import CRUDReconocimientos from "./solicitudes/CRUDReconocimientos";
 import CRUDMarketplaceCompras from "./solicitudes/CRUDMarketplaceCompras";
@@ -8,6 +9,7 @@ import CRUDCategorias from "./categorias/CRUDCategorias";
 
 const Administrar = () => {
   const [activeSection, setActiveSection] = useState(null);
+  const { darkMode } = useTheme(); // Obtener el estado del modo oscuro
 
   const renderSection = () => {
     switch (activeSection) {
@@ -61,10 +63,20 @@ const Administrar = () => {
           Administrar Categorías
         </Button>
       </Box>
-      <Box sx={{ marginTop: "50px", padding: "20px",
-          border: activeSection ? "2px solid black" : "none", 
-          borderRadius: "8px", 
-          backgroundColor: "#f9f9f9", }}>{renderSection()}</Box>
+      <Box
+        sx={{
+          marginTop: "50px",
+          padding: "20px",
+          border: activeSection
+            ? `2px solid ${darkMode ? "#ffffff" : "#000000"}` // Cambia el color del borde según el modo
+            : "none",
+          borderRadius: "8px",
+          backgroundColor: darkMode ? "#333333" : "#f9f9f9", // Cambia el fondo según el modo
+          color: darkMode ? "#ffffff" : "#000000", // Cambia el color del texto según el modo
+        }}
+      >
+        {renderSection()}
+      </Box>
     </Box>
   );
 };

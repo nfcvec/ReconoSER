@@ -1,8 +1,11 @@
 import api from "../api";
+
 // Funcion para obtener todas las compras de premios
 export const getPremiosCompras = async () => {
     try {
+        console.log("Llamando a getPremiosCompras..."); // Log para verificar que se llama la función
         const response = await api.get("/MarketplaceCompras");
+        console.log("Respuesta de getPremiosCompras:", response.data); // Log para verificar los datos obtenidos
         return response.data;
     } catch (error) {
         console.error("Error al obtener las compras de premios:", error.message);
@@ -53,4 +56,3 @@ export const deletePremioCompra = async (id) => {
         throw error;
     }
 }
-

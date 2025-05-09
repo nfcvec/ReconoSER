@@ -1,13 +1,14 @@
 import axios from 'axios';
 
 export const getColaboradores = async (accessToken, searchTerm) => {
+  console.log("Token de acceso:", accessToken); // Verifica el token
   let url = `https://graph.microsoft.com/v1.0/users`;
   const headers = {
     Authorization: `Bearer ${accessToken}`, // Token de acceso
     'Content-Type': 'application/json',
   };
 
-  let users = [];
+  console.log("Encabezados de la solicitud:", headers);
 
   if (searchTerm) {
     url += `?$search="displayName:${searchTerm}" OR "mail:${searchTerm}" OR "userPrincipalName:${searchTerm}"`;
@@ -16,12 +17,10 @@ export const getColaboradores = async (accessToken, searchTerm) => {
 
   try {
     const response = await axios.get(url, { headers });
-
-    // Agregar los usuarios obtenidos a la lista
     if (response.data && response.data.value) {
-      users = users.concat(response.data.value);
+      return response.data.value;
     }
-    return users;
+    return [];
   } catch (error) {
     if (error.response && error.response.status === 403) {
       console.error(
