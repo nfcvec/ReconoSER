@@ -34,6 +34,7 @@ import CRUDPremios from "./components/administrar/premios/CRUDPremios.jsx";
 import CRUDReconocimientos from "./components/administrar/solicitudes/CRUDReconocimientos.jsx";
 import CRUDWalletSaldos from "./components/administrar/wallet/CRUDWalletSaldos.jsx";
 import CRUDMarketplaceCompras from "./components/administrar/solicitudes/CRUDMarketplaceCompras.jsx";
+import Administrar from "./components/administrar/administrar";
 
 function App({ pca }) {
   // The next 3 lines are optional. This is how you configure MSAL to take advantage of the router's navigate functions when MSAL redirects between pages in your app
@@ -72,14 +73,16 @@ function Pages() {
       <Route path="/certificados" element={<Certificados />} />
       <Route path="/marketplace" element={<Marketplace />} />
       <Route path="/marketplace/:id" element={<PrizeDetail />} />
-      {/* Rutas de Administracion */}
-      <Route path="/administrar/reconocimiento" element={<IndexReconocimientos/>} />
-      <Route path="/administrar/reconocimientos" element={<CRUDReconocimientos />} />
-      <Route path="/administrar/categorias" element={<CRUDCategorias />} />
-      <Route path="/administrar/premios" element={<CRUDPremios />} />
-      <Route path="/administrar/wallet" element={<CRUDWalletSaldos />} />
-      <Route path="/administrar/compras" element={<CRUDMarketplaceCompras />} />
 
+      {/* Ruta principal de Administrar */}
+      <Route path="/administrar" element={<Administrar />} />
+
+      {/* Rutas específicas de Administrar */}
+      <Route path="/administrar/wallet-saldos" element={<CRUDWalletSaldos />} />
+      <Route path="/administrar/reconocimientos" element={<CRUDReconocimientos />} />
+      <Route path="/administrar/marketplace-compras" element={<CRUDMarketplaceCompras />} />
+      <Route path="/administrar/premios" element={<CRUDPremios />} />
+      <Route path="/administrar/categorias" element={<CRUDCategorias />} />
     </Routes>
   );
 }

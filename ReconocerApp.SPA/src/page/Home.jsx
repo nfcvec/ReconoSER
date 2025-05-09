@@ -1,19 +1,20 @@
 import { Link } from "react-router-dom";
 import {
-  Button,
   Typography,
   Grid,
   Box,
   Card,
   CardContent,
-  CardActions
+  CardActions,
+  Button, // Importar Button desde Material-UI
 } from "@mui/material";
 import {
   FileCopy as CertificateIcon,
   Store as MarketplaceIcon,
-  EmojiEvents as RecognitionIcon
+  EmojiEvents as RecognitionIcon,
 } from "@mui/icons-material";
 import { useMsal } from "@azure/msal-react";
+import Administrar from "../components/administrar/administrar"; // Importar el componente Administrar
 
 export default function Home() {
   const { accounts } = useMsal();
@@ -28,7 +29,6 @@ export default function Home() {
   };
 
   const organization = getOrganizationFromEmail(user.username);
-  const oid = user.idTokenClaims.oid;
 
   const cardItems = [
     {
@@ -36,22 +36,22 @@ export default function Home() {
       description: "Visualiza y descarga tus certificados",
       icon: <CertificateIcon sx={{ fontSize: 64, color: "primary.main" }} />,
       link: "/certificados",
-      buttonText: "Ver Certificados"
+      buttonText: "Ver Certificados",
     },
     {
       title: "Reconocer",
       description: "Evalúa valores institucionales de tus colaboradores",
       icon: <RecognitionIcon sx={{ fontSize: 64, color: "primary.main" }} />,
       link: "/reconocimiento",
-      buttonText: "Dar Reconocimiento"
+      buttonText: "Dar Reconocimiento",
     },
     {
       title: "Marketplace",
       description: "Canjea tus ULIs por premios exclusivos",
       icon: <MarketplaceIcon sx={{ fontSize: 64, color: "primary.main" }} />,
       link: "/marketplace",
-      buttonText: "Ir al Marketplace"
-    }
+      buttonText: "Ir al Marketplace",
+    },
   ];
 
   return (
@@ -63,9 +63,15 @@ export default function Home() {
         justifyContent: "center",
         minHeight: "80vh",
         gap: 4,
-        textAlign: "center"
+        textAlign: "center",
       }}
     >
+      {/* Renderizar el componente Administrar directamente */}
+      <Box sx={{ width: "100%", mb: 4 }}>
+        <Administrar />
+      </Box>
+
+      {/* Título principal */}
       <Typography variant="h4">
         <strong>ReconoSER</strong>
         <Typography component="span" variant="h6" sx={{ ml: 1 }}>
@@ -101,8 +107,8 @@ export default function Home() {
                 transition: "transform 0.3s, box-shadow 0.3s",
                 "&:hover": {
                   transform: "translateY(-5px)",
-                  boxShadow: 6
-                }
+                  boxShadow: 6,
+                },
               }}
               elevation={2}
             >

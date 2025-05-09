@@ -29,6 +29,9 @@ export default function Marketplace() {
         const domain = email.split("@")[1].toLowerCase();
 
         const premios = await getPremios();
+              // 🔥 Log para verificar la cantidad de premios obtenidos desde la API
+      console.log("Premios crudos obtenidos desde la API:", premios);
+      console.log("Cantidad de premios antes de filtrar:", premios.length);
 
         if (!Array.isArray(premios)) {
           console.error("Los premios no son un array válido.");
@@ -47,6 +50,8 @@ export default function Marketplace() {
         setFilteredPrizes(filteredPrizes);
 
         const userId = account.localAccountId;
+
+        console.log("Premios obtenidos:", filteredPrizes);
         const walletData = await getWalletBalanceByUserId(userId);
 
         console.log("Premios obtenidos:", filteredPrizes);

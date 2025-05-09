@@ -74,6 +74,8 @@ const CRUDMarketplaceCompras = () => {
       const filtered = data.filter((item) => item.organizacionId === organizacionId);
       setCompras(filtered);
 
+      console.log("Datos de compras filtrados:", filtered); // Corregido
+
       const colaboradoresData = await getColaboradores();
       const colaboradoresMap = {};
       colaboradoresData.forEach((colaborador) => {

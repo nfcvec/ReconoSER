@@ -206,6 +206,7 @@ WHERE WalletSaldoId = 1;
 --actulizar 
 
 SELECT * FROM MarketplacePremios;
+SELECT * FROM MarketplaceCompras;
 SELECT * FROM Reconocimientos;
 -- insertar nueva wallet
 INSERT INTO WalletSaldos (WalletSaldoId, TokenColaborador, SaldoActual) VALUES
