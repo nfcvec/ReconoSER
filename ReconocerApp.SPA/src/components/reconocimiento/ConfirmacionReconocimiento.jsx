@@ -1,33 +1,25 @@
 import { Button, Card, CardContent, CardActions, Typography, Container, Box, List, ListItem, ListItemText } from "@mui/material";
-import { createCertificado } from "../../utils/services/certificado";
+import { solicitarReconocimiento } from "../../utils/services/certificado";
+import { useMsal } from "@azure/msal-react";
 
 export default function ConfirmacionReconocimiento({ data, onConfirm, onBack }) {
-  const { selectedCollaborator, selectedValues, justification, certificateText, collaborators, institutionalValues, token } = data;
-
-  const collaboratorName = collaborators.find((c) => c.id === selectedCollaborator)?.displayName || "No seleccionado";
-  const selectedValuesDescriptions = selectedValues.map(
-    (id) => institutionalValues.find((v) => v.comportamientoId === id)?.descripcion || "Valor no encontrado"
-  );
-  const selectedValuesTitles = selectedValues.map(
-    (id) => institutionalValues.find((v) => v.comportamientoId === id)?.nombre || "Nombre no encontrado"
-  );
+  const {accounts} = useMsal();
+  const user = accounts[0];
+  const { Reconocido, Comportamientos, Justificacion, Texto } = data;
 
   const handleConfirm = async () => {
     const payload = {
-      reconocimientoId: 0,
-      tokenColaborador: selectedCollaborator, // OID del colaborador seleccionado
-      justificacion: justification,
-      texto: certificateText,
-      titulo: selectedValuesTitles.join(", "), // Nombres de los valores seleccionados
-      fechaCreacion: new Date().toISOString(), // Fecha actual en formato ISO
+      reconocedorId: user?.idTokenClaims?.oid, // OID del usuario que está reconociendo
+      reconocidoId: Reconocido.id, // OID del colaborador seleccionado
+      justificacion: Justificacion,
+      texto: Texto,
       estado: "pendiente",
-      comentarioRevision: "",
-      fechaResolucion: "",
+      comportamientos: Comportamientos
     };
 
     try {
-      const response = await createCertificado(payload); // Llama a la API para crear el certificado
-      console.log("Certificado creado exitosamente:", response);
+      const response = await solicitarReconocimiento(payload); // Llama a la API para crear el certificado
+      console.log("Reconocimiento solicitado exitosamente:", response);
       onConfirm(); // Llama al callback después de la confirmación
     } catch (error) {
       console.error("Error al crear el certificado:", error);
@@ -44,6 +36,7 @@ export default function ConfirmacionReconocimiento({ data, onConfirm, onBack }) 
       gap: 1,
       textAlign: "center",
     }}>
+      <pre>{JSON.stringify(Reconocido)}</pre>
       <Card>
         <CardContent sx={{ textAlign: "center", py: 4 }}>
           <Typography variant="h5" component="h1" gutterBottom>
@@ -54,17 +47,17 @@ export default function ConfirmacionReconocimiento({ data, onConfirm, onBack }) 
               Colaborador Seleccionado:
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              {collaboratorName}
+              {Reconocido.displayName}
             </Typography>
           </Box>
           <Box sx={{ my: 3, textAlign: "left" }}>
             <Typography variant="h6" gutterBottom>
-              Valores Institucionales Seleccionados:
+              Comportamientos:
             </Typography>
             <List>
-              {selectedValuesDescriptions.map((description, index) => (
-                <ListItem key={index}>
-                  <ListItemText primary={description} />
+              {Comportamientos.map((item) => (
+                <ListItem key={item.comportamientoId}>
+                  <ListItemText primary={item.descripcion} />
                 </ListItem>
               ))}
             </List>
@@ -74,7 +67,7 @@ export default function ConfirmacionReconocimiento({ data, onConfirm, onBack }) 
               Justificación:
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              {justification}
+              {Justificacion}
             </Typography>
           </Box>
           <Box sx={{ my: 3, textAlign: "left" }}>
@@ -82,7 +75,7 @@ export default function ConfirmacionReconocimiento({ data, onConfirm, onBack }) 
               Texto del Certificado:
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              {certificateText}
+              {Texto}
             </Typography>
           </Box>
         </CardContent>

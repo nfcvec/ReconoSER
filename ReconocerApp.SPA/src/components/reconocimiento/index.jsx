@@ -29,15 +29,26 @@ export default function Reconocimiento() {
   const navigate = useNavigate();
   const { instance } = useMsal(); // Asegúrate de que useMsal esté definido y configurado correctamente
   const [collaborators, setCollaborators] = useState([]); // Estado para colaboradores
-  const [institutionalValues, setInstitutionalValues] = useState([]); // Estado para comportamientos
-  const [selectedCollaborator, setSelectedCollaborator] = useState("");
-  const [selectedValues, setSelectedValues] = useState([]);
-  const [justification, setJustification] = useState("");
-  const [certificateText, setCertificateText] = useState("");
+  const [comportamientos, setComportamientos] = useState([]); // Estado para comportamientos
+  const [Reconocido, setSelectedCollaborator] = useState(null);
+  const [Comportamientos, setSelectedValues] = useState([]);
+  const [Justificacion, setJustification] = useState("");
+  const [Texto, setCertificateText] = useState("");
   const [step, setStep] = useState("form"); // "form" | "confirm"
   const [totalUlis, setTotalUlis] = useState(0);
   const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
   const [searchResults, setSearchResults] = useState([]); // Estado para los resultados de búsqueda
+
+  const toggleSelection = (list, item, maxItems) => {
+    if (list.some((i) => i.comportamientoId === item.comportamientoId)) {
+      return list.filter((i) => i.comportamientoId !== item.comportamientoId);
+    }
+    if (list.length >= maxItems) {
+      alert(`Solo puedes seleccionar un máximo de ${maxItems} comportamientos.`);
+      return list;
+    }
+    return [...list, item];
+  };
 
   // Cargar organizaiones desde la API
   useEffect(() => {
@@ -96,7 +107,7 @@ export default function Reconocimiento() {
       try {
         const comportamientos = await getComportamientos(); // Llama a la API
         console.log("Comportamientos obtenidos:", comportamientos);
-        setInstitutionalValues(comportamientos); // Actualiza el estado con los comportamientos
+        setComportamientos(comportamientos); // Actualiza el estado con los comportamientos
       } catch (error) {
         console.error("Error al obtener los comportamientos:", error.message);
       }
@@ -107,26 +118,25 @@ export default function Reconocimiento() {
 
   // Actualizar el total de ULIs cuando cambien los valores seleccionados
   useEffect(() => {
-    const total = selectedValues.reduce((sum, id) => {
-      const value = institutionalValues.find((v) => v.comportamientoId === id);
-      return sum + (value ? value.walletOtorgados : 0);
+    const total = Comportamientos.reduce((sum, item) => {
+      return sum + (item ? item.walletOtorgados : 0);
     }, 0);
     setTotalUlis(total);
-  }, [selectedValues, institutionalValues]);
+  }, [Comportamientos, comportamientos]);
 
-  const handleValueChange = (event, valueId) => {
+  const handleValueChange = (event, value) => {
     const checked = event.target.checked;
 
-    if (checked && selectedValues.length >= 3) {
+    if (checked && Comportamientos.length >= 3) {
       // Si ya hay 3 seleccionados, no permitir más
       alert("Solo puedes seleccionar un máximo de 3 comportamientos.");
       return;
     }
 
     if (checked) {
-      setSelectedValues([...selectedValues, valueId]);
+      setSelectedValues(toggleSelection(Comportamientos, value, 3));
     } else {
-      setSelectedValues(selectedValues.filter((id) => id !== valueId));
+      setSelectedValues(toggleSelection(Comportamientos, value, 3));
     }
   };
 
@@ -144,10 +154,10 @@ export default function Reconocimiento() {
   };
 
   const isFormValid =
-    selectedCollaborator &&
-    selectedValues.length > 0 &&
-    justification.trim().length > 0 &&
-    certificateText.trim().length > 0;
+    Reconocido &&
+    Comportamientos.length > 0 &&
+    Justificacion.trim().length > 0 &&
+    Texto.trim().length > 0;
 
   return (
     <>
@@ -166,7 +176,7 @@ export default function Reconocimiento() {
             Dar Reconocimiento
           </Typography>
           <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-            Reconoce a tus colaboradores por demostrar valores institucionales.
+            Reconoce a tus colaboradores por demostrar comportamientos.
           </Typography>
 
           <form onSubmit={handleSubmit}>
@@ -180,9 +190,9 @@ export default function Reconocimiento() {
                     id="collaborator-autocomplete"
                     options={collaborators}
                     getOptionLabel={(option) => `${option.displayName} (${option.mail || option.userPrincipalName})`}
-                    value={collaborators.find(c => c.id === selectedCollaborator) || null}
+                    value={Reconocido}
                     onChange={(event, newValue) => {
-                      setSelectedCollaborator(newValue ? newValue.id : "");
+                      setSelectedCollaborator(newValue);
                     }}
                     filterSelectedOptions
                     renderInput={(params) => (
@@ -199,8 +209,8 @@ export default function Reconocimiento() {
                       Comportamientos
                     </Typography>
                     <Paper variant="outlined" sx={{ p: 2 }}>
-                      {institutionalValues.length > 0 ? (
-                        institutionalValues.map((value, index) => (
+                      {comportamientos.length > 0 ? (
+                        comportamientos.map((value, index) => (
                           <Box
                             key={value.comportamientoId || index}
                             sx={{
@@ -208,15 +218,15 @@ export default function Reconocimiento() {
                               flexDirection: "column",
                               gap: 1,
                               py: 1,
-                              borderBottom: index !== institutionalValues.length - 1 ? "1px solid #e0e0e0" : "none",
+                              borderBottom: index !== comportamientos.length - 1 ? "1px solid #e0e0e0" : "none",
                             }}
                           >
                             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                               <FormControlLabel
                                 control={
                                   <Checkbox
-                                    checked={selectedValues.includes(value.comportamientoId)}
-                                    onChange={(e) => handleValueChange(e, value.comportamientoId)}
+                                    checked={Comportamientos.some((item) => item.comportamientoId === value.comportamientoId)}
+                                    onChange={(e) => handleValueChange(e, value)}
                                   />
                                 }
                                 label={value.descripcion || "Sin descripción disponible"}
@@ -231,7 +241,7 @@ export default function Reconocimiento() {
                         ))
                       ) : (
                         <Typography variant="body2" color="text.secondary">
-                          Cargando valores institucionales...
+                          Cargando comportamientos...
                         </Typography>
                       )}
                     </Paper>
@@ -243,7 +253,7 @@ export default function Reconocimiento() {
                     multiline
                     rows={4}
                     placeholder="Explica cómo y por qué el colaborador ha destacado en estos valores..."
-                    value={justification}
+                    value={Justificacion}
                     onChange={(e) => setJustification(e.target.value)}
                     fullWidth
                   />
@@ -254,7 +264,7 @@ export default function Reconocimiento() {
                     multiline
                     rows={3}
                     placeholder="Texto que aparecerá en el certificado..."
-                    value={certificateText}
+                    value={Texto}
                     onChange={(e) => setCertificateText(e.target.value)}
                     fullWidth
                     helperText="Puedes editar el texto según sea necesario."
@@ -273,14 +283,13 @@ export default function Reconocimiento() {
           </form>
         </Box>
       ) : (
+        
         <ConfirmacionReconocimiento
           data={{
-            selectedCollaborator,
-            selectedValues,
-            justification,
-            certificateText,
-            collaborators,
-            institutionalValues,
+            Reconocido,
+            Comportamientos,
+            Justificacion,
+            Texto,
           }}
           onConfirm={handleConfirm}
           onBack={handleBack}

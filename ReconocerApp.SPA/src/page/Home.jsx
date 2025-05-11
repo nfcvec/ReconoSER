@@ -15,20 +15,12 @@ import {
 } from "@mui/icons-material";
 import { useMsal } from "@azure/msal-react";
 import Administrar from "../components/administrar/administrar"; // Importar el componente Administrar
+import { OrganizacionProvider, useOrganizacion } from "../contexts/OrganizacionContext";
 
 export default function Home() {
   const { accounts } = useMsal();
   const user = accounts[0];
-
-  const getOrganizationFromEmail = (email) => {
-    const domain = email.split("@")[1];
-    if (domain === "udla.edu.ec") {
-      return "UDLA";
-    }
-    return "Organización Desconocida";
-  };
-
-  const organization = getOrganizationFromEmail(user.username);
+  const organizacion = useOrganizacion();
 
   const cardItems = [
     {
@@ -75,7 +67,7 @@ export default function Home() {
       <Typography variant="h4">
         <strong>ReconoSER</strong>
         <Typography component="span" variant="h6" sx={{ ml: 1 }}>
-          x {organization}
+          x {organizacion?.nombre || "..."}
         </Typography>
       </Typography>
 

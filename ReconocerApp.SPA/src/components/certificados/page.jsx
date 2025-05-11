@@ -1,56 +1,49 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Button, Card, CardActions, CardContent, Grid, Container, Box, Typography } from "@mui/material";
-import { Download as DownloadIcon } from "@mui/icons-material";
+import { Button, Box, Typography, Modal, Container } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid"; // Import DataGrid
 import CertificadoComponent from "./certificadoComponent";
 import { getCertificados } from "../../utils/services/certificado";
 import { useMsal } from "@azure/msal-react";
-import { toPng } from "html-to-image";
 
 export default function Certificados() {
   const { accounts } = useMsal();
   const user = accounts[0];
-  const oid = user?.idTokenClaims?.oid; // OID del colaborador autenticado
+  const oid = user?.idTokenClaims?.oid;
 
   const [certificates, setCertificates] = useState([]);
-  const certificateRefs = useRef({});
+  const [selectedCertificate, setSelectedCertificate] = useState(null); // State for modal
+  const [open, setOpen] = useState(false); // Modal open state
 
-  const handleDownload = async (id) => {
-    const ref = certificateRefs.current[id];
-    if (!ref) return;
-
-    try {
-      const dataUrl = await toPng(ref, { cacheBust: true });
-      const link = document.createElement("a");
-      link.href = dataUrl;
-      link.download = `certificado-${id}.png`;
-      link.click();
-    } catch (error) {
-      console.error("Error al descargar el certificado:", error);
-    }
+  const handleRowClick = (params) => {
+    setSelectedCertificate(params.row); // Set the selected certificate
+    setOpen(true); // Open the modal
   };
+
+  const handleClose = () => setOpen(false); // Close the modal
 
   useEffect(() => {
     const fetchCertificates = async () => {
-      if (!oid) return; // Si aún no hay OID, no hace la llamada
+      if (!oid) return;
       try {
-        const allCertificates = await getCertificados(); // Llama API
-        console.log("Todos los certificados:", allCertificates);
-
-        // Filtra certificados del colaborador actual
+        const allCertificates = await getCertificados();
         const filteredCertificates = allCertificates.filter(
           (cert) => cert.tokenColaborador === oid
         );
-
-        console.log("Certificados filtrados:", filteredCertificates);
-        setCertificates(filteredCertificates); // Actualiza estado
+        setCertificates(filteredCertificates);
       } catch (error) {
         console.error("Error al obtener los certificados:", error);
       }
     };
 
     fetchCertificates();
-  }, [oid]); // Dependemos del oid
+  }, [oid]);
+
+  const columns = [
+    { field: "titulo", headerName: "Título", flex: 1 },
+    { field: "fechaCreacion", headerName: "Fecha", flex: 1 },
+    { field: "texto", headerName: "Descripción", flex: 2 },
+  ];
 
   return (
     <Box
@@ -68,39 +61,21 @@ export default function Certificados() {
         Mis Certificados
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        Aquí puedes ver y descargar los certificados de comportamientos que has realizado.
+        Aquí puedes ver y visualizar los certificados de comportamientos que has realizado.
       </Typography>
 
-      <Grid container spacing={3}>
-        {certificates.map((certificate, index) => (
-          <Grid item xs={12} sm={6} md={4} key={certificate.reconocimientoId || index}>
-            <Card>
-              <CardContent ref={(el) => (certificateRefs.current[certificate.reconocimientoId || index] = el)}>
-                <CertificadoComponent
-                  nombreColaborador={certificate.nombreColaborador}
-                  comportamientosSeleccionados={certificate.comportamientosSeleccionados}
-                  fechaActual={certificate.fechaCreacion}
-                  titulo={certificate.titulo}
-                  texto={certificate.texto}
-                  justificacion={certificate.justificacion}
-                  oid={oid} // Pasamos el OID como prop
-                />
-              </CardContent>
-              <CardActions>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  size="small"
-                  startIcon={<DownloadIcon />}
-                  onClick={() => handleDownload(certificate.reconocimientoId || index)}
-                >
-                  Descargar Certificado
-                </Button>
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+      <Container maxWidth="md">
+        <DataGrid
+          rows={certificates.map((cert, index) => ({
+            id: cert.reconocimientoId || index,
+            ...cert,
+          }))}
+          columns={columns}
+          autoHeight
+          pageSize={5}
+          onRowClick={handleRowClick} // Handle row click
+        />
+      </Container>
 
       {certificates.length === 0 && (
         <Box sx={{ textAlign: "center", py: 6 }}>
@@ -113,6 +88,36 @@ export default function Certificados() {
           <Button variant="outlined">Volver al Inicio</Button>
         </Link>
       </Box>
+
+      {/* Modal for displaying the certificate */}
+      <Modal open={open} onClose={handleClose}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            maxWidth: "90vw",
+            maxHeight: "90vh",
+            overflow: "auto",
+          }}
+        >
+          {selectedCertificate && (
+            <CertificadoComponent
+              nombreColaborador={selectedCertificate.nombreColaborador}
+              comportamientosSeleccionados={selectedCertificate.comportamientosSeleccionados}
+              fechaActual={selectedCertificate.fechaCreacion}
+              titulo={selectedCertificate.titulo}
+              texto={selectedCertificate.texto}
+              justificacion={selectedCertificate.justificacion}
+              oid={oid}
+            />
+          )}
+        </Box>
+      </Modal>
     </Box>
   );
 }
