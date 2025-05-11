@@ -59,17 +59,22 @@ const SelectorReconocimientos = ({ onSelect, multiple = false }) => {
 
   const columns = [
     {
-      field: "tokenColaborador",
-      headerName: "Colaborador",
+      field: "reconocedorId",
+      headerName: "Reconocedor",
+      width: 250,
+      renderCell: (params) => colaboradores[params.value] || params.value,
+    },
+    {
+      field: "reconocidoId",
+      headerName: "Reconocido",
       width: 250,
       renderCell: (params) => colaboradores[params.value] || params.value,
     },
     { field: "justificacion", headerName: "Justificación", width: 250 },
     { field: "texto", headerName: "Texto", width: 250 },
-    { field: "titulo", headerName: "Título", width: 250 },
     { field: "fechaCreacion", headerName: "Fecha Creación", width: 200 },
     { field: "estado", headerName: "Estado", width: 150 },
-    { field: "comentarioRevision", headerName: "Comentario Revisión", width: 250 },
+    { field: "comentarioAprobacion", headerName: "Comentario Aprobación", width: 250 },
     { field: "fechaResolucion", headerName: "Fecha Resolución", width: 200 },
   ];
 

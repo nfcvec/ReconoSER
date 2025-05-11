@@ -1,47 +1,51 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   DataGrid,
-  GridActionsCellItem,
 } from "@mui/x-data-grid";
 import {
-  Button,
   Dialog,
-  DialogActions,
-  DialogContent,
   DialogTitle,
-  TextField,
+  DialogContent,
+  DialogActions,
   Box,
   Container,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
+  Typography,
+  Button,
+  Divider,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TextField,
+  Switch,
+  FormControlLabel,
+  Snackbar,
+  Alert,
+  CircularProgress,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
 import {
   getReconocimientos,
-  editReconocimiento,
-  deleteReconocimiento,
-  createReconocimiento,
+  reviewReconocimiento
 } from "../../../utils/services/reconocimientos";
-import { getColaboradores } from "../../../utils/services/colaboradores";
+import { getColaboradoresFromBatchIds } from "../../../utils/services/colaboradores";
 import { useMsal } from "@azure/msal-react";
+import { getComportamientos } from "../../../utils/services/comportamientos";
 
 const CRUDReconocimientos = () => {
   const [reconocimientos, setReconocimientos] = useState([]);
-  const [colaboradores, setColaboradores] = useState({});
+  const [colaboradores, setColaboradores] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
-  const [selected, setSelected] = useState(null);
-  const [formValues, setFormValues] = useState({
-    tokenColaborador: "",
-    justificacion: "",
-    texto: "",
-    titulo: "",
-    fechaCreacion: new Date().toISOString(),
-    estado: "pendiente",
-    comentarioRevision: "",
-    fechaResolucion: "",
+  const [selectedReconocimiento, setSelectedReconocimiento] = useState(null);
+  const [comentarioAprobacion, setComentarioAprobacion] = useState("");
+  const [generaULIS, setGeneraULIs] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success',
   });
 
   const { instance, accounts } = useMsal();
@@ -49,7 +53,17 @@ const CRUDReconocimientos = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getReconocimientos();
+        const data = await getReconocimientos({
+          filters: [
+            {
+              field: "estado",
+              operator: "eq",
+              value: "pendiente",
+            }
+          ],
+          page: 1,
+          pageSize: 100
+        });
         setReconocimientos(data);
       } catch (error) {
         console.error("Error al cargar los reconocimientos:", error);
@@ -58,219 +72,259 @@ const CRUDReconocimientos = () => {
     fetchData();
   }, []);
 
+
   useEffect(() => {
+    console.log("Reconocimientos:", reconocimientos);
     const fetchColaboradores = async () => {
       try {
-        const response = await instance.acquireTokenSilent({
-          account: accounts[0],
-          scopes: ["User.Read.All"],
-        });
-
-        const users = await getColaboradores(response.accessToken);
-        const colaboradorMap = {};
-        users.forEach(user => {
-          colaboradorMap[user.id] = user.displayName;
-        });
-        setColaboradores(colaboradorMap);
+        let ids = [...new Set(reconocimientos.map((rec) => rec.reconocedorId))];
+        ids = [...ids, ...reconocimientos.map((rec) => rec.reconocidoId)];
+        // distinct ids
+        ids = [...new Set(ids)];
+        const users = await getColaboradoresFromBatchIds(ids, instance, accounts);
+        setColaboradores(users);
       } catch (error) {
         console.error("Error al obtener colaboradores:", error);
       }
     };
     fetchColaboradores();
-  }, [instance, accounts]);
-
-  const handleOpenDialog = (item = null) => {
-    setSelected(item);
-    setFormValues(
-      item || {
-        tokenColaborador: "",
-        justificacion: "",
-        texto: "",
-        titulo: "",
-        fechaCreacion: new Date().toISOString(),
-        estado: "pendiente",
-        comentarioRevision: "",
-        fechaResolucion: "",
-      }
-    );
-    setOpenDialog(true);
-  };
+  }, [reconocimientos]);
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setSelected(null);
+    setSelectedReconocimiento(null);
+    setComentarioAprobacion('');
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormValues((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSave = async () => {
+  const handleReview = async (action) => {
+    setIsLoading(true);
     try {
       const payload = {
-        ...formValues,
-        fechaResolucion: selected ? new Date().toISOString() : "",
-      };
-
-      if (selected) {
-        await editReconocimiento(selected.reconocimientoId, payload);
-      } else {
-        await createReconocimiento(payload);
+        aprobar: action === "aprobado",
+        comentarioAprobacion,
+        aprobadorId: accounts[0]?.homeAccountId,
+        generarULIs: generaULIS
       }
-
-      const updated = await getReconocimientos();
-      setReconocimientos(updated);
-      handleCloseDialog();
+      reviewReconocimiento(selectedReconocimiento.reconocimientoId, payload)
+        .then((response) => {
+          setSnackbar({
+            open: true,
+            message: `Reconocimiento ${action === "aprobado" ? "aprobado" : "rechazado"} correctamente.`,
+            severity: "success",
+          });
+          setReconocimientos((prev) =>
+            prev.filter((rec) => rec.reconocimientoId !== selectedReconocimiento.reconocimientoId)
+          );
+          handleCloseDialog();
+        })
+        .catch((error) => {
+          console.error("Error al revisar el reconocimiento:", error);
+          setSnackbar({
+            open: true,
+            message: `Error al ${action === "aprobado" ? "aprobar" : "rechazar"} el reconocimiento.`,
+            severity: "error",
+          });
+        })
     } catch (error) {
-      console.error("Error al guardar el reconocimiento:", error);
+      console.error("Error al revisar el reconocimiento:", error);
+      setSnackbar({
+        open: true,
+        message: `Error al ${action === "accept" ? "aceptar" : "rechazar"} el reconocimiento.`,
+        severity: "error",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const handleDelete = useCallback(
-    async (id) => {
-      try {
-        await deleteReconocimiento(id);
-        setReconocimientos((prev) => prev.filter((r) => r.reconocimientoId !== id));
-      } catch (error) {
-        console.error("Error al eliminar el reconocimiento:", error);
-      }
-    },
-    []
-  );
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
 
   const columns = [
     {
-      field: "tokenColaborador",
-      headerName: "Colaborador",
+      field: "reconocedorId",
+      headerName: "Reconocedor",
       width: 250,
-      renderCell: (params) => colaboradores[params.value] || params.value,
+      renderCell: (params) => colaboradores.find((colaborador) => colaborador.id === params.value)?.displayName || params.value,
+    },
+    {
+      field: "reconocidoId",
+      headerName: "Reconocido",
+      width: 250,
+      renderCell: (params) => colaboradores.find((colaborador) => colaborador.id === params.value)?.displayName || params.value,
     },
     { field: "justificacion", headerName: "Justificación", width: 250 },
-    { field: "texto", headerName: "Texto", width: 250 },
-    { field: "titulo", headerName: "Título", width: 250 },
-    { field: "fechaCreacion", headerName: "Fecha Creación", width: 200 },
     { field: "estado", headerName: "Estado", width: 150 },
-    { field: "comentarioRevision", headerName: "Comentario Revisión", width: 250 },
-    { field: "fechaResolucion", headerName: "Fecha Resolución", width: 200 },
-    {
-      field: "actions",
-      headerName: "Acciones",
-      type: "actions",
-      width: 150,
-      getActions: (params) => [
-        <GridActionsCellItem
-          icon={<EditIcon />}
-          label="Editar"
-          onClick={() => handleOpenDialog(params.row)}
-        />,
-        <GridActionsCellItem
-          icon={<DeleteIcon />}
-          label="Eliminar"
-          onClick={() => handleDelete(params.id)}
-        />,
-      ],
-    },
   ];
-
-  const colaboradorOptions = Object.entries(colaboradores).map(([id, name]) => ({
-    id,
-    name,
-  }));
 
   return (
     <Container>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-        <h1>Administrar Reconocimientos</h1>
-        {/* <Button variant="contained" onClick={() => handleOpenDialog()}>
-          Añadir Reconocimiento
-        </Button> */}
+        <Typography variant="h4" gutterBottom>
+          Revisar reconocimientos
+        </Typography>
       </Box>
       <DataGrid
+        getRowId={(row) => row.reconocimientoId}
         rows={reconocimientos}
         columns={columns}
-        pageSize={5}
-        rowsPerPageOptions={[5]}
-        getRowId={(row) => row.reconocimientoId}
-        autoHeight
+        disableColumnFilter={true}
+        disableColumnSelector={true}
+        disableColumnSorting={true}
+        onRowClick={(params) => {
+          setSelectedReconocimiento(params.row);
+          setOpenDialog(true);
+        }}
       />
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>{selected ? "Editar" : "Añadir"} Reconocimiento</DialogTitle>
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle>
+          Detalles del Reconocimiento
+        </DialogTitle>
         <DialogContent>
-          <FormControl fullWidth margin="dense" disabled>
-            <InputLabel id="colaborador-select-label">Colaborador</InputLabel>
-            <Select
-              labelId="colaborador-select-label"
-              name="tokenColaborador"
-              value={formValues.tokenColaborador}
-              onChange={handleChange}
-              label="Colaborador"
-            >
-              {colaboradorOptions.map((colab) => (
-                <MenuItem key={colab.id} value={colab.id}>
-                  {colab.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          {selectedReconocimiento && (
+            <>
+              <Typography variant="body1" sx={{ my: 1 }}>
+                <strong>Reconocedor:</strong> {colaboradores.find((colaborador) => colaborador.id === selectedReconocimiento.reconocedorId)?.displayName || selectedReconocimiento.reconocedorId}
+              </Typography>
+              <Typography variant="body1" sx={{ my: 1 }}>
+                <strong>Reconocido:</strong> {colaboradores.find((colaborador) => colaborador.id === selectedReconocimiento.reconocidoId)?.displayName || selectedReconocimiento.reconocidoId}
+              </Typography>
+              <Divider sx={{ my: 1.5 }} />
+              <Typography variant="body1" sx={{ my: 1 }}>
+                <strong>Justificación:</strong> {selectedReconocimiento.justificacion}
+              </Typography>
+              <Typography variant="body1" sx={{ my: 1 }}>
+                <strong>Certificado:</strong> {selectedReconocimiento.texto}
+              </Typography>
+              <Typography variant="body1" sx={{ my: 1 }}>
+                <strong>Estado:</strong> {selectedReconocimiento.estado}
+              </Typography>
 
-          {["justificacion", "texto", "titulo", "fechaCreacion"].map((field) => (
-            <TextField
-              key={field}
-              margin="dense"
-              label={field.charAt(0).toUpperCase() + field.slice(1)}
-              name={field}
-              fullWidth
-              value={formValues[field]}
-              onChange={handleChange}
-              disabled
-            />
-          ))}
+              {selectedReconocimiento.comportamientos && selectedReconocimiento.comportamientos.length > 0 && (
+                <>
+                  <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>
+                    Comportamientos seleccionados
+                  </Typography>
 
-          {/* Campo editable: estado */}
-          <FormControl fullWidth margin="dense">
-            <InputLabel id="estado-select-label">Estado</InputLabel>
-            <Select
-              labelId="estado-select-label"
-              name="estado"
-              value={formValues.estado}
-              onChange={handleChange}
-              label="Estado"
-            >
-              <MenuItem value="pendiente">Pendiente</MenuItem>
-              <MenuItem value="procesando">Procesando</MenuItem>
-              <MenuItem value="completado">Completado</MenuItem>
-              <MenuItem value="rechazado">Rechazado</MenuItem>
-            </Select>
-          </FormControl>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={generaULIS}
+                        onChange={(e) => setGeneraULIs(e.target.checked)}
+                        color="primary"
+                      />
+                    }
+                    label="Generar ULIs"
+                    sx={{ mb: 1 }}
+                  />
 
-          {/* Campo editable */}
-          <TextField
-            margin="dense"
-            label="Comentario Revisión"
-            name="comentarioRevision"
-            fullWidth
-            value={formValues.comentarioRevision}
-            onChange={handleChange}
-          />
+                  <TableContainer component={Paper} sx={{ mt: 1 }}>
+                    <Table size="small">
+                      <TableHead>
+                        <TableRow>
+                          <TableCell><strong>Comportamiento</strong></TableCell>
+                          <TableCell><strong>Descripción</strong></TableCell>
+                          {generaULIS && (
+                            <TableCell align="center"><strong>ULIs</strong></TableCell>
+                          )}
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {selectedReconocimiento.comportamientos.map((comportamiento) => (
+                          <TableRow key={comportamiento.comportamientoId}>
+                            <TableCell>{comportamiento.nombre}</TableCell>
+                            <TableCell>{comportamiento.descripcion}</TableCell>
+                            {generaULIS && (
+                              <TableCell align="center">{comportamiento.walletOtorgados}</TableCell>
+                            )}
+                          </TableRow>
+                        ))}
+                        {generaULIS && (
+                          <TableRow>
+                            <TableCell colSpan={2} align="right">
+                              <strong>Total ULIs:</strong>
+                            </TableCell>
+                            <TableCell align="center">
+                              <strong>
+                                {selectedReconocimiento.comportamientos.reduce(
+                                  (total, comportamiento) => total + comportamiento.walletOtorgados,
+                                  0
+                                )}
+                              </strong>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
 
-          {/* Campo de solo lectura */}
-          <TextField
-            margin="dense"
-            label="Fecha Resolución"
-            name="fechaResolucion"
-            fullWidth
-            value={selected ? new Date().toISOString() : formValues.fechaResolucion}
-            disabled
-          />
+                  <Box sx={{ mt: 3 }}>
+                    <Typography variant="h6" sx={{ mb: 1 }}>
+                      Comentario de aprobación
+                    </Typography>
+                    <TextField
+                      fullWidth
+                      multiline
+                      rows={3}
+                      variant="outlined"
+                      placeholder="Ingrese un comentario para la aprobación o rechazo"
+                      value={comentarioAprobacion}
+                      onChange={(e) => setComentarioAprobacion(e.target.value)}
+                    />
+                  </Box>
+                </>
+              )}
+            </>
+          )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancelar</Button>
-          <Button onClick={handleSave} variant="contained">
-            Guardar
+        <DialogActions sx={{ p: 2, justifyContent: 'space-between' }}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={handleCloseDialog}
+            disabled={isLoading}
+          >
+            Cerrar
           </Button>
+          <Box>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => handleReview("rechazado")}
+              disabled={!comentarioAprobacion || isLoading}
+              sx={{ mx: 1 }}
+            >
+              {isLoading ? <CircularProgress size={24} color="inherit" /> : "Rechazar"}
+            </Button>
+            <Button
+              variant="contained"
+              color="success"
+              onClick= {() => handleReview("aprobado")}
+              disabled={isLoading}
+              sx={{ mx: 1 }}
+            >
+              {isLoading ? <CircularProgress size={24} color="inherit" /> : "Aceptar"}
+            </Button>
+          </Box>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

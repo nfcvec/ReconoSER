@@ -18,8 +18,8 @@ builder.Services.AddControllers();
 // Register MinioService
 builder.Services.AddScoped<MinioService>();
 
-// Configurar AutoMapper
-builder.Services.AddAutoMapper(typeof(MappingProfile)); // 👈 ¡Aquí está el cambio!
+// Register AutoMapper
+builder.Services.AddAutoMapper(typeof(ReconocerApp.API.Mapping.MappingProfile));
 
 // Configurar DbContext dinámicamente
 var databaseProvider = builder.Configuration.GetValue<string>("DatabaseProvider");

@@ -6,16 +6,20 @@ import {
   Card,
   CardContent,
   CardActions,
-  Button, // Importar Button desde Material-UI
+  Button,
 } from "@mui/material";
 import {
   FileCopy as CertificateIcon,
   Store as MarketplaceIcon,
   EmojiEvents as RecognitionIcon,
+  AccountBalanceWallet as WalletIcon,
+  Category as CategoryIcon,
+  CardGiftcard as PremiosIcon,
+  ShoppingCart as ComprasIcon,
+  AdminPanelSettings as AdminIcon,
 } from "@mui/icons-material";
 import { useMsal } from "@azure/msal-react";
-import Administrar from "../components/administrar/administrar"; // Importar el componente Administrar
-import { OrganizacionProvider, useOrganizacion } from "../contexts/OrganizacionContext";
+import { useOrganizacion } from "../contexts/OrganizacionContext";
 
 export default function Home() {
   const { accounts } = useMsal();
@@ -44,6 +48,41 @@ export default function Home() {
       link: "/marketplace",
       buttonText: "Ir al Marketplace",
     },
+    {
+      title: "ULIs",
+      description: "Consulta los saldos de las billeteras de tus colaboradores",
+      icon: <WalletIcon sx={{ fontSize: 64, color: "primary.main" }} />,
+      link: "/administrar/wallet-saldos",
+      buttonText: "Administrar Saldos",
+    },
+    {
+      title: "Revisar reconocimientos",
+      description: "Revisa solicitudes de reconocimientos",
+      icon: <AdminIcon sx={{ fontSize: 64, color: "primary.main" }} />,
+      link: "/administrar/reconocimientos",
+      buttonText: "Admin. Reconocimientos",
+    },
+    {
+      title: "Revisar compras",
+      description: "Revisa solicitudes de compras del marketplace",
+      icon: <ComprasIcon sx={{ fontSize: 64, color: "primary.main" }} />,
+      link: "/administrar/marketplace-compras",
+      buttonText: "Admin. Compras",
+    },
+    {
+      title: "Administrar Premios",
+      description: "Gestiona los premios disponibles",
+      icon: <PremiosIcon sx={{ fontSize: 64, color: "primary.main" }} />,
+      link: "/administrar/premios",
+      buttonText: "Admin. Premios",
+    },
+    {
+      title: "Administrar Categorías",
+      description: "Administra las categorías de los premios",
+      icon: <CategoryIcon sx={{ fontSize: 64, color: "primary.main" }} />,
+      link: "/administrar/categorias",
+      buttonText: "Admin. Categorías",
+    },
   ];
 
   return (
@@ -56,13 +95,9 @@ export default function Home() {
         minHeight: "80vh",
         gap: 4,
         textAlign: "center",
+        padding: "20px",
       }}
     >
-      {/* Renderizar el componente Administrar directamente */}
-      <Box sx={{ width: "100%", mb: 4 }}>
-        <Administrar />
-      </Box>
-
       {/* Título principal */}
       <Typography variant="h4">
         <strong>ReconoSER</strong>
@@ -82,12 +117,11 @@ export default function Home() {
       <Grid
         container
         spacing={4}
-        direction={{ xs: "column", md: "row" }}
         justifyContent="center"
-        alignItems="center"
+        alignItems="stretch"
       >
         {cardItems.map((item) => (
-          <Grid item key={item.link}>
+          <Grid item key={item.link} xs={12} sm={6} md={4} lg={3}>
             <Card
               sx={{
                 maxWidth: 250,

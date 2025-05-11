@@ -42,7 +42,11 @@ public class MappingProfile : Profile
         CreateMap<InventarioTransaccion, InventarioTransaccionResponse>();
 
         // Reconocimientos
-        CreateMap<Reconocimiento, ReconocimientoResponse>();
+        CreateMap<Reconocimiento, ReconocimientoResponse>()
+            .ForMember(dest => dest.Comportamientos, opt => opt.MapFrom(src => 
+                src.ReconocimientoComportamientos == null 
+                    ? new List<Comportamiento>() 
+                    : src.ReconocimientoComportamientos.Select(rc => rc.Comportamiento).Where(c => c != null)));
 
         // Reconocimiento - Comportamientos
         CreateMap<ReconocimientoComportamiento, ReconocimientoComportamientoResponse>();

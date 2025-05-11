@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import { Box, Button } from "@mui/material";
 import { getWalletBalance } from "../../../utils/services/walletBalance";
-import { getColaboradores } from "../../../utils/services/colaboradores";
+import { getColaboradores, getColaboradoresFromBatchIds } from "../../../utils/services/colaboradores";
 import { useMsal } from "@azure/msal-react";
 import { useAlert } from "../../../contexts/AlertContext";
 import { getOrganizaciones } from "../../../utils/services/organizaciones";
@@ -51,21 +51,10 @@ const SelectorWalletSaldos = ({ onSelect, multiple = false }) => {
   }, [organizacionId, showAlert]);
 
   const fetchColaboradores = useCallback(async () => {
-    try {
-      const response = await instance.acquireTokenSilent({
-        account: accounts[0],
-        scopes: ["User.Read.All"],
-      });
-
-      const users = await getColaboradores(response.accessToken);
-      const map = {};
-      users.forEach((user) => {
-        map[user.id] = user.displayName;
-      });
-      setColaboradores(map);
-    } catch (error) {
-      console.error("Error al obtener colaboradores:", error);
-    }
+    const ids = walletSaldos.map((item) => item.tokenColaborador);
+    const uniqueIds = [...new Set(ids)];
+    const users = await getColaboradoresFromBatchIds(uniqueIds, instance, accounts);
+    setColaboradores(users);
   }, [instance, accounts]);
 
   useEffect(() => {
@@ -92,7 +81,7 @@ const SelectorWalletSaldos = ({ onSelect, multiple = false }) => {
       field: "tokenColaborador",
       headerName: "Colaborador",
       width: 250,
-      renderCell: (params) => colaboradores[params.value] || params.value,
+      renderCell: (params) => colaboradores.find((col) => col.id === params.value)?.displayName || "Cargando...",
     },
     { field: "saldoActual", headerName: "Saldo Actual", width: 150 },
   ];

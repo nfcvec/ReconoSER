@@ -1,9 +1,23 @@
 import api from "../api";
 
 // Obtener todos los reconocimientos
-export const getReconocimientos = async () => {
+export const getReconocimientos = async ({
+  filters = [],
+  orderBy = "fechaCreacion",
+  orderDirection = "desc",
+  page = 1,
+  pageSize = 10,
+}) => {
   try {
-    const response = await api.get("/Reconocimientos");
+    const response = await api.get("/Reconocimientos",{
+      params: {
+        filters: JSON.stringify(filters),
+        orderBy,
+        orderDirection,
+        page,
+        pageSize,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error("Error al obtener los reconocimientos:", error.message);
@@ -43,3 +57,13 @@ export const deleteReconocimiento = async (id) => {
     throw error;
   }
 };
+
+export const reviewReconocimiento = async (id, data) => {
+  try {
+    const response = await api.post(`/Reconocimientos/review/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error al revisar el reconocimiento con ID ${id}:`, error.message);
+    throw error;
+  }
+}

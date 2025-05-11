@@ -12,4 +12,5 @@ public class ReconocimientoResponse
     public string AprobadorId { get; set; } = string.Empty;
     public string ComentarioAprobacion { get; set; } = string.Empty;
     public DateTime FechaResolucion { get; set; } = DateTime.UtcNow;
+    public List<ComportamientoResponse> Comportamientos { get; set; } = new List<ComportamientoResponse>();
 }

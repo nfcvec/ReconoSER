@@ -6,12 +6,7 @@ import {
   CardContent,
   CardActions,
   Typography,
-  Container,
   Box,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   TextField,
   FormControlLabel,
   Checkbox,
@@ -22,12 +17,11 @@ import { getOrganizaciones } from "../../utils/services/organizaciones";
 import { getComportamientos } from "../../utils/services/comportamientos";
 import { getColaboradores } from "../../utils/services/colaboradores";
 import { useMsal } from "@azure/msal-react";
-import { graphUsersRequest } from "../../authConfig";
 import ConfirmacionReconocimiento from "./ConfirmacionReconocimiento";
 
 export default function Reconocimiento() {
   const navigate = useNavigate();
-  const { instance } = useMsal(); // Asegúrate de que useMsal esté definido y configurado correctamente
+  const { instance, accounts } = useMsal(); // Asegúrate de que useMsal esté definido y configurado correctamente
   const [collaborators, setCollaborators] = useState([]); // Estado para colaboradores
   const [comportamientos, setComportamientos] = useState([]); // Estado para comportamientos
   const [Reconocido, setSelectedCollaborator] = useState(null);
@@ -35,9 +29,7 @@ export default function Reconocimiento() {
   const [Justificacion, setJustification] = useState("");
   const [Texto, setCertificateText] = useState("");
   const [step, setStep] = useState("form"); // "form" | "confirm"
-  const [totalUlis, setTotalUlis] = useState(0);
   const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
-  const [searchResults, setSearchResults] = useState([]); // Estado para los resultados de búsqueda
 
   const toggleSelection = (list, item, maxItems) => {
     if (list.some((i) => i.comportamientoId === item.comportamientoId)) {
@@ -75,12 +67,7 @@ export default function Reconocimiento() {
           return;
         }
 
-        const response = await instance.acquireTokenSilent({
-          scopes: graphUsersRequest.scopes,
-          account: account,
-        });
-
-        let colaboradores = await getColaboradores(response.accessToken, searchTerm); // Llama a la API
+        let colaboradores = await getColaboradores(searchTerm, instance, accounts); // Llama a la API
         console.log("Colaboradores obtenidos:", colaboradores);
 
         // Obtener el correo del usuario que inició sesión
@@ -105,7 +92,10 @@ export default function Reconocimiento() {
   useEffect(() => {
     const fetchComportamientos = async () => {
       try {
-        const comportamientos = await getComportamientos(); // Llama a la API
+        const comportamientos = await getComportamientos({
+          page: 1,
+          pageSize: 100,
+        }); // Llama a la API
         console.log("Comportamientos obtenidos:", comportamientos);
         setComportamientos(comportamientos); // Actualiza el estado con los comportamientos
       } catch (error) {
@@ -115,14 +105,6 @@ export default function Reconocimiento() {
 
     fetchComportamientos();
   }, []);
-
-  // Actualizar el total de ULIs cuando cambien los valores seleccionados
-  useEffect(() => {
-    const total = Comportamientos.reduce((sum, item) => {
-      return sum + (item ? item.walletOtorgados : 0);
-    }, 0);
-    setTotalUlis(total);
-  }, [Comportamientos, comportamientos]);
 
   const handleValueChange = (event, value) => {
     const checked = event.target.checked;

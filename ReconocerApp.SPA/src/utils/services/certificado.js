@@ -2,7 +2,7 @@ import api from "../api";
 // Funcion para traer los certificados
 export const getCertificados = async ({
     filters,
-    page = 0,
+    page = 1,
     pageSize = 100,
     orderBy = "fechaCreacion",
     orderDirection = "desc"
