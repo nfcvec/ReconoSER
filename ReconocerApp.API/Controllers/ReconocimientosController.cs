@@ -14,6 +14,14 @@ namespace ReconocerApp.API.Controllers;
 
 public class ReconocimientosController : BaseCrudController<Reconocimiento, ReconocimientoResponse, int>
 {
+
+    public class ReviewRequest
+    {
+        public bool Aprobar { get; set; }
+        public string ComentarioAprobacion { get; set; } = string.Empty;
+        public string AprobadorId { get; set; } = string.Empty;
+        public DateTime FechaResolucion { get; set; } = DateTime.UtcNow;
+    }
     public ReconocimientosController(ApplicationDbContext context, IMapper mapper)
         : base(context, mapper) { }
 
@@ -76,7 +84,28 @@ public class ReconocimientosController : BaseCrudController<Reconocimiento, Reco
         return Ok(_mapper.Map<ReconocimientoResponse>(item));
     }
 
-    
+    // Metodo para procesar la aprobacion o rechazo de un reconocimiento
+    [HttpPost("review/{reconocimientoId}")]
+    public async Task<IActionResult> ReviewReconocimiento(int reconocimientoId, [FromBody] ReviewRequest reviewRequest)
+    {
+        var reconocimiento = await _context.Reconocimientos
+            .FirstOrDefaultAsync(r => r.ReconocimientoId == reconocimientoId);
 
+        if (reconocimiento == null)
+        {
+            return NotFound("Reconocimiento not found.");
+        }
 
+        // Actualizar el estado del reconocimiento
+        reconocimiento.Estado = reviewRequest.Aprobar ? "Aprobado" : "Rechazado";
+        reconocimiento.AprobadorId = reviewRequest.AprobadorId;
+        reconocimiento.ComentarioAprobacion = reviewRequest.ComentarioAprobacion;
+        reconocimiento.FechaResolucion = reviewRequest.FechaResolucion;
+
+        _context.Reconocimientos.Update(reconocimiento);
+        await _context.SaveChangesAsync();
+
+        return Ok(_mapper.Map<ReconocimientoResponse>(reconocimiento));
+    }
+                                                                                            
 }

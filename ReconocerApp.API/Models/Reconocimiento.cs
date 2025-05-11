@@ -10,10 +10,10 @@ public class Reconocimiento
     public string ReconocidoId { get; set; } = string.Empty;
     public string Justificacion { get; set; } = string.Empty;
     public string Texto { get; set; } = string.Empty;
-    public string FechaCreacion { get; set; } = string.Empty;
+    public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
     public string Estado { get; set; } = string.Empty;
     public string AprobadorId { get; set; } = string.Empty;
     public string ComentarioAprobacion { get; set; } = string.Empty;
-    public string FechaResolucion { get; set; } = string.Empty;
+    public DateTime FechaResolucion { get; set; } = DateTime.UtcNow;
     public virtual ICollection<ReconocimientoComportamiento>? ReconocimientoComportamientos { get; set; }
 }

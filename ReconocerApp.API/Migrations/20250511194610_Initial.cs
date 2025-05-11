@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -51,11 +52,11 @@ namespace ReconocerApp.API.Migrations
                     ReconocidoId = table.Column<string>(type: "text", nullable: false),
                     Justificacion = table.Column<string>(type: "text", nullable: false),
                     Texto = table.Column<string>(type: "text", nullable: false),
-                    FechaCreacion = table.Column<string>(type: "text", nullable: false),
+                    FechaCreacion = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Estado = table.Column<string>(type: "text", nullable: false),
                     AprobadorId = table.Column<string>(type: "text", nullable: false),
                     ComentarioAprobacion = table.Column<string>(type: "text", nullable: false),
-                    FechaResolucion = table.Column<string>(type: "text", nullable: false)
+                    FechaResolucion = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {

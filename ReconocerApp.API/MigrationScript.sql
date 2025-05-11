@@ -27,11 +27,11 @@ CREATE TABLE "Reconocimientos" (
     "ReconocidoId" text NOT NULL,
     "Justificacion" text NOT NULL,
     "Texto" text NOT NULL,
-    "FechaCreacion" text NOT NULL,
+    "FechaCreacion" timestamp with time zone NOT NULL,
     "Estado" text NOT NULL,
     "AprobadorId" text NOT NULL,
     "ComentarioAprobacion" text NOT NULL,
-    "FechaResolucion" text NOT NULL,
+    "FechaResolucion" timestamp with time zone NOT NULL,
     CONSTRAINT "PK_Reconocimientos" PRIMARY KEY ("ReconocimientoId")
 );
 
@@ -148,7 +148,7 @@ CREATE INDEX "IX_WalletTransacciones_CategoriaId" ON "WalletTransacciones" ("Cat
 CREATE INDEX "IX_WalletTransacciones_WalletSaldoId" ON "WalletTransacciones" ("WalletSaldoId");
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20250511170005_Initial', '9.0.4');
+VALUES ('20250511194610_Initial', '9.0.4');
 
 COMMIT;
 
