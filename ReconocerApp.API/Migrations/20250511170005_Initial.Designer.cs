@@ -11,8 +11,8 @@ using ReconocerApp.API.Data;
 namespace ReconocerApp.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250507152940_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20250511170005_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -244,7 +244,11 @@ namespace ReconocerApp.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ReconocimientoId"));
 
-                    b.Property<string>("ComentarioRevision")
+                    b.Property<string>("AprobadorId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ComentarioAprobacion")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -264,15 +268,15 @@ namespace ReconocerApp.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("ReconocedorId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReconocidoId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Texto")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Titulo")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("TokenColaborador")
                         .IsRequired()
                         .HasColumnType("text");
 

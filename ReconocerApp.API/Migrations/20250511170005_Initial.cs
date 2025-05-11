@@ -6,7 +6,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ReconocerApp.API.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -47,13 +47,14 @@ namespace ReconocerApp.API.Migrations
                 {
                     ReconocimientoId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    TokenColaborador = table.Column<string>(type: "text", nullable: false),
+                    ReconocedorId = table.Column<string>(type: "text", nullable: false),
+                    ReconocidoId = table.Column<string>(type: "text", nullable: false),
                     Justificacion = table.Column<string>(type: "text", nullable: false),
                     Texto = table.Column<string>(type: "text", nullable: false),
-                    Titulo = table.Column<string>(type: "text", nullable: false),
                     FechaCreacion = table.Column<string>(type: "text", nullable: false),
                     Estado = table.Column<string>(type: "text", nullable: false),
-                    ComentarioRevision = table.Column<string>(type: "text", nullable: false),
+                    AprobadorId = table.Column<string>(type: "text", nullable: false),
+                    ComentarioAprobacion = table.Column<string>(type: "text", nullable: false),
                     FechaResolucion = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>

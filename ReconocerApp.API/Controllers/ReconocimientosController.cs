@@ -75,4 +75,8 @@ public class ReconocimientosController : BaseCrudController<Reconocimiento, Reco
         if (item == null) return NotFound();
         return Ok(_mapper.Map<ReconocimientoResponse>(item));
     }
+
+    
+
+
 }

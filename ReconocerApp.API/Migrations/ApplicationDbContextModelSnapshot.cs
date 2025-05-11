@@ -241,7 +241,11 @@ namespace ReconocerApp.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ReconocimientoId"));
 
-                    b.Property<string>("ComentarioRevision")
+                    b.Property<string>("AprobadorId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ComentarioAprobacion")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -261,15 +265,15 @@ namespace ReconocerApp.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("ReconocedorId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ReconocidoId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Texto")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Titulo")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("TokenColaborador")
                         .IsRequired()
                         .HasColumnType("text");
 
