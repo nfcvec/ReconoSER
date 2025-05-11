@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Container, Typography, Grid, Box, Slider, Pagination } from "@mui/material";
+import { Container, Typography, Grid, Box, Slider } from "@mui/material";
 import { useMsal } from "@azure/msal-react";
 import { getPremios } from "../../utils/services/premios";
 import { getWalletBalanceByUserId } from "../../utils/services/walletBalance.js";
@@ -11,10 +11,8 @@ export default function Marketplace() {
   const [filteredPrizes, setFilteredPrizes] = useState([]);
   const [userBalance, setUserBalance] = useState(null);
   const [priceRange, setPriceRange] = useState([0, 1000]);
-
-  // Estados para la paginación
-  const [currentPage, setCurrentPage] = useState(1);
-  const prizesPerPage = 10; // Cantidad de premios por página
+  const [maxPrice, setMaxPrice] = useState(1000); // Estado para el precio máximo
+  const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,9 +27,8 @@ export default function Marketplace() {
         const domain = email.split("@")[1].toLowerCase();
 
         const premios = await getPremios();
-              // 🔥 Log para verificar la cantidad de premios obtenidos desde la API
-      console.log("Premios crudos obtenidos desde la API:", premios);
-      console.log("Cantidad de premios antes de filtrar:", premios.length);
+        console.log("Premios crudos obtenidos desde la API:", premios);
+        console.log("Cantidad de premios antes de filtrar:", premios.length);
 
         if (!Array.isArray(premios)) {
           console.error("Los premios no son un array válido.");
@@ -48,6 +45,11 @@ export default function Marketplace() {
 
         setPrizes(filteredPrizes);
         setFilteredPrizes(filteredPrizes);
+
+        // Calcular el precio máximo dinámicamente
+        const maxCosto = Math.max(...filteredPrizes.map((premio) => premio.costoWallet));
+        setMaxPrice(maxCosto);
+        setPriceRange([0, maxCosto]); // Ajustar el rango inicial
 
         const userId = account.localAccountId;
 
@@ -68,25 +70,22 @@ export default function Marketplace() {
     const filtered = prizes
       .filter((premio) =>
         premio.costoWallet >= priceRange[0] &&
-        premio.costoWallet <= priceRange[1]
+        premio.costoWallet <= priceRange[1] &&
+        premio.nombre.toLowerCase().includes(searchTerm.toLowerCase()) // Filtrar por nombre
       )
       .sort((a, b) => a.costoWallet - b.costoWallet);
     setFilteredPrizes(filtered);
-    setCurrentPage(1); // Reinicia la página al filtrar
-  }, [priceRange, prizes]);
+  }, [priceRange, prizes, searchTerm]);
 
   const handleSliderChange = (event, newValue) => {
     setPriceRange(newValue);
   };
 
-  const handlePageChange = (event, value) => {
-    setCurrentPage(value);
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
   };
 
-  // Calcular los premios de la página actual
-  const indexOfLastPrize = currentPage * prizesPerPage;
-  const indexOfFirstPrize = indexOfLastPrize - prizesPerPage;
-  const currentPrizes = filteredPrizes.slice(indexOfFirstPrize, indexOfLastPrize);
+  const currentPrizes = filteredPrizes; // Mostrar todos los premios sin paginación
 
   if (userBalance === null) {
     return (
@@ -102,7 +101,6 @@ export default function Marketplace() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        justifyContent: "center",
         minHeight: "80vh",
         gap: 4,
         textAlign: "center",
@@ -115,6 +113,22 @@ export default function Marketplace() {
         Canjea tus ULIs por premios exclusivos.
       </Typography>
 
+      <Box sx={{ width: "100%", maxWidth: 600, mb: 2 }}>
+        <input
+          type="text"
+          placeholder="Buscar premios por nombre"
+          value={searchTerm}
+          onChange={handleSearchChange}
+          style={{
+            width: "100%",
+            padding: "10px",
+            fontSize: "16px",
+            borderRadius: "4px",
+            border: "1px solid #ccc",
+          }}
+        />
+      </Box>
+
       <Box>
         <Typography gutterBottom>Filtrar por rango de ULIs:</Typography>
         <Slider
@@ -122,7 +136,7 @@ export default function Marketplace() {
           onChange={handleSliderChange}
           valueLabelDisplay="auto"
           min={0}
-          max={1000}
+          max={maxPrice} // Usar el precio máximo dinámico
         />
         <Typography>
           Rango seleccionado: {priceRange[0]} - {priceRange[1]} ULIs
@@ -149,14 +163,6 @@ export default function Marketplace() {
           </Grid>
         ))}
       </Grid>
-
-      <Pagination
-        count={Math.ceil(filteredPrizes.length / prizesPerPage)}
-        page={currentPage}
-        onChange={handlePageChange}
-        color="primary"
-        sx={{ mt: 4 }}
-      />
     </Box>
   );
 }

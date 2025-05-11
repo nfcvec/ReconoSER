@@ -3,7 +3,7 @@ import api from "../api";
 // Función para obtener los premios desde la API
 export const getPremios = async () => {
   try {
-    const response = await api.get("/MarketplacePremios?page=1&limit=100");
+    const response = await api.get("/MarketplacePremios?page=1&pageSize=100");
     return response.data; // Devuelve los datos de los premios
   } catch (error) {
     console.error("Error al obtener los premios:", error.message);
