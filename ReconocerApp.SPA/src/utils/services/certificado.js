@@ -1,8 +1,23 @@
 import api from "../api";
 // Funcion para traer los certificados
-export const getCertificados = async () => {
+export const getCertificados = async ({
+    filters,
+    page = 0,
+    pageSize = 100,
+    orderBy = "fechaCreacion",
+    orderDirection = "desc"
+}) => {
     try {
-        const response = await api.get("/Reconocimientos");
+        const response = await api.get("/Reconocimientos", {
+            params: {
+                filters: JSON.stringify(filters),
+                page,
+                pageSize,
+                orderBy,
+                orderDirection
+            }
+        }
+        );
         return response.data; // Devuelve los datos de la respuesta
     } catch (error) {
         console.error("Error al obtener los certificados:", error.message);

@@ -26,7 +26,20 @@ export default function Certificados() {
     const fetchCertificates = async () => {
       if (!oid) return;
       try {
-        const allCertificates = await getCertificados();
+        const allCertificates = await getCertificados({
+          filters:[
+            {
+              field: "reconocidoId",
+              operator: "eq",
+              value: oid,
+            },
+            {
+              field: "estado",
+              operator: "eq",
+              value: "aprobado",
+            },
+          ]
+        });
         const filteredCertificates = allCertificates.filter(
           (cert) => cert.tokenColaborador === oid
         );
