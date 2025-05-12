@@ -8,9 +8,9 @@ public class MarketplaceCompra
     public int CompraId { get; set; }
     public string TokenColaborador { get; set; } = string.Empty;
     public int PremioId { get; set; }
-    public string FechaCompra { get; set; } = string.Empty;
+    public DateTime? FechaCompra { get; set; }
     public string Estado { get; set; } = string.Empty;
     public string? ComentarioRevision { get; set; } = string.Empty;
-    public DateTime? FechaResolucion { get; set; } = DateTime.Now;
+    public DateTime? FechaResolucion { get; set; }
     public virtual MarketplacePremio? Premio { get; set; }
 }

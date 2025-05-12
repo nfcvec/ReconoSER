@@ -92,6 +92,13 @@ public class MarketplaceComprasController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<MarketplaceCompraResponse>> Create([FromBody] MarketplaceCompra entity)
     {
+        // Ensure all DateTime properties are in UTC
+        if (entity.FechaCompra != default)
+            entity.FechaCompra = DateTime.SpecifyKind(entity.FechaCompra, DateTimeKind.Utc);
+        
+        if (entity.FechaResolucion != default)
+            entity.FechaResolucion = DateTime.SpecifyKind(entity.FechaResolucion, DateTimeKind.Utc);
+
         // Detectar entidades relacionadas existentes
         foreach (var entry in _context.Entry(entity).References)
         {
@@ -109,6 +116,13 @@ public class MarketplaceComprasController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] MarketplaceCompra entity)
     {
+        // Ensure all DateTime properties are in UTC
+        if (entity.FechaCompra != default)
+            entity.FechaCompra = DateTime.SpecifyKind(entity.FechaCompra, DateTimeKind.Utc);
+        
+        if (entity.FechaResolucion != default)
+            entity.FechaResolucion = DateTime.SpecifyKind(entity.FechaResolucion, DateTimeKind.Utc);
+
         _context.Entry(entity).State = EntityState.Modified;
         await _context.SaveChangesAsync();
         return NoContent();
@@ -124,14 +138,12 @@ public class MarketplaceComprasController : ControllerBase
         return NoContent();
     }
 
-
     public class ReviewRequest
     {
         public bool Aprobar { get; set; }
         public string ComentarioAprobacion { get; set; } = string.Empty;
         public string AprobadorId { get; set; } = string.Empty;
         public DateTime FechaResolucion { get; set; }
-
     }
 
     [HttpPost("review/{id}")]
@@ -142,7 +154,9 @@ public class MarketplaceComprasController : ControllerBase
 
         item.Estado = request.Aprobar ? "aprobar" : "rechazar";
         item.ComentarioRevision = request.ComentarioAprobacion;
-        item.FechaResolucion = request.FechaResolucion;
+        
+        // Ensure DateTime is in UTC format
+        item.FechaResolucion = DateTime.SpecifyKind(request.FechaResolucion, DateTimeKind.Utc);
 
         _context.Entry(item).State = EntityState.Modified;
         await _context.SaveChangesAsync();
