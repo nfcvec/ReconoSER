@@ -64,6 +64,9 @@ export default function Marketplace() {
       .filter((premio) =>
         premio.nombre.toLowerCase().includes(searchTerm.toLowerCase()) // Filtrar por nombre
       )
+      .filter((premio) =>
+        premio.costoWallet >= priceRange[0] && premio.costoWallet <= priceRange[1] // Filtrar por rango de precios
+      )
       .sort((a, b) => a.costoWallet - b.costoWallet);
     setFilteredPrizes(filtered);
   }, [priceRange, prizes, searchTerm]);

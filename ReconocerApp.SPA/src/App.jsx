@@ -25,8 +25,8 @@ import Reconocimiento from "./components/reconocimiento/index.jsx";
 import Certificados from "./components/certificados/page.jsx";
 import Marketplace from "./components/marketplaces/page.jsx";
 import PrizeDetail from "./components/marketplaces/index.jsx";
+import CanjeExito from "./components/marketplaces/canjeExito";
 import ReconocimientoExito from "./components/reconocimiento/page.jsx";
-import IndexReconocimientos from "./components/administrar/solicitudes/reconocimiento/index.jsx";
 
 // Importar componentes de administración
 import CRUDCategorias from "./components/administrar/categorias/CRUDCategorias.jsx";
@@ -76,6 +76,7 @@ function Pages() {
       <Route path="/certificados" element={<Certificados />} />
       <Route path="/marketplace" element={<Marketplace />} />
       <Route path="/marketplace/:id" element={<PrizeDetail />} />
+      <Route path="/canjeExito" element={<CanjeExito />} />
 
       {/* Ruta principal de Administrar */}
       <Route path="/administrar" element={<Administrar />} />

@@ -5,6 +5,8 @@ import { getPremioById } from "../../utils/services/premios";
 import { getWalletBalanceByUserId } from "../../utils/services/walletBalance";
 import { createPremioCompra } from "../../utils/services/premiosCompra"; // ✅ Import correcto
 import { useMsal } from "@azure/msal-react";
+import CanjeExito from "./canjeExito"; // ✅ Importar el componente CanjeExito
+
 
 export default function PrizeDetail() {
   const navigate = useNavigate();
@@ -78,8 +80,9 @@ export default function PrizeDetail() {
 
       const response = await createPremioCompra(payload); // ✅ Aquí el cambio
       console.log("Solicitud creada exitosamente:", response);
-      alert("¡Solicitud exitosa! 🎉");
-      navigate("/marketplace");
+
+      // Redirigir al componente CanjeExito
+      navigate("/canjeExito");
     } catch (error) {
       console.error("Error al crear la solicitud:", error.response?.data || error.message);
       if (error.response?.data?.errors) {
