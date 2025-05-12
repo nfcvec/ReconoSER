@@ -269,7 +269,7 @@ public class ReconocimientosController : ControllerBase
         return NoContent();
     }
 
-    public class ReviewRequest
+    public class ReconocimientoReviewRequest
     {
         public bool Aprobar { get; set; }
         public string ComentarioAprobacion { get; set; } = string.Empty;
@@ -279,7 +279,7 @@ public class ReconocimientosController : ControllerBase
     }
 
     [HttpPost("review/{reconocimientoId}")]
-    public async Task<IActionResult> ReviewReconocimiento(int reconocimientoId, [FromBody] ReviewRequest reviewRequest)
+    public async Task<IActionResult> ReviewReconocimiento(int reconocimientoId, [FromBody] ReconocimientoReviewRequest reviewRequest)
     {
         var reconocimiento = await _context.Reconocimientos
             .Include(r => r.ReconocimientoComportamientos)

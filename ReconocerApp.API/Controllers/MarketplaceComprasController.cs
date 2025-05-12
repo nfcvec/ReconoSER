@@ -93,11 +93,11 @@ public class MarketplaceComprasController : ControllerBase
     public async Task<ActionResult<MarketplaceCompraResponse>> Create([FromBody] MarketplaceCompra entity)
     {
         // Ensure all DateTime properties are in UTC
-        if (entity.FechaCompra != default)
-            entity.FechaCompra = DateTime.SpecifyKind(entity.FechaCompra, DateTimeKind.Utc);
+        if (entity.FechaCompra.HasValue)
+            entity.FechaCompra = DateTime.SpecifyKind(entity.FechaCompra.Value, DateTimeKind.Utc);
         
-        if (entity.FechaResolucion != default)
-            entity.FechaResolucion = DateTime.SpecifyKind(entity.FechaResolucion, DateTimeKind.Utc);
+        if (entity.FechaResolucion.HasValue)
+            entity.FechaResolucion = DateTime.SpecifyKind(entity.FechaResolucion.Value, DateTimeKind.Utc);
 
         // Detectar entidades relacionadas existentes
         foreach (var entry in _context.Entry(entity).References)
@@ -117,11 +117,11 @@ public class MarketplaceComprasController : ControllerBase
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] MarketplaceCompra entity)
     {
         // Ensure all DateTime properties are in UTC
-        if (entity.FechaCompra != default)
-            entity.FechaCompra = DateTime.SpecifyKind(entity.FechaCompra, DateTimeKind.Utc);
+        if (entity.FechaCompra.HasValue)
+            entity.FechaCompra = DateTime.SpecifyKind(entity.FechaCompra.Value, DateTimeKind.Utc);
         
-        if (entity.FechaResolucion != default)
-            entity.FechaResolucion = DateTime.SpecifyKind(entity.FechaResolucion, DateTimeKind.Utc);
+        if (entity.FechaResolucion.HasValue)
+            entity.FechaResolucion = DateTime.SpecifyKind(entity.FechaResolucion.Value, DateTimeKind.Utc);
 
         _context.Entry(entity).State = EntityState.Modified;
         await _context.SaveChangesAsync();
@@ -138,7 +138,7 @@ public class MarketplaceComprasController : ControllerBase
         return NoContent();
     }
 
-    public class ReviewRequest
+    public class CompraReviewRequest
     {
         public bool Aprobar { get; set; }
         public string ComentarioAprobacion { get; set; } = string.Empty;
@@ -147,7 +147,7 @@ public class MarketplaceComprasController : ControllerBase
     }
 
     [HttpPost("review/{id}")]
-    public async Task<IActionResult> Review([FromRoute] int id, [FromBody] ReviewRequest request)
+    public async Task<IActionResult> Review([FromRoute] int id, [FromBody] CompraReviewRequest request)
     {
         var item = await _dbSet.FindAsync(id);
         if (item == null) return NotFound();
