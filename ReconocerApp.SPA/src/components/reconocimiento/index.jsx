@@ -93,8 +93,8 @@ export default function Reconocimiento() {
     const fetchComportamientos = async () => {
       try {
         const comportamientos = await getComportamientos({
-          page: 1,
-          pageSize: 100,
+            page: 1,
+            pageSize: 100,
         }); // Llama a la API
         console.log("Comportamientos obtenidos:", comportamientos);
         setComportamientos(comportamientos); // Actualiza el estado con los comportamientos
@@ -265,7 +265,7 @@ export default function Reconocimiento() {
           </form>
         </Box>
       ) : (
-        
+
         <ConfirmacionReconocimiento
           data={{
             Reconocido,
