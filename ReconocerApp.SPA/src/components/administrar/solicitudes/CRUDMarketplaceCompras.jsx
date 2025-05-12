@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   DataGrid,
 } from "@mui/x-data-grid";
@@ -9,8 +9,8 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogContentText,
   DialogActions,
-  Grid,
 } from "@mui/material";
 import {
   getPremiosCompras,
@@ -26,6 +26,7 @@ const CRUDMarketplaceCompras = () => {
   const handleClose = () => {
     setOpen(false);
   };
+
 
   const { instance, accounts } = useMsal();
 
@@ -62,7 +63,8 @@ const CRUDMarketplaceCompras = () => {
     if (compras.length > 0) {
       fetchColaboradores();
     }
-  }, [compras]);
+  }
+    , [compras]);
 
   const columns = [
     {
@@ -76,7 +78,7 @@ const CRUDMarketplaceCompras = () => {
       headerName: "Premio",
       width: 250,
       valueGetter: (params) => {
-        return params.row.nombre;
+        return params.nombre;
       }
     },
     { field: "fechaCompra", headerName: "Fecha de Compra", width: 200 },
@@ -93,32 +95,20 @@ const CRUDMarketplaceCompras = () => {
         rowsPerPageOptions={[5]}
         getRowId={(row) => row.compraId}
         onRowClick={(params) => {
-          if (params.row) {
-            setSelectedCompra(params.row);
-            setOpen(true);
-          }
-        }}
+        if (params.row) {
+          setSelectedCompra(params.row);
+          setOpen(true);
+        }
+        }
+        }
       />
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Detalles de la compra</DialogTitle>
         <DialogContent>
-          {selectedCompra && (
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <Typography variant="subtitle1"><strong>Solicitante:</strong> {colaboradores.find(col => col.id === selectedCompra.tokenColaborador)?.displayName || "Desconocido"}</Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="subtitle1"><strong>Premio:</strong> {selectedCompra.nombre}</Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="subtitle1"><strong>Fecha de Compra:</strong> {selectedCompra.fechaCompra}</Typography>
-              </Grid>
-              <Grid item xs={12}>
-                <Typography variant="subtitle1"><strong>Estado:</strong> {selectedCompra.estado}</Typography>
-              </Grid>
-              {/* Agrega más campos si es necesario */}
-            </Grid>
-          )}
+          <DialogContentText>
+            <pre>{JSON.stringify(selectedCompra, null, 2)}</pre>
+          </DialogContentText>
+          {/* Aquí puedes agregar más detalles sobre la compra */}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cerrar</Button>
