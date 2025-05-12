@@ -138,9 +138,8 @@ namespace ReconocerApp.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("FechaCompra")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTime?>("FechaCompra")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("FechaResolucion")
                         .HasColumnType("timestamp with time zone");

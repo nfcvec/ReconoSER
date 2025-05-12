@@ -12,7 +12,7 @@ using ReconocerApp.API.Data;
 namespace ReconocerApp.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250512183447_Initial")]
+    [Migration("20250512185413_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -141,9 +141,8 @@ namespace ReconocerApp.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("FechaCompra")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTime?>("FechaCompra")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("FechaResolucion")
                         .HasColumnType("timestamp with time zone");

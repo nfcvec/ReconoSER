@@ -251,7 +251,7 @@ namespace ReconocerApp.API.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     TokenColaborador = table.Column<string>(type: "text", nullable: false),
                     PremioId = table.Column<int>(type: "integer", nullable: false),
-                    FechaCompra = table.Column<string>(type: "text", nullable: false),
+                    FechaCompra = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Estado = table.Column<string>(type: "text", nullable: false),
                     ComentarioRevision = table.Column<string>(type: "text", nullable: true),
                     FechaResolucion = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
