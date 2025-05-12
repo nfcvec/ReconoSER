@@ -12,7 +12,7 @@ using ReconocerApp.API.Data;
 namespace ReconocerApp.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250511194610_Initial")]
+    [Migration("20250512183447_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -135,7 +135,6 @@ namespace ReconocerApp.API.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CompraId"));
 
                     b.Property<string>("ComentarioRevision")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Estado")
@@ -146,9 +145,8 @@ namespace ReconocerApp.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("FechaResolucion")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTime?>("FechaResolucion")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("PremioId")
                         .HasColumnType("integer");

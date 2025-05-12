@@ -253,8 +253,8 @@ namespace ReconocerApp.API.Migrations
                     PremioId = table.Column<int>(type: "integer", nullable: false),
                     FechaCompra = table.Column<string>(type: "text", nullable: false),
                     Estado = table.Column<string>(type: "text", nullable: false),
-                    ComentarioRevision = table.Column<string>(type: "text", nullable: false),
-                    FechaResolucion = table.Column<string>(type: "text", nullable: false)
+                    ComentarioRevision = table.Column<string>(type: "text", nullable: true),
+                    FechaResolucion = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {

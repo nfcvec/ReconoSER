@@ -10,8 +10,7 @@ public class MarketplaceCompra
     public int PremioId { get; set; }
     public string FechaCompra { get; set; } = string.Empty;
     public string Estado { get; set; } = string.Empty;
-    public string ComentarioRevision { get; set; } = string.Empty;
-    public string FechaResolucion { get; set; } = string.Empty;
-
+    public string? ComentarioRevision { get; set; } = string.Empty;
+    public DateTime? FechaResolucion { get; set; } = DateTime.Now;
     public virtual MarketplacePremio? Premio { get; set; }
 }

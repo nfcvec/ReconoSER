@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
-using ReconocerApp.API.Controllers.Base;
 using ReconocerApp.API.Data;
 using ReconocerApp.API.Models;
 using ReconocerApp.API.Models.Responses;
@@ -12,12 +11,23 @@ using System.Linq.Dynamic.Core;
 
 namespace ReconocerApp.API.Controllers;
 
-public class MarketplaceComprasController : BaseCrudController<MarketplaceCompra, MarketplaceCompraResponse, int>
+[ApiController]
+[Route("api/[controller]")]
+public class MarketplaceComprasController : ControllerBase
 {
-    public MarketplaceComprasController(ApplicationDbContext context, IMapper mapper)
-        : base(context, mapper) { }
+    protected readonly ApplicationDbContext _context;
+    protected readonly IMapper _mapper;
+    protected readonly DbSet<MarketplaceCompra> _dbSet;
 
-    public override async Task<ActionResult<IEnumerable<MarketplaceCompraResponse>>> GetAll(
+    public MarketplaceComprasController(ApplicationDbContext context, IMapper mapper)
+    {
+        _context = context;
+        _mapper = mapper;
+        _dbSet = _context.Set<MarketplaceCompra>();
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<MarketplaceCompraResponse>>> GetAll(
         [FromQuery] string? filters = null,
         [FromQuery] string? orderBy = null,
         [FromQuery] string? orderDirection = null,
@@ -68,13 +78,74 @@ public class MarketplaceComprasController : BaseCrudController<MarketplaceCompra
         return Ok(_mapper.Map<List<MarketplaceCompraResponse>>(items));
     }
 
-    public override async Task<ActionResult<MarketplaceCompraResponse>> GetById(object id)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<MarketplaceCompraResponse>> GetById(int id)
     {
         var item = await _context.MarketplaceCompras
             .Include(c => c.Premio)
-            .FirstOrDefaultAsync(c => c.CompraId == (int)id);
+            .FirstOrDefaultAsync(c => c.CompraId == id);
 
         if (item == null) return NotFound();
         return Ok(_mapper.Map<MarketplaceCompraResponse>(item));
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<MarketplaceCompraResponse>> Create([FromBody] MarketplaceCompra entity)
+    {
+        // Detectar entidades relacionadas existentes
+        foreach (var entry in _context.Entry(entity).References)
+        {
+            if (entry.TargetEntry != null)
+            {
+                entry.TargetEntry.State = EntityState.Unchanged;
+            }
+        }
+
+        _dbSet.Add(entity);
+        await _context.SaveChangesAsync();
+        return Ok(_mapper.Map<MarketplaceCompraResponse>(entity));
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] MarketplaceCompra entity)
+    {
+        _context.Entry(entity).State = EntityState.Modified;
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete([FromRoute] int id)
+    {
+        var item = await _dbSet.FindAsync(id);
+        if (item == null) return NotFound();
+        _dbSet.Remove(item);
+        await _context.SaveChangesAsync();
+        return NoContent();
+    }
+
+
+    public class ReviewRequest
+    {
+        public bool Aprobar { get; set; }
+        public string ComentarioAprobacion { get; set; } = string.Empty;
+        public string AprobadorId { get; set; } = string.Empty;
+        public DateTime FechaResolucion { get; set; }
+
+    }
+
+    [HttpPost("review/{id}")]
+    public async Task<IActionResult> Review([FromRoute] int id, [FromBody] ReviewRequest request)
+    {
+        var item = await _dbSet.FindAsync(id);
+        if (item == null) return NotFound();
+
+        item.Estado = request.Aprobar ? "aprobar" : "rechazar";
+        item.ComentarioRevision = request.ComentarioAprobacion;
+        item.FechaResolucion = request.FechaResolucion;
+
+        _context.Entry(item).State = EntityState.Modified;
+        await _context.SaveChangesAsync();
+        return NoContent();
     }
 }

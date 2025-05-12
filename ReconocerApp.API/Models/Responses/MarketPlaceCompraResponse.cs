@@ -3,11 +3,11 @@ namespace ReconocerApp.API.Models.Responses;
 public class MarketplaceCompraResponse
 {
     public int CompraId { get; set; }
-    public string TokenColaborador { get; set; } = string.Empty;
-    public int PremioId { get; set; }
-    public string FechaCompra { get; set; } = string.Empty;
-    public string Estado { get; set; } = string.Empty;
-    public string ComentarioRevision { get; set; } = string.Empty;
-    public string FechaResolucion { get; set; } = string.Empty;
-    public MarketplacePremioResponse Premio { get; set; } = new MarketplacePremioResponse();
+    public string? TokenColaborador { get; set; }
+    public int? PremioId { get; set; }
+    public string? FechaCompra { get; set; }
+    public string? Estado { get; set; }
+    public string? ComentarioRevision { get; set; }
+    public DateTime? FechaResolucion { get; set; }
+    public MarketplacePremioResponse? Premio { get; set; }
 }

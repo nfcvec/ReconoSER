@@ -132,7 +132,6 @@ namespace ReconocerApp.API.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CompraId"));
 
                     b.Property<string>("ComentarioRevision")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Estado")
@@ -143,9 +142,8 @@ namespace ReconocerApp.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("FechaResolucion")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTime?>("FechaResolucion")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("PremioId")
                         .HasColumnType("integer");

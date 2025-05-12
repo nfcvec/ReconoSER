@@ -121,8 +121,8 @@ CREATE TABLE "MarketplaceCompras" (
     "PremioId" integer NOT NULL,
     "FechaCompra" text NOT NULL,
     "Estado" text NOT NULL,
-    "ComentarioRevision" text NOT NULL,
-    "FechaResolucion" text NOT NULL,
+    "ComentarioRevision" text,
+    "FechaResolucion" timestamp with time zone,
     CONSTRAINT "PK_MarketplaceCompras" PRIMARY KEY ("CompraId"),
     CONSTRAINT "FK_MarketplaceCompras_MarketplacePremios_PremioId" FOREIGN KEY ("PremioId") REFERENCES "MarketplacePremios" ("PremioId") ON DELETE CASCADE
 );
@@ -148,7 +148,7 @@ CREATE INDEX "IX_WalletTransacciones_CategoriaId" ON "WalletTransacciones" ("Cat
 CREATE INDEX "IX_WalletTransacciones_WalletSaldoId" ON "WalletTransacciones" ("WalletSaldoId");
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20250511194610_Initial', '9.0.4');
+VALUES ('20250512183447_Initial', '9.0.4');
 
 COMMIT;
 
