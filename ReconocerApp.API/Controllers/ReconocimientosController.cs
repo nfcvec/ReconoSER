@@ -312,9 +312,99 @@ public class ReconocimientosController : ControllerBase
         reconocimiento.ComentarioAprobacion = reviewRequest.ComentarioAprobacion;
         reconocimiento.FechaResolucion = reviewRequest.FechaResolucion;
 
+        // Generar ULIs si el reconocimiento es aprobado y se solicita la generación de ULIs
+        if (reviewRequest.Aprobar && reviewRequest.GenerarULIs)
+        {
+            await GenerarYActualizarULIs(reconocimiento);
+        }
+
         _context.Reconocimientos.Update(reconocimiento);
         await _context.SaveChangesAsync();
 
         return Ok(_mapper.Map<ReconocimientoResponse>(reconocimiento));
+    }
+
+    private async Task GenerarYActualizarULIs(Reconocimiento reconocimiento)
+    {
+        if (reconocimiento.ReconocimientoComportamientos == null || 
+            !reconocimiento.ReconocimientoComportamientos.Any()) 
+            return;
+
+        // Calcular total de ULIs a otorgar
+        int totalULIs = 0;
+        foreach (var rc in reconocimiento.ReconocimientoComportamientos)
+        {
+            if (rc?.Comportamiento != null)
+            {
+                totalULIs += rc.Comportamiento.WalletOtorgados;
+            }
+        }
+
+        if (totalULIs <= 0) return;
+
+        // Buscar o crear el wallet del reconocido
+        var walletSaldo = await _context.WalletSaldos
+            .FirstOrDefaultAsync(ws => ws.TokenColaborador == reconocimiento.ReconocidoId);
+
+        if (walletSaldo == null)
+        {
+            walletSaldo = new WalletSaldo
+            {
+                TokenColaborador = reconocimiento.ReconocidoId,
+                SaldoActual = 0
+            };
+            _context.WalletSaldos.Add(walletSaldo);
+            await _context.SaveChangesAsync(); // Save to generate the WalletSaldoId
+        }
+
+        // Verificar que existe la categoría antes de usar su Id
+        // Usando una expresión que Entity Framework puede traducir
+        var categoriaReconocimientos = await _context.WalletCategorias
+            .FirstOrDefaultAsync(c => c.Nombre.ToLower() == "reconocimientos" || 
+                                      c.Nombre.ToLower().Contains("reconocimiento"));
+
+        if (categoriaReconocimientos == null)
+        {
+            // Si no existe ninguna categoría, traer todas y verificar en memoria
+            var todasCategorias = await _context.WalletCategorias.ToListAsync();
+            categoriaReconocimientos = todasCategorias
+                .FirstOrDefault(c => c.Nombre.Contains("reconocimiento", StringComparison.OrdinalIgnoreCase));
+            
+            // Si aún no se encuentra, crear una nueva
+            if (categoriaReconocimientos == null)
+            {
+                categoriaReconocimientos = new WalletCategoria
+                {
+                    Nombre = "Reconocimientos",
+                    Descripcion = "ULIs otorgados por reconocimientos"
+                };
+                _context.WalletCategorias.Add(categoriaReconocimientos);
+                await _context.SaveChangesAsync(); // Guardar para obtener el ID generado
+            }
+        }
+
+        // Crear la transacción usando la categoría verificada
+        var transaccion = new WalletTransaccion
+        {
+            WalletSaldoId = walletSaldo.WalletSaldoId,
+            TokenColaborador = reconocimiento.ReconocidoId,
+            CategoriaId = categoriaReconocimientos.CategoriaId, // Usar el ID de la categoría existente
+            Cantidad = totalULIs,
+            Descripcion = $"ULIs otorgados por reconocimiento #{reconocimiento.ReconocimientoId}",
+            Fecha = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
+        };
+
+        _context.WalletTransacciones.Add(transaccion);
+
+        // Calcular el saldo total sumando todas las transacciones del usuario
+        var totalSaldo = await _context.WalletTransacciones
+            .Where(wt => wt.TokenColaborador == reconocimiento.ReconocidoId)
+            .SumAsync(wt => wt.Cantidad) + totalULIs; // Incluir la transacción actual
+
+        // Actualizar el saldo con el total de todas las transacciones
+        walletSaldo.SaldoActual = totalSaldo;
+        _context.WalletSaldos.Update(walletSaldo);
+
+        // Los cambios se guardarán cuando se guarde el reconocimiento
     }
 }
