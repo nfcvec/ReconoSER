@@ -36,6 +36,82 @@ public class ReconocimientosController : ControllerBase
         var baseQuery = _context.Reconocimientos
             .Include(r => r.ReconocimientoComportamientos!).AsQueryable();
 
+        // Aplicar filtros si existen
+        if (!string.IsNullOrEmpty(filters))
+        {
+            try
+            {
+                // Los filtros vienen directamente como un string URL-encoded como:
+                // [{"field":"reconocidoId","operator":"eq","value":"8721266d-8613-4093-8947-3172b499dc3c"}]
+                var filterRequests = JsonSerializer.Deserialize<List<FilterRequest>>(filters);
+                if (filterRequests != null && filterRequests.Any())
+                {
+                    foreach (var filter in filterRequests)
+                    {
+                        switch (filter.Operator.ToLower())
+                        {
+                            case "eq":
+                                baseQuery = baseQuery.Where(r => 
+                                    EF.Property<string>(r, filter.Field) == filter.Value);
+                                break;
+                            case "contains":
+                                baseQuery = baseQuery.Where(r => 
+                                    EF.Property<string>(r, filter.Field).Contains(filter.Value));
+                                break;
+                            case "startswith":
+                                baseQuery = baseQuery.Where(r => 
+                                    EF.Property<string>(r, filter.Field).StartsWith(filter.Value));
+                                break;
+                            case "endswith":
+                                baseQuery = baseQuery.Where(r => 
+                                    EF.Property<string>(r, filter.Field).EndsWith(filter.Value));
+                                break;
+                            case "gt":
+                                baseQuery = baseQuery.Where($"{filter.Field} > @0", filter.Value);
+                                break;
+                            case "lt":
+                                baseQuery = baseQuery.Where($"{filter.Field} < @0", filter.Value);
+                                break;
+                            case "gte":
+                                baseQuery = baseQuery.Where($"{filter.Field} >= @0", filter.Value);
+                                break;
+                            case "lte":
+                                baseQuery = baseQuery.Where($"{filter.Field} <= @0", filter.Value);
+                                break;
+                            default:
+                                // Ignorar operadores no soportados
+                                break;
+                        }
+                    }
+                }
+            }
+            catch (JsonException ex)
+            {
+                return BadRequest($"Invalid filter format: {ex.Message}");
+            }
+        }
+
+        // Aplicar ordenamiento si existe
+        if (!string.IsNullOrEmpty(orderBy))
+        {
+            var direction = !string.IsNullOrEmpty(orderDirection) && 
+                            orderDirection.Equals("desc", StringComparison.OrdinalIgnoreCase) 
+                            ? "descending" 
+                            : "ascending";
+            
+            try
+            {
+                baseQuery = baseQuery.OrderBy($"{orderBy} {direction}");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Invalid order configuration: {ex.Message}");
+            }
+        }
+
+        // Aplicar paginación
+        var totalItems = await baseQuery.CountAsync();
+        
         // Necesitamos cargar los comportamientos por separado
         var reconocimientos = await baseQuery
             .Skip((page - 1) * pageSize)
@@ -62,7 +138,6 @@ public class ReconocimientosController : ControllerBase
             }
         }
 
-        var totalItems = await baseQuery.CountAsync();
         Response.Headers["X-Total-Count"] = totalItems.ToString();
         return Ok(_mapper.Map<List<ReconocimientoResponse>>(reconocimientos));
     }
@@ -232,7 +307,7 @@ public class ReconocimientosController : ControllerBase
             }
         }
 
-        reconocimiento.Estado = reviewRequest.Aprobar ? "Aprobado" : "Rechazado";
+        reconocimiento.Estado = reviewRequest.Aprobar ? "aprobado" : "rechazado";
         reconocimiento.AprobadorId = reviewRequest.AprobadorId;
         reconocimiento.ComentarioAprobacion = reviewRequest.ComentarioAprobacion;
         reconocimiento.FechaResolucion = reviewRequest.FechaResolucion;

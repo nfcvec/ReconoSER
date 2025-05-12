@@ -1,28 +1,16 @@
-import React, { useRef } from "react";
+import React, { forwardRef } from "react";
 import { Paper, Box, Typography, Divider, Grid } from "@mui/material";
 import iconos from "../../constants/iconos.js";
 import udlaparkImage from "../../assets/udlapark_entradaprincipal_interior.jpg"; // Importa la imagen
 
-export default function CertificadoComponent({
-  nombreColaborador,
-  fechaActual,
-  titulo,
-  texto,
-  justificacion,
-  oid,
-  setRef, // Nueva prop para pasar la referencia al componente padre
-}) {
-  const certificadoRef = useRef(null);
-
-  // Pasamos la referencia al componente padre
-  React.useEffect(() => {
-    if (setRef) {
-      setRef(certificadoRef);
-    }
-  }, [setRef]);
-
-  const colaborador = nombreColaborador || `Colaborador con ID: ${oid}`;
-  const comportamientos = titulo.split(",").map((c) => c.trim());
+const CertificadoComponent = forwardRef(({
+  Certificado,
+  Reconocedor,
+  Reconocido,
+}, ref) => {
+  const colaborador = Reconocido?.displayName || "Colaborador no encontrado";
+  const comportamientos = Certificado?.comportamientos || [];
+  const texto = Certificado?.texto || "Texto no disponible";
   const iconosSeleccionados = comportamientos
     .map((comportamiento) => ({
       icono: iconos[comportamiento]?.fuente,
@@ -32,7 +20,7 @@ export default function CertificadoComponent({
 
   return (
     <Paper
-      ref={certificadoRef} // Asignamos la referencia al contenedor principal
+      ref={ref} // Use the forwarded ref directly
       elevation={3}
       sx={{
         padding: 6,
@@ -63,7 +51,12 @@ export default function CertificadoComponent({
         }}
       >
         <Box textAlign="center" mb={4}>
-          <Typography variant="subtitle1">Otorgado a:</Typography>
+          <Typography variant="h4" fontWeight="bold">De:</Typography>
+          <Typography variant="h5" fontWeight="bold">{Reconocedor?.displayName || "Reconocedor no encontrado"}</Typography>
+        </Box>
+
+        <Box textAlign="center" mb={4}>
+          <Typography variant="subtitle1">Para:</Typography>
           <Typography variant="h5" fontWeight="bold">{colaborador}</Typography>
         </Box>
 
@@ -91,18 +84,9 @@ export default function CertificadoComponent({
           <Typography variant="body1" sx={{ fontStyle: "italic" }}>{texto}</Typography>
         </Box>
 
-        <Box textAlign="center" mt={4}>
-          <Typography variant="body2" color="textSecondary">
-            Justificación: {justificacion}
-          </Typography>
-        </Box>
-
-        <Box textAlign="center" mt={6}>
-          <Typography variant="body2" color="textSecondary">
-            Fecha: {fechaActual}
-          </Typography>
-        </Box>
       </Box>
     </Paper>
   );
-}
+});
+
+export default CertificadoComponent;

@@ -56,7 +56,7 @@ const CRUDReconocimientos = () => {
         const data = await getReconocimientos({
           filters: [
             {
-              field: "estado",
+              field: "Estado",
               operator: "eq",
               value: "pendiente",
             }

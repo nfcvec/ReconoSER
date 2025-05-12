@@ -1,61 +1,93 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button, Box, Typography, Modal, Container } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid"; // Import DataGrid
 import CertificadoComponent from "./certificadoComponent";
 import { getCertificados } from "../../utils/services/certificado";
 import { useMsal } from "@azure/msal-react";
+import { getColaboradoresFromBatchIds } from "../../utils/services/colaboradores";
 
 export default function Certificados() {
-  const { accounts } = useMsal();
+  const { instance, accounts } = useMsal();
   const user = accounts[0];
   const oid = user?.idTokenClaims?.oid;
 
-  const [certificates, setCertificates] = useState([]);
-  const [selectedCertificate, setSelectedCertificate] = useState(null); // State for modal
+  const [certificates, setCertificados] = useState([]);
+  const [selectedCertificado, setSelectedCertificado] = useState(null); // State for modal
   const [open, setOpen] = useState(false); // Modal open state
+  const [colaboradores, setColaboradores] = useState([]); // State for collaborators
+  const certificadoRef = useRef(null); // Correct declaration of the ref
 
   const handleRowClick = (params) => {
-    setSelectedCertificate(params.row); // Set the selected certificate
+    setSelectedCertificado(params.row); // Set the selected certificate
     setOpen(true); // Open the modal
   };
 
   const handleClose = () => setOpen(false); // Close the modal
 
   useEffect(() => {
-    const fetchCertificates = async () => {
+    const fetchCertificados = async () => {
       if (!oid) return;
       try {
         const allCertificates = await getCertificados({
-          filters:[
+          filters: [
             {
-              field: "reconocidoId",
+              field: "ReconocidoId",
               operator: "eq",
               value: oid,
             },
             {
-              field: "estado",
+              field: "Estado",
               operator: "eq",
               value: "aprobado",
             },
           ]
         });
-        const filteredCertificates = allCertificates.filter(
-          (cert) => cert.tokenColaborador === oid
-        );
-        setCertificates(filteredCertificates);
+        setCertificados(allCertificates);
       } catch (error) {
         console.error("Error al obtener los certificados:", error);
       }
     };
 
-    fetchCertificates();
+    fetchCertificados();
   }, [oid]);
 
+  // Obtener los perfiles de los colaboradores desde graph batch
+  const fetchColaboradores = async () => {
+    let ids = [];
+    if (certificates.length > 0) {
+      const reconocedores = certificates.map((cert) => cert.reconocedorId);
+      const reconocidos = certificates.map((cert) => cert.reconocidoId);
+      ids = [...new Set([...reconocedores, ...reconocidos])];
+    }
+    const uniqueIds = [...new Set(ids)];
+
+    try {
+      const users = await getColaboradoresFromBatchIds(uniqueIds, instance, accounts);
+      setColaboradores(users);
+    }
+    catch (error) {
+      console.error("Error al obtener los colaboradores:", error);
+    }
+  }
+
+  useEffect(() => {
+    if (certificates.length > 0) {
+      fetchColaboradores();
+    }
+  }
+  , [certificates, instance, accounts]);
   const columns = [
-    { field: "titulo", headerName: "Título", flex: 1 },
-    { field: "fechaCreacion", headerName: "Fecha", flex: 1 },
-    { field: "texto", headerName: "Descripción", flex: 2 },
+    { field: "id", headerName: "ID", width: 100 },
+    {
+      field: "reconocedorId",
+      headerName: "Reconocedor",
+      width: 250,
+      renderCell: (params) => {
+        return colaboradores.find((col) => col.id === params.value)?.displayName || "Cargando...";
+      },
+    },
+    { field: "texto", headerName: "Texto", width: 300 },
   ];
 
   return (
@@ -79,12 +111,9 @@ export default function Certificados() {
 
       <Container maxWidth="md">
         <DataGrid
-          rows={certificates.map((cert, index) => ({
-            id: cert.reconocimientoId || index,
-            ...cert,
-          }))}
+          rows={certificates}
           columns={columns}
-          autoHeight
+          getRowId={(row) => row.reconocimientoId}
           pageSize={5}
           onRowClick={handleRowClick} // Handle row click
         />
@@ -118,15 +147,12 @@ export default function Certificados() {
             overflow: "auto",
           }}
         >
-          {selectedCertificate && (
+          {selectedCertificado && (
             <CertificadoComponent
-              nombreColaborador={selectedCertificate.nombreColaborador}
-              comportamientosSeleccionados={selectedCertificate.comportamientosSeleccionados}
-              fechaActual={selectedCertificate.fechaCreacion}
-              titulo={selectedCertificate.titulo}
-              texto={selectedCertificate.texto}
-              justificacion={selectedCertificate.justificacion}
-              oid={oid}
+              Certificado={selectedCertificado}
+              Reconocedor={colaboradores.find((col) => col.id === selectedCertificado.reconocedorId)}
+              Colaborador={colaboradores.find((col) => col.id === selectedCertificado.reconocidoId)}
+              ref={certificadoRef} // Just pass the ref directly
             />
           )}
         </Box>
