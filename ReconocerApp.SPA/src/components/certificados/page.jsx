@@ -195,7 +195,7 @@ export default function Certificados() {
                 color="primary" 
                 onClick={handleExportToImage}
               >
-                Compartir
+                Descargar
               </Button>
               <Button 
                 variant="outlined" 
