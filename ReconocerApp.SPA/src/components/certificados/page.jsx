@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Button, Box, Typography, Modal, Container } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid"; // Import DataGrid
+import { Button, Box, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import { DataGrid } from "@mui/x-data-grid";
 import CertificadoComponent from "./certificadoComponent";
 import { getCertificados } from "../../utils/services/certificado";
 import { useMsal } from "@azure/msal-react";
 import { getColaboradoresFromBatchIds } from "../../utils/services/colaboradores";
+import html2canvas from 'html2canvas';
 
 export default function Certificados() {
   const { instance, accounts } = useMsal();
@@ -13,17 +14,41 @@ export default function Certificados() {
   const oid = user?.idTokenClaims?.oid;
 
   const [certificates, setCertificados] = useState([]);
-  const [selectedCertificado, setSelectedCertificado] = useState(null); // State for modal
-  const [open, setOpen] = useState(false); // Modal open state
-  const [colaboradores, setColaboradores] = useState([]); // State for collaborators
-  const certificadoRef = useRef(null); // Correct declaration of the ref
+  const [selectedCertificado, setSelectedCertificado] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [colaboradores, setColaboradores] = useState([]);
+  const certificadoRef = useRef(null);
 
   const handleRowClick = (params) => {
-    setSelectedCertificado(params.row); // Set the selected certificate
-    setOpen(true); // Open the modal
+    setSelectedCertificado(params.row);
+    setOpen(true);
   };
 
-  const handleClose = () => setOpen(false); // Close the modal
+  const handleClose = () => setOpen(false);
+
+  const handleExportToImage = async () => {
+    if (certificadoRef.current) {
+      try {
+        const canvas = await html2canvas(certificadoRef.current, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: "#ffffff"
+        });
+        
+        canvas.toBlob((blob) => {
+          const link = document.createElement('a');
+          link.download = `certificado-${selectedCertificado.reconocimientoId}.png`;
+          link.href = URL.createObjectURL(blob);
+          link.click();
+          
+          URL.revokeObjectURL(link.href);
+        }, 'image/png');
+      } catch (error) {
+        console.error("Error al exportar el certificado:", error);
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchCertificados = async () => {
@@ -52,7 +77,6 @@ export default function Certificados() {
     fetchCertificados();
   }, [oid]);
 
-  // Obtener los perfiles de los colaboradores desde graph batch
   const fetchColaboradores = async () => {
     let ids = [];
     if (certificates.length > 0) {
@@ -75,88 +99,90 @@ export default function Certificados() {
     if (certificates.length > 0) {
       fetchColaboradores();
     }
-  }
-  , [certificates, instance, accounts]);
+  }, [certificates, instance, accounts]);
+
   const columns = [
-    { field: "id", headerName: "ID", width: 100 },
+    { 
+      field: "id", 
+      headerName: "ID", 
+    },
     {
       field: "reconocedorId",
       headerName: "Reconocedor",
-      width: 250,
       renderCell: (params) => {
         return colaboradores.find((col) => col.id === params.value)?.displayName || "Cargando...";
       },
     },
-    { field: "texto", headerName: "Texto", width: 300 },
+    { 
+      field: "texto", 
+      headerName: "Texto"
+    },
   ];
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "80vh",
-        gap: 4,
-        textAlign: "center",
-      }}
-    >
-      <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: "bold" }}>
+    <Box>
+      <Typography variant="h4" component="h1">
         Mis Certificados
       </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+      <Typography variant="body1">
         Aquí puedes ver y visualizar los certificados de comportamientos que has realizado.
       </Typography>
 
-      <Container maxWidth="md">
+      <Box>
         <DataGrid
           rows={certificates}
           columns={columns}
           getRowId={(row) => row.reconocimientoId}
           pageSize={5}
-          onRowClick={handleRowClick} // Handle row click
+          onRowClick={handleRowClick}
         />
-      </Container>
+      </Box>
 
       {certificates.length === 0 && (
-        <Box sx={{ textAlign: "center", py: 6 }}>
-          <Typography color="text.secondary">No tienes certificados disponibles.</Typography>
+        <Box>
+          <Typography>No tienes certificados disponibles.</Typography>
         </Box>
       )}
 
-      <Box sx={{ mt: 4, display: "flex", justifyContent: "center" }}>
-        <Link to="/" style={{ textDecoration: "none" }}>
-          <Button variant="outlined">Volver al Inicio</Button>
-        </Link>
-      </Box>
-
-      {/* Modal for displaying the certificate */}
-      <Modal open={open} onClose={handleClose}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            bgcolor: "background.paper",
-            boxShadow: 24,
-            p: 4,
-            maxWidth: "90vw",
-            maxHeight: "90vh",
-            overflow: "auto",
-          }}
-        >
-          {selectedCertificado && (
-            <CertificadoComponent
-              Certificado={selectedCertificado}
-              Reconocedor={colaboradores.find((col) => col.id === selectedCertificado.reconocedorId)}
-              Colaborador={colaboradores.find((col) => col.id === selectedCertificado.reconocidoId)}
-              ref={certificadoRef} // Just pass the ref directly
-            />
-          )}
-        </Box>
-      </Modal>
+      <Dialog 
+        open={open} 
+        onClose={handleClose}
+        maxWidth="md"
+        fullWidth
+      >
+        {selectedCertificado && (
+          <>
+            <DialogTitle>
+              Certificado de Reconocimiento
+            </DialogTitle>
+            <DialogContent>
+              <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
+                <CertificadoComponent
+                  Certificado={selectedCertificado}
+                  Reconocedor={colaboradores.find((col) => col.id === selectedCertificado.reconocedorId)}
+                  Reconocido={colaboradores.find((col) => col.id === selectedCertificado.reconocidoId)}
+                  ref={certificadoRef}
+                />
+              </Box>
+            </DialogContent>
+            <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
+              <Button 
+                variant="contained" 
+                color="primary" 
+                onClick={handleExportToImage}
+              >
+                Compartir
+              </Button>
+              <Button 
+                variant="outlined" 
+                onClick={handleClose}
+              >
+                Cerrar
+              </Button>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
     </Box>
   );
 }
