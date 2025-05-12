@@ -24,7 +24,6 @@ export default function Marketplace() {
         }
 
         const email = account.username;
-        const domain = email.split("@")[1].toLowerCase();
 
         const premios = await getPremios();
         console.log("Premios crudos obtenidos desde la API:", premios);
@@ -35,13 +34,7 @@ export default function Marketplace() {
           return;
         }
 
-        const filteredPrizes = premios
-          .filter((premio) => (
-            premio.organizacion &&
-            premio.organizacion.dominioEmail &&
-            premio.organizacion.dominioEmail.toLowerCase().includes(domain)
-          ))
-          .sort((a, b) => a.costoWallet - b.costoWallet);
+        const filteredPrizes = premios.sort((a, b) => a.costoWallet - b.costoWallet);
 
         setPrizes(filteredPrizes);
         setFilteredPrizes(filteredPrizes);
@@ -69,8 +62,6 @@ export default function Marketplace() {
   useEffect(() => {
     const filtered = prizes
       .filter((premio) =>
-        premio.costoWallet >= priceRange[0] &&
-        premio.costoWallet <= priceRange[1] &&
         premio.nombre.toLowerCase().includes(searchTerm.toLowerCase()) // Filtrar por nombre
       )
       .sort((a, b) => a.costoWallet - b.costoWallet);
