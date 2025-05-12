@@ -1,6 +1,5 @@
 import React, { forwardRef } from "react";
 import { Paper, Box, Typography, Divider, Grid } from "@mui/material";
-import iconos from "../../constants/iconos.js";
 import udlaparkImage from "../../assets/udlapark_entradaprincipal_interior.jpg"; // Importa la imagen
 
 const CertificadoComponent = forwardRef(({
@@ -11,30 +10,43 @@ const CertificadoComponent = forwardRef(({
   // Filtra los iconos seleccionados
   const texto = Certificado?.texto || "Texto no disponible";
 
+  // Common text shadow style to apply to all typography elements
+  const textShadowStyle = {
+    textShadow: "2px 2px 4px rgba(0, 0, 0, 0.7)",
+    color: "#fff"
+  };
+
   return (
     <Paper
       ref={ref} // Use the forwarded ref directly
       elevation={3}
       sx={{
         padding: 6,
-        maxWidth: "800px",
-        margin: "auto",
-        backgroundColor: "#fff",
+        width: "720px",
+        height: "720px",
+        minWidth: "720px",
+        minHeight: "720px",
         backgroundImage: `url(${udlaparkImage})`, // Asigna la imagen como fondo
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
-        color: "#000",
       }}
     >
-      {/* Título principal */}
-      <Box textAlign="center" mb={4}>
-        <Typography variant="h3" fontWeight="bold" gutterBottom>
-          ReconoSER
-        </Typography>
-      </Box>
+        <Box textAlign="center" mb={4}>
+          <Typography
+            variant="h3"
+            fontWeight="bold"
+            gutterBottom
+            sx={{
+              color: "#fff",
+              textShadow: "2px 2px 4px rgba(0, 0, 0, 0.7)",
+            }}
+          >
+            ReconoSER
+          </Typography>
+        </Box>
 
-      {/* Contenido del certificado */}
+        {/* Contenido del certificado */}
       <Box
         sx={{
           backgroundColor: "rgba(251, 48, 5, 0.7)",
@@ -44,15 +56,15 @@ const CertificadoComponent = forwardRef(({
         }}
       >
         <Box textAlign="center" mb={2}>
-          <Typography variant="h6">De {Reconocedor?.displayName || "Reconocedor no encontrado"}</Typography>
+          <Typography variant="h6" sx={textShadowStyle}>De {Reconocedor?.displayName || "Reconocedor no encontrado"}</Typography>
         </Box>
 
         <Box textAlign="center" mb={2}>
-          <Typography variant="h6">Para {Reconocido?.displayName || "Colaborador no encontrado"}</Typography>
+          <Typography variant="h6" sx={textShadowStyle}>Para {Reconocido?.displayName || "Colaborador no encontrado"}</Typography>
         </Box>
 
         <Box textAlign="center" mb={2}>
-          <Typography variant="body1" gutterBottom>
+          <Typography variant="body1" gutterBottom sx={textShadowStyle}>
             Talentos como tú nos enorgullecen y destacamos en ti:
           </Typography>
           <Grid container spacing={2} justifyContent="center" mt={2}>
@@ -62,7 +74,7 @@ const CertificadoComponent = forwardRef(({
                   src={item?.icono}
                   style={{ maxWidth: "80px", maxHeight: "80px" }}
                 />
-                <Typography variant="body2" sx={{ mt: 1 }}>
+                <Typography variant="body2" sx={{ mt: 1, ...textShadowStyle }}>
                   {item?.nombre}
                 </Typography>
               </Grid>
@@ -71,7 +83,14 @@ const CertificadoComponent = forwardRef(({
         </Box>
 
         <Box textAlign="center" mt={4}>
-          <Typography variant="body1" sx={{ fontStyle: "italic", fontWeight: "medium" }}>"{texto}"</Typography>
+          <Typography 
+            variant="body1" 
+            sx={{ 
+              fontStyle: "italic", 
+              fontWeight: "medium",
+              ...textShadowStyle
+            }}
+          >"{texto}"</Typography>
         </Box>
 
       </Box>

@@ -149,14 +149,38 @@ export default function Certificados() {
         onClose={handleClose}
         maxWidth="md"
         fullWidth
+        PaperProps={{
+          sx: {
+            maxHeight: '90vh',
+            width: '100%',
+            m: 2
+          }
+        }}
       >
         {selectedCertificado && (
           <>
             <DialogTitle>
               Certificado de Reconocimiento
             </DialogTitle>
-            <DialogContent>
-              <Box sx={{ display: 'flex', justifyContent: 'center', my: 2 }}>
+            <DialogContent sx={{ 
+              overflow: 'auto',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              p: 2,
+              '&::-webkit-scrollbar': {
+                width: '8px',
+                height: '8px',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: 'rgba(0,0,0,0.2)',
+                borderRadius: '4px',
+              }
+            }}>
+              <Box sx={{ 
+                minWidth: '720px',
+                minHeight: '720px',
+              }}>
                 <CertificadoComponent
                   Certificado={selectedCertificado}
                   Reconocedor={colaboradores.find((col) => col.id === selectedCertificado.reconocedorId)}

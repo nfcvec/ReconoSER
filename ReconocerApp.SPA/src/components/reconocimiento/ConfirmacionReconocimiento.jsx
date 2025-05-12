@@ -36,7 +36,6 @@ export default function ConfirmacionReconocimiento({ data, onConfirm, onBack }) 
       gap: 1,
       textAlign: "center",
     }}>
-      <pre>{JSON.stringify(Reconocido)}</pre>
       <Card>
         <CardContent sx={{ textAlign: "center", py: 4 }}>
           <Typography variant="h5" component="h1" gutterBottom>
