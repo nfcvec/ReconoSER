@@ -1,10 +1,25 @@
 import api from "../api";
 
 // Funcion para obtener todas las compras de premios
-export const getPremiosCompras = async () => {
+export const getPremiosCompras = async ({
+    filters = {},
+    orderBy = "compraId",
+    orderDirection = "desc",
+    page = 1,
+    pageSize = 100,
+}) => {
     try {
         console.log("Llamando a getPremiosCompras..."); // Log para verificar que se llama la función
-        const response = await api.get("/MarketplaceCompras");
+        const response = await api.get("/MarketplaceCompras",{
+            
+            params: {
+                filters: JSON.stringify(filters),
+                orderBy,
+                orderDirection,
+                page,
+                pageSize,
+            },
+        });
         console.log("Respuesta de getPremiosCompras:", response.data); // Log para verificar los datos obtenidos
         return response.data;
     } catch (error) {

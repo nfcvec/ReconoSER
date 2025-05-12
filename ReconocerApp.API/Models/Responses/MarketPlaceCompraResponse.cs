@@ -9,4 +9,5 @@ public class MarketplaceCompraResponse
     public string Estado { get; set; } = string.Empty;
     public string ComentarioRevision { get; set; } = string.Empty;
     public string FechaResolucion { get; set; } = string.Empty;
+    public MarketplacePremioResponse Premio { get; set; } = new MarketplacePremioResponse();
 }
