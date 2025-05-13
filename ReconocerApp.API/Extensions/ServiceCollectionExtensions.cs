@@ -33,8 +33,6 @@ namespace ReconocerApp.API.Extensions
 
         public static IServiceCollection AddCustomServices(this IServiceCollection services)
         {
-            services.AddSingleton<TokenDecoderMiddleware>();
-            
             // Graph Service
             services.AddScoped<IGraphService, GraphService>();
             

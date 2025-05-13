@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Authorization;
 using ReconocerApp.API.Extensions;
 using ReconocerApp.API.Services.Notifications;
 using ReconocerApp.API.Services.Graph;
+using ReconocerApp.API.Services.Filtering;
+using ReconocerApp.API.Services.Reconocimientos;
 
 var builder = WebApplication.CreateBuilder(args);
 // Habilitar logs de consola
@@ -30,10 +32,19 @@ builder.Services.AddNotificationServices(builder.Configuration);
 // Register services
 builder.Services.AddScoped<IEmailNotificationService, EmailNotificationService>();
 builder.Services.AddScoped<IEmailTemplateProvider, EmailTemplateProvider>();
+builder.Services.AddScoped<IReconocimientoService, ReconocimientoService>();
+builder.Services.AddScoped<IWalletService, WalletService>();
+
 
 // Register GraphService
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IGraphService, GraphService>();
+
+// Register DynamicFilterService
+builder.Services.AddScoped<IDynamicFilterService, DynamicFilterService>();
+
+// Register custom services
+builder.Services.AddCustomServices();
 
 // Configurar DbContext dinámicamente
 var databaseProvider = builder.Configuration.GetValue<string>("DatabaseProvider");
