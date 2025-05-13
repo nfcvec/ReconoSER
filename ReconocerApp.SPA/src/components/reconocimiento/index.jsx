@@ -108,13 +108,19 @@ export default function Reconocimiento() {
 
   const handleValueChange = (event, value) => {
     const checked = event.target.checked;
-
+  
     if (checked) {
+      // Verificar si ya se alcanzó el límite de 3 comportamientos
+      if (Comportamientos.length >= 3) {
+        alert("Solo puedes seleccionar un máximo de 3 comportamientos.");
+        return;
+      }
+  
       // Filtrar comportamientos para asegurarnos de que no haya duplicados por nombre
       const filteredComportamientos = Comportamientos.filter(
         (item) => item.nombre !== value.nombre
       );
-
+  
       setSelectedValues([...filteredComportamientos, value]);
     } else {
       // Si se desmarca, eliminar el comportamiento de la lista
