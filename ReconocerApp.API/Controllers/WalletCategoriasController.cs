@@ -14,8 +14,8 @@ namespace ReconocerApp.API.Controllers;
 
 public class WalletCategoriasController : BaseCrudController<WalletCategoria, WalletCategoriaResponse, int>
 {
-    public WalletCategoriasController(ApplicationDbContext context, IMapper mapper)
-        : base(context, mapper) { }
+    public WalletCategoriasController(ApplicationDbContext context, IMapper mapper, IDynamicFilterService filterService)
+        : base(context, mapper, filterService) { }
 
     public override async Task<ActionResult<IEnumerable<WalletCategoriaResponse>>> GetAll(
         [FromQuery] string? filters = null,
@@ -43,21 +43,13 @@ public class WalletCategoriasController : BaseCrudController<WalletCategoria, Wa
             }
 
             // Apply filters specifically for WalletTransacciones
-            baseQuery = DynamicFilterService.ApplyFilters(baseQuery, parsedFilters.Where(f =>
+            baseQuery = _filterService.ApplyFilters(baseQuery, parsedFilters.Where(f =>
                 f.Field == "Transacciones").ToList());
         }
 
         if (!string.IsNullOrEmpty(orderBy))
         {
-            var direction = string.Equals(orderDirection, "desc", StringComparison.OrdinalIgnoreCase) ? "descending" : "ascending";
-            try
-            {
-                baseQuery = baseQuery.OrderBy($"{orderBy} {direction}");
-            }
-            catch (Exception)
-            {
-                return BadRequest("Invalid orderBy or orderDirection format.");
-            }
+            baseQuery = _filterService.ApplySorting(baseQuery, orderBy, orderDirection ?? "asc");
         }
 
         var totalItems = await baseQuery.CountAsync();

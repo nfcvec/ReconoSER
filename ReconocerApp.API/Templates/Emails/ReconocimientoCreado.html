@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Solicitud de Reconocimiento Creada</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2c3e50;
+        }
+        .content {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Solicitud de Reconocimiento Creada</h1>
+    </div>
+    <div class="content">
+        <p>Hola {{ReconocedorNombre}},</p>
+        
+        <p>Tu solicitud de reconocimiento ha sido creada correctamente con la siguiente información:</p>
+        
+        <ul>
+            <li><strong>Persona reconocida:</strong> {{ReconocidoNombre}} ({{ReconocidoEmail}})</li>
+            <li><strong>Fecha de creación:</strong> {{FechaCreacion}}</li>
+            <li><strong>ID del reconocimiento:</strong> {{ReconocimientoId}}</li>
+        </ul>
+        
+        <p>Tu solicitud será revisada por un administrador. Recibirás una notificación cuando sea aprobada o rechazada.</p>
+        
+        <p>Gracias por contribuir a reconocer el buen trabajo de tus compañeros.</p>
+    </div>
+    <div class="footer">
+        <p>Este es un correo automático, por favor no responder.</p>
+    </div>
+</body>
+</html>

@@ -15,8 +15,9 @@ namespace ReconocerApp.API.Controllers
 {
     public class WalletSaldosController : BaseCrudController<WalletSaldo, WalletSaldoResponse, int>
     {
-        public WalletSaldosController(ApplicationDbContext context, IMapper mapper)
-            : base(context, mapper) { }
+        public WalletSaldosController(ApplicationDbContext context, IMapper mapper, IDynamicFilterService filterService)
+            : base(context, mapper, filterService) 
+        { }
 
         // GET con filtros, orden y paginación
         public override async Task<ActionResult<IEnumerable<WalletSaldoResponse>>> GetAll(
@@ -42,20 +43,12 @@ namespace ReconocerApp.API.Controllers
                     return BadRequest("Invalid filters format.");
                 }
 
-                baseQuery = DynamicFilterService.ApplyFilters(baseQuery, parsedFilters);
+                baseQuery = _filterService.ApplyFilters(baseQuery, parsedFilters);
             }
 
             if (!string.IsNullOrEmpty(orderBy))
             {
-                var direction = string.Equals(orderDirection, "desc", StringComparison.OrdinalIgnoreCase) ? "descending" : "ascending";
-                try
-                {
-                    baseQuery = baseQuery.OrderBy($"{orderBy} {direction}");
-                }
-                catch (Exception)
-                {
-                    return BadRequest("Invalid orderBy or orderDirection format.");
-                }
+                baseQuery = _filterService.ApplySorting(baseQuery, orderBy, orderDirection ?? "asc");
             }
 
             var totalItems = await baseQuery.CountAsync();
@@ -84,8 +77,6 @@ namespace ReconocerApp.API.Controllers
             return Ok(response);
         }
 
-
-
         // GET por ColaboradorId (string sin FK)
         [HttpGet("by-colaborador-id/{colaboradorId}")]
         public async Task<ActionResult<WalletSaldoResponse>> GetByColaboradorId(string colaboradorId)
@@ -95,7 +86,6 @@ namespace ReconocerApp.API.Controllers
 
             if (entity == null)
             {
-
                 entity = new WalletSaldo
                 {
                     // Si no existe, lo creamos
@@ -111,8 +101,6 @@ namespace ReconocerApp.API.Controllers
             return Ok(response);
         }
 
-
-
         [HttpGet("user-wallet")]
         public async Task<ActionResult<IEnumerable<WalletSaldoResponse>>> GetUserWallet()
         {
@@ -127,7 +115,6 @@ namespace ReconocerApp.API.Controllers
             var userJson = JsonSerializer.Serialize(user);
 
             return Ok(userJson);
-
         }
     }
 }

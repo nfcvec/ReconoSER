@@ -14,8 +14,8 @@ namespace ReconocerApp.API.Controllers;
 
 public class InventarioTransaccionesController : BaseCrudController<InventarioTransaccion, InventarioTransaccionResponse, int>
 {
-    public InventarioTransaccionesController(ApplicationDbContext context, IMapper mapper)
-        : base(context, mapper) { }
+    public InventarioTransaccionesController(ApplicationDbContext context, IMapper mapper, IDynamicFilterService filterService)
+        : base(context, mapper, filterService) { }
 
     public override async Task<ActionResult<IEnumerable<InventarioTransaccionResponse>>> GetAll(
         [FromQuery] string? filters = null,
@@ -42,20 +42,12 @@ public class InventarioTransaccionesController : BaseCrudController<InventarioTr
                 return BadRequest("Invalid filters format.");
             }
 
-            baseQuery = DynamicFilterService.ApplyFilters(baseQuery, parsedFilters);
+            baseQuery = _filterService.ApplyFilters(baseQuery, parsedFilters);
         }
 
         if (!string.IsNullOrEmpty(orderBy))
         {
-            var direction = string.Equals(orderDirection, "desc", StringComparison.OrdinalIgnoreCase) ? "descending" : "ascending";
-            try
-            {
-                baseQuery = baseQuery.OrderBy($"{orderBy} {direction}");
-            }
-            catch (Exception)
-            {
-                return BadRequest("Invalid orderBy or orderDirection format.");
-            }
+            baseQuery = _filterService.ApplySorting(baseQuery, orderBy, orderDirection ?? "asc");
         }
 
         var totalItems = await baseQuery.CountAsync();

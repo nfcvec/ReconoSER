@@ -8,14 +8,15 @@ using ReconocerApp.API.Models.Responses;
 using System.Text.Json;
 using ReconocerApp.API.Models.Filters;
 using ReconocerApp.API.Services.Filtering;
-using System.Linq.Dynamic.Core;
 
 namespace ReconocerApp.API.Controllers;
 
 public class CategoriaController : BaseCrudController<Categoria, CategoriaResponse, int>
 {
-    public CategoriaController(ApplicationDbContext context, IMapper mapper)
-        : base(context, mapper) { }
+    public CategoriaController(ApplicationDbContext context, IMapper mapper, IDynamicFilterService filterService)
+        : base(context, mapper, filterService)
+    {
+    }
 
     public override async Task<ActionResult<IEnumerable<CategoriaResponse>>> GetAll(
         [FromQuery] string? filters = null,
@@ -40,20 +41,12 @@ public class CategoriaController : BaseCrudController<Categoria, CategoriaRespon
                 return BadRequest("Invalid filters format.");
             }
 
-            baseQuery = DynamicFilterService.ApplyFilters(baseQuery, parsedFilters);
+            baseQuery = _filterService.ApplyFilters(baseQuery, parsedFilters);
         }
 
         if (!string.IsNullOrEmpty(orderBy))
         {
-            var direction = string.Equals(orderDirection, "desc", StringComparison.OrdinalIgnoreCase) ? "descending" : "ascending";
-            try
-            {
-                baseQuery = baseQuery.OrderBy($"{orderBy} {direction}");
-            }
-            catch (Exception)
-            {
-                return BadRequest("Invalid orderBy or orderDirection format.");
-            }
+            baseQuery = _filterService.ApplySorting(baseQuery, orderBy, orderDirection ?? "asc");
         }
 
         var totalItems = await baseQuery.CountAsync();

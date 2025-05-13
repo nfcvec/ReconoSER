@@ -14,8 +14,8 @@ namespace ReconocerApp.API.Controllers;
 
 public class ColaboradoresController : BaseCrudController<Colaborador, ColaboradorResponse, int>
 {
-    public ColaboradoresController(ApplicationDbContext context, IMapper mapper)
-        : base(context, mapper) { }
+    public ColaboradoresController(ApplicationDbContext context, IMapper mapper, IDynamicFilterService filterService)
+        : base(context, mapper, filterService) { }
 
     public override async Task<ActionResult<IEnumerable<ColaboradorResponse>>> GetAll(
         [FromQuery] string? filters = null,
@@ -47,20 +47,12 @@ public class ColaboradoresController : BaseCrudController<Colaborador, Colaborad
                 Console.WriteLine($"Field: {filter.Field}, Operator: {filter.Operator}, Value: {filter.Value}");
             }
 
-            baseQuery = DynamicFilterService.ApplyFilters(baseQuery, parsedFilters);
+            baseQuery = _filterService.ApplyFilters(baseQuery, parsedFilters);
         }
 
         if (!string.IsNullOrEmpty(orderBy))
         {
-            var direction = string.Equals(orderDirection, "desc", StringComparison.OrdinalIgnoreCase) ? "descending" : "ascending";
-            try
-            {
-                baseQuery = baseQuery.OrderBy($"{orderBy} {direction}");
-            }
-            catch (Exception)
-            {
-                return BadRequest("Invalid orderBy or orderDirection format.");
-            }
+            baseQuery = _filterService.ApplySorting(baseQuery, orderBy, orderDirection ?? "asc");
         }
 
         var totalItems = await baseQuery.CountAsync();

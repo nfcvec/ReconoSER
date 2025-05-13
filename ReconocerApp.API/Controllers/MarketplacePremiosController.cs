@@ -26,8 +26,8 @@ public class MarketplacePremiosController : BaseCrudController<MarketplacePremio
 {
     private readonly MinioService _minioService;
 
-    public MarketplacePremiosController(ApplicationDbContext context, IMapper mapper, MinioService minioService)
-        : base(context, mapper)
+    public MarketplacePremiosController(ApplicationDbContext context, IMapper mapper, MinioService minioService, IDynamicFilterService filterService)
+        : base(context, mapper, filterService)
     {
         _minioService = minioService;
     }
@@ -62,20 +62,12 @@ public class MarketplacePremiosController : BaseCrudController<MarketplacePremio
                 Console.WriteLine($"Field: {filter.Field}, Operator: {filter.Operator}, Value: {filter.Value}");
             }
 
-            baseQuery = DynamicFilterService.ApplyFilters(baseQuery, parsedFilters);
+            baseQuery = _filterService.ApplyFilters(baseQuery, parsedFilters);
         }
 
         if (!string.IsNullOrEmpty(orderBy))
         {
-            var direction = string.Equals(orderDirection, "desc", StringComparison.OrdinalIgnoreCase) ? "descending" : "ascending";
-            try
-            {
-                baseQuery = baseQuery.OrderBy($"{orderBy} {direction}");
-            }
-            catch (Exception) // Replaced ParseException with Exception
-            {
-                return BadRequest("Invalid orderBy or orderDirection format.");
-            }
+            baseQuery = _filterService.ApplySorting(baseQuery, orderBy, orderDirection ?? "asc");
         }
 
         var totalItems = await baseQuery.CountAsync();
@@ -85,7 +77,7 @@ public class MarketplacePremiosController : BaseCrudController<MarketplacePremio
             .ProjectTo<MarketplacePremioResponse>(_mapper.ConfigurationProvider)
             .ToListAsync();
 
-        Response.Headers["X-Total-Count"] = totalItems.ToString(); // Fixed duplicate header issue
+        Response.Headers["X-Total-Count"] = totalItems.ToString();
         return Ok(items);
     }
 

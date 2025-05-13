@@ -6,6 +6,9 @@ using ReconocerApp.API.Mappings; // 👈 Asegúrate de tener este using
 using ReconocerApp.API.Middleware;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Authorization;
+using ReconocerApp.API.Extensions;
+using ReconocerApp.API.Services.Notifications;
+using ReconocerApp.API.Services.Graph;
 
 var builder = WebApplication.CreateBuilder(args);
 // Habilitar logs de consola
@@ -20,6 +23,17 @@ builder.Services.AddScoped<MinioService>();
 
 // Register AutoMapper
 builder.Services.AddAutoMapper(typeof(ReconocerApp.API.Mapping.MappingProfile));
+
+// Add NotificationServices
+builder.Services.AddNotificationServices(builder.Configuration);
+
+// Register services
+builder.Services.AddScoped<IEmailNotificationService, EmailNotificationService>();
+builder.Services.AddScoped<IEmailTemplateProvider, EmailTemplateProvider>();
+
+// Register GraphService
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IGraphService, GraphService>();
 
 // Configurar DbContext dinámicamente
 var databaseProvider = builder.Configuration.GetValue<string>("DatabaseProvider");

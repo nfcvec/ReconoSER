@@ -1,46 +1,124 @@
 using System.Linq.Dynamic.Core;
-using System.Linq.Dynamic.Core.Parser;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using ReconocerApp.API.Models.Filters;
 
 namespace ReconocerApp.API.Services.Filtering;
 
-public static class DynamicFilterService
+public class DynamicFilterService : IDynamicFilterService
 {
-    public static IQueryable<T> ApplyFilters<T>(IQueryable<T> query, List<FilterRequest> filters)
+    private readonly ILogger<DynamicFilterService> _logger;
+
+    public DynamicFilterService(ILogger<DynamicFilterService> logger)
     {
-        var config = new ParsingConfig
+        _logger = logger;
+    }
+
+    public IQueryable<T> ApplyFilters<T>(IQueryable<T> query, string filterJson)
+    {
+        if (string.IsNullOrEmpty(filterJson))
         {
-            ResolveTypesBySimpleName = true,
-            AllowNewToEvaluateAnyType = true
-        };
+            return query;
+        }
 
-        foreach (var filter in filters)
+        try
         {
-            if (string.IsNullOrWhiteSpace(filter.Field)) continue;
-
-            // Normaliza: mayúscula por propiedad
-            var fieldParts = filter.Field
-                .Split('.')
-                .Where(p => !string.IsNullOrWhiteSpace(p))
-                .Select(p => char.ToUpper(p[0]) + p.Substring(1));
-
-            var normalizedField = string.Join('.', fieldParts);
-
-            string expression = filter.Operator.ToLower() switch
+            var filterRequests = JsonSerializer.Deserialize<List<FilterRequest>>(filterJson);
+            if (filterRequests == null || !filterRequests.Any())
             {
-                "contains" => $"{normalizedField}.Contains(@0)",
-                "eq" => $"{normalizedField} == @0",
-                "neq" => $"{normalizedField} != @0",
-                "gt" => $"{normalizedField} > @0",
-                "lt" => $"{normalizedField} < @0",
-                _ => throw new NotSupportedException($"Operator '{filter.Operator}' is not supported.")
-            };
+                return query;
+            }
 
-            Console.WriteLine($"Expresión generada: {expression} | Valor: {filter.Value}");
-
-            query = query.Where(config, expression, filter.Value);
+            return ApplyFilters(query, filterRequests);
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Error al deserializar filtros: {Message}", ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al aplicar filtros: {Message}", ex.Message);
         }
 
         return query;
+    }
+
+    public IQueryable<T> ApplyFilters<T>(IQueryable<T> query, List<FilterRequest> filters)
+    {
+        if (filters == null || !filters.Any())
+        {
+            return query;
+        }
+
+        try
+        {
+            foreach (var filter in filters)
+            {
+                switch (filter.Operator.ToLower())
+                {
+                    case "eq":
+                        query = query.Where(e => 
+                            EF.Property<string>(e, filter.Field) == filter.Value);
+                        break;
+                    case "contains":
+                        query = query.Where(e => 
+                            EF.Property<string>(e, filter.Field).Contains(filter.Value));
+                        break;
+                    case "startswith":
+                        query = query.Where(e => 
+                            EF.Property<string>(e, filter.Field).StartsWith(filter.Value));
+                        break;
+                    case "endswith":
+                        query = query.Where(e => 
+                            EF.Property<string>(e, filter.Field).EndsWith(filter.Value));
+                        break;
+                    case "gt":
+                        query = query.Where($"{filter.Field} > @0", filter.Value);
+                        break;
+                    case "lt":
+                        query = query.Where($"{filter.Field} < @0", filter.Value);
+                        break;
+                    case "gte":
+                        query = query.Where($"{filter.Field} >= @0", filter.Value);
+                        break;
+                    case "lte":
+                        query = query.Where($"{filter.Field} <= @0", filter.Value);
+                        break;
+                    default:
+                        _logger.LogWarning($"Operador de filtro no soportado: {filter.Operator}");
+                        break;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al aplicar filtros: {Message}", ex.Message);
+        }
+
+        return query;
+    }
+
+    public IQueryable<T> ApplySorting<T>(IQueryable<T> query, string orderBy, string orderDirection)
+    {
+        if (string.IsNullOrEmpty(orderBy))
+        {
+            return query;
+        }
+
+        try
+        {
+            var direction = !string.IsNullOrEmpty(orderDirection) && 
+                orderDirection.Equals("desc", StringComparison.OrdinalIgnoreCase) 
+                ? "descending" 
+                : "ascending";
+            
+            return query.OrderBy($"{orderBy} {direction}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al aplicar ordenamiento: {Message}", ex.Message);
+            return query;
+        }
     }
 }

@@ -18,12 +18,14 @@ public class MarketplaceComprasController : ControllerBase
     protected readonly ApplicationDbContext _context;
     protected readonly IMapper _mapper;
     protected readonly DbSet<MarketplaceCompra> _dbSet;
+    protected readonly IDynamicFilterService _filterService;
 
-    public MarketplaceComprasController(ApplicationDbContext context, IMapper mapper)
+    public MarketplaceComprasController(ApplicationDbContext context, IMapper mapper, IDynamicFilterService filterService)
     {
         _context = context;
         _mapper = mapper;
         _dbSet = _context.Set<MarketplaceCompra>();
+        _filterService = filterService;
     }
 
     [HttpGet]
@@ -51,20 +53,12 @@ public class MarketplaceComprasController : ControllerBase
                 return BadRequest("Invalid filters format.");
             }
 
-            baseQuery = DynamicFilterService.ApplyFilters(baseQuery, parsedFilters);
+            baseQuery = _filterService.ApplyFilters(baseQuery, parsedFilters);
         }
 
         if (!string.IsNullOrEmpty(orderBy))
         {
-            var direction = string.Equals(orderDirection, "desc", StringComparison.OrdinalIgnoreCase) ? "descending" : "ascending";
-            try
-            {
-                baseQuery = baseQuery.OrderBy($"{orderBy} {direction}");
-            }
-            catch (Exception)
-            {
-                return BadRequest("Invalid orderBy or orderDirection format.");
-            }
+            baseQuery = _filterService.ApplySorting(baseQuery, orderBy, orderDirection ?? "asc");
         }
 
         var totalItems = await baseQuery.CountAsync();
