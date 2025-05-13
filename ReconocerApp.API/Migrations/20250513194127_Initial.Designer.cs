@@ -12,7 +12,7 @@ using ReconocerApp.API.Data;
 namespace ReconocerApp.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250512185413_Initial")]
+    [Migration("20250513194127_Initial")]
     partial class Initial
     {
         /// <inheritdoc />

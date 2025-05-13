@@ -148,7 +148,7 @@ CREATE INDEX "IX_WalletTransacciones_CategoriaId" ON "WalletTransacciones" ("Cat
 CREATE INDEX "IX_WalletTransacciones_WalletSaldoId" ON "WalletTransacciones" ("WalletSaldoId");
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20250512185413_Initial', '9.0.4');
+VALUES ('20250513194127_Initial', '9.0.4');
 
 COMMIT;
 
