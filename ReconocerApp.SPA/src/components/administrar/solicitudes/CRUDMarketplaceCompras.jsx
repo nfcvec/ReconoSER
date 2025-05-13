@@ -9,8 +9,10 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogContentText,
   DialogActions,
+  Box,
+  TextField,
+  Divider,
 } from "@mui/material";
 import {
   getPremiosCompras,
@@ -23,10 +25,41 @@ const CRUDMarketplaceCompras = () => {
   const [colaboradores, setColaboradores] = useState([]);
   const [selectedCompra, setSelectedCompra] = useState(null);
   const [open, setOpen] = useState(false);
+  const [comentarioAprobacion, setComentarioAprobacion] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleReview = async (action) => {
+    setIsLoading(true);
+    try {
+      await reviewCompra(
+        selectedCompra.compraId, // ID de la compra seleccionada
+        action === "aprobado" // true si es aprobado, false si es rechazado
+      );
+
+      setSnackbar({
+        open: true,
+        message: `Compra ${action === "aprobado" ? "aprobada" : "rechazada"} correctamente.`,
+        severity: "success",
+      });
+
+      // Actualiza la lista de compras eliminando la compra revisada
+      setCompras((prev) => prev.filter((compra) => compra.compraId !== selectedCompra.compraId));
+      handleClose();
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: `Error al ${action === "aprobado" ? "aprobar" : "rechazar"} la compra.`,
+        severity: "error",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+
   const handleClose = () => {
     setOpen(false);
   };
-
 
   const { instance, accounts } = useMsal();
 
@@ -41,7 +74,6 @@ const CRUDMarketplaceCompras = () => {
         orderBy: "fechaCompra",
         orderDirection: "desc",
       });
-      console.log("Datos de compras:", data);
       setCompras(data);
     } catch (error) {
       console.error("Error al cargar las compras:", error);
@@ -53,7 +85,7 @@ const CRUDMarketplaceCompras = () => {
     const uniqueIds = [...new Set(ids)];
     const data = await getColaboradoresFromBatchIds(uniqueIds, instance, accounts);
     setColaboradores(data);
-  }
+  };
 
   useEffect(() => {
     fetchCompras();
@@ -63,8 +95,7 @@ const CRUDMarketplaceCompras = () => {
     if (compras.length > 0) {
       fetchColaboradores();
     }
-  }
-    , [compras]);
+  }, [compras]);
 
   const columns = [
     {
@@ -77,12 +108,10 @@ const CRUDMarketplaceCompras = () => {
       field: "premio",
       headerName: "Premio",
       width: 250,
-      valueGetter: (params) => {
-        return params.nombre;
-      }
+      valueGetter: (params) => params.nombre,
     },
     { field: "fechaCompra", headerName: "Fecha de Compra", width: 200 },
-    { field: "estado", headerName: "Estado", width: 150 }
+    { field: "estado", headerName: "Estado", width: 150 },
   ];
 
   return (
@@ -95,24 +124,100 @@ const CRUDMarketplaceCompras = () => {
         rowsPerPageOptions={[5]}
         getRowId={(row) => row.compraId}
         onRowClick={(params) => {
-        if (params.row) {
-          setSelectedCompra(params.row);
-          setOpen(true);
-        }
-        }
-        }
+          if (params.row) {
+            setSelectedCompra(params.row);
+            setOpen(true);
+          }
+        }}
       />
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Detalles de la compra</DialogTitle>
+
+      <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
+        <DialogTitle>Detalles de la Compra</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            <pre>{JSON.stringify(selectedCompra, null, 2)}</pre>
-          </DialogContentText>
-          {/* Aquí puedes agregar más detalles sobre la compra */}
+          {selectedCompra && (
+            <>
+              <Typography variant="body1" sx={{ my: 1 }}>
+                <strong>Solicitante:</strong>{" "}
+                {colaboradores.find((col) => col.id === selectedCompra.tokenColaborador)?.displayName || selectedCompra.tokenColaborador}
+              </Typography>
+              <Typography variant="body1" sx={{ my: 1 }}>
+                <strong>Premio:</strong> {selectedCompra.premio?.nombre}
+              </Typography>
+              <Typography variant="body1" sx={{ my: 1 }}>
+                <strong>Descripción:</strong> {selectedCompra.premio?.descripcion}
+              </Typography>
+              <Typography variant="body1" sx={{ my: 1 }}>
+                <strong>Costo:</strong> {selectedCompra.premio?.costoWallet} puntos
+              </Typography>
+              <Typography variant="body1" sx={{ my: 1 }}>
+                <strong>Fecha de compra:</strong>{" "}
+                {new Date(selectedCompra.fechaCompra).toLocaleString("es-EC", {
+                  dateStyle: "short",
+                  timeStyle: "short",
+                })}
+              </Typography>
+              <Typography variant="body1" sx={{ my: 1 }}>
+                <strong>Estado:</strong> {selectedCompra.estado}
+              </Typography>
+              {selectedCompra.premio?.imagenUrl && (
+                <div style={{ textAlign: "center", marginTop: 16 }}>
+                  <img
+                    src={selectedCompra.premio.imagenUrl}
+                    alt="Imagen del premio"
+                    style={{ maxHeight: 200, borderRadius: 8 }}
+                  />
+                </div>
+              )}
+
+              <Divider sx={{ my: 2 }} />
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="h6" sx={{ mb: 1 }}>
+                  Comentario de aprobación
+                </Typography>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={3}
+                  variant="outlined"
+                  placeholder="Ingrese un comentario para la aprobación o rechazo"
+                  value={comentarioAprobacion}
+                  onChange={(e) => setComentarioAprobacion(e.target.value)}
+                />
+              </Box>
+            </>
+          )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose}>Cerrar</Button>
+        <DialogActions sx={{ p: 2, justifyContent: "space-between" }}>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={handleClose}
+            disabled={isLoading}
+          >
+            Cerrar
+          </Button>
+          <Box>
+            <Button
+              variant="contained"
+              color="error"
+              onClick={() => handleReview("rechazado")}
+              disabled={isLoading}
+              sx={{ mx: 1 }}
+            >
+              {isLoading ? "Procesando..." : "Rechazar"}
+            </Button>
+            <Button
+              variant="contained"
+              color="success"
+              onClick={() => handleReview("aprobado")}
+              disabled={isLoading}
+              sx={{ mx: 1 }}
+            >
+              {isLoading ? "Procesando..." : "Aceptar"}
+            </Button>
+          </Box>
         </DialogActions>
+
       </Dialog>
     </Container>
   );

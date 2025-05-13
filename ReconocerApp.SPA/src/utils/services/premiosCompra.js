@@ -9,9 +9,8 @@ export const getPremiosCompras = async ({
     pageSize = 100,
 }) => {
     try {
-        console.log("Llamando a getPremiosCompras..."); // Log para verificar que se llama la función
-        const response = await api.get("/MarketplaceCompras",{
-            
+        console.log("Llamando a getPremiosCompras...");
+        const response = await api.get("/MarketplaceCompras", {
             params: {
                 filters: JSON.stringify(filters),
                 orderBy,
@@ -20,13 +19,13 @@ export const getPremiosCompras = async ({
                 pageSize,
             },
         });
-        console.log("Respuesta de getPremiosCompras:", response.data); // Log para verificar los datos obtenidos
+        console.log("Respuesta de getPremiosCompras:", response.data);
         return response.data;
     } catch (error) {
         console.error("Error al obtener las compras de premios:", error.message);
         throw error;
     }
-}
+};
 
 // Funcion para obtener una compra de premio por ID
 export const getPremioCompraById = async (id) => {
@@ -37,7 +36,7 @@ export const getPremioCompraById = async (id) => {
         console.error(`Error al obtener la compra de premio con ID ${id}:`, error.message);
         throw error;
     }
-}
+};
 
 // Funcion para crear una compra de premio
 export const createPremioCompra = async (data) => {
@@ -48,7 +47,7 @@ export const createPremioCompra = async (data) => {
         console.error("Error al crear la compra de premio:", error.message);
         throw error;
     }
-}
+};
 
 // Funcion para editar una compra de premio por ID
 export const editPremioCompra = async (id, data) => {
@@ -59,7 +58,7 @@ export const editPremioCompra = async (id, data) => {
         console.error(`Error al editar la compra de premio con ID ${id}:`, error.message);
         throw error;
     }
-}   
+};
 
 // Funcion para eliminar una compra de premio por ID
 export const deletePremioCompra = async (id) => {
@@ -70,4 +69,17 @@ export const deletePremioCompra = async (id) => {
         console.error(`Error al eliminar la compra de premio con ID ${id}:`, error.message);
         throw error;
     }
-}
+};
+
+// Funcion para revisar una compra de premio por ID
+export const revisarPremioCompra = async (id, aprobar) => {
+    try {
+        console.log(`Revisando compra con ID ${id}, aprobar: ${aprobar}`);
+        const response = await api.post(`/MarketplaceCompras/review/${id}`, aprobar);
+        console.log("Respuesta de revisarPremioCompra:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error(`Error al revisar la compra de premio con ID ${id}:`, error.message);
+        throw error;
+    }
+};

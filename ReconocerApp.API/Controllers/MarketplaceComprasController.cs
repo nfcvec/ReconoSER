@@ -42,7 +42,6 @@ public class MarketplaceComprasController : ControllerBase
         if (!string.IsNullOrEmpty(filters))
         {
             List<FilterRequest> parsedFilters;
-
             try
             {
                 parsedFilters = JsonSerializer.Deserialize<List<FilterRequest>>(filters) ?? new();
@@ -92,14 +91,12 @@ public class MarketplaceComprasController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<MarketplaceCompraResponse>> Create([FromBody] MarketplaceCompra entity)
     {
-        // Ensure all DateTime properties are in UTC
         if (entity.FechaCompra.HasValue)
             entity.FechaCompra = DateTime.SpecifyKind(entity.FechaCompra.Value, DateTimeKind.Utc);
         
         if (entity.FechaResolucion.HasValue)
             entity.FechaResolucion = DateTime.SpecifyKind(entity.FechaResolucion.Value, DateTimeKind.Utc);
 
-        // Detectar entidades relacionadas existentes
         foreach (var entry in _context.Entry(entity).References)
         {
             if (entry.TargetEntry != null)
@@ -116,7 +113,6 @@ public class MarketplaceComprasController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] MarketplaceCompra entity)
     {
-        // Ensure all DateTime properties are in UTC
         if (entity.FechaCompra.HasValue)
             entity.FechaCompra = DateTime.SpecifyKind(entity.FechaCompra.Value, DateTimeKind.Utc);
         
@@ -138,25 +134,36 @@ public class MarketplaceComprasController : ControllerBase
         return NoContent();
     }
 
-    public class CompraReviewRequest
-    {
-        public bool Aprobar { get; set; }
-        public string ComentarioAprobacion { get; set; } = string.Empty;
-        public string AprobadorId { get; set; } = string.Empty;
-        public DateTime FechaResolucion { get; set; }
-    }
-
     [HttpPost("review/{id}")]
-    public async Task<IActionResult> Review([FromRoute] int id, [FromBody] CompraReviewRequest request)
+    public async Task<IActionResult> Review([FromRoute] int id, [FromBody] bool aprobar)
     {
         var item = await _dbSet.FindAsync(id);
         if (item == null) return NotFound();
 
-        item.Estado = request.Aprobar ? "aprobar" : "rechazar";
-        item.ComentarioRevision = request.ComentarioAprobacion;
-        
-        // Ensure DateTime is in UTC format
-        item.FechaResolucion = DateTime.SpecifyKind(request.FechaResolucion, DateTimeKind.Utc);
+        var premio = await _context.MarketplacePremios
+            .FirstOrDefaultAsync(p => p.PremioId == item.PremioId);
+
+        if (premio == null) return NotFound("El premio asociado a la compra no existe.");
+
+        if (aprobar)
+        {
+            item.Estado = "aprobado";
+        }
+        else
+        {
+            var walletSaldo = await _context.WalletSaldos
+                .FirstOrDefaultAsync(ws => ws.TokenColaborador == item.TokenColaborador);
+
+            if (walletSaldo != null)
+            {
+                walletSaldo.SaldoActual += premio.CostoWallet;
+                _context.WalletSaldos.Update(walletSaldo);
+            }
+
+            item.Estado = "rechazado";
+        }
+
+        item.FechaResolucion = DateTime.UtcNow;
 
         _context.Entry(item).State = EntityState.Modified;
         await _context.SaveChangesAsync();
