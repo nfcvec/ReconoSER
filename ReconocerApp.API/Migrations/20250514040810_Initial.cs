@@ -254,6 +254,7 @@ namespace ReconocerApp.API.Migrations
                     FechaCompra = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     Estado = table.Column<string>(type: "text", nullable: false),
                     ComentarioRevision = table.Column<string>(type: "text", nullable: true),
+                    AprobadorId = table.Column<string>(type: "text", nullable: true),
                     FechaResolucion = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>

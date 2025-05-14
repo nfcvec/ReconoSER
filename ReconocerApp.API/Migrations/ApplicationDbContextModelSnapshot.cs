@@ -131,6 +131,9 @@ namespace ReconocerApp.API.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CompraId"));
 
+                    b.Property<string>("AprobadorId")
+                        .HasColumnType("text");
+
                     b.Property<string>("ComentarioRevision")
                         .HasColumnType("text");
 

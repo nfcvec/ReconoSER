@@ -8,6 +8,7 @@ public class MarketplaceCompraResponse
     public DateTime? FechaCompra { get; set; }
     public string? Estado { get; set; }
     public string? ComentarioRevision { get; set; }
+    public string? AprobadorId { get; set; } = string.Empty;
     public DateTime? FechaResolucion { get; set; }
     public MarketplacePremioResponse? Premio { get; set; }
 }

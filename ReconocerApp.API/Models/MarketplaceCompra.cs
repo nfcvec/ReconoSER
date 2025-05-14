@@ -11,6 +11,7 @@ public class MarketplaceCompra
     public DateTime? FechaCompra { get; set; }
     public string Estado { get; set; } = string.Empty;
     public string? ComentarioRevision { get; set; } = string.Empty;
+    public string? AprobadorId { get; set; } = string.Empty;
     public DateTime? FechaResolucion { get; set; }
     public virtual MarketplacePremio? Premio { get; set; }
 }
