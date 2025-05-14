@@ -55,45 +55,49 @@ public class DynamicFilterService : IDynamicFilterService
         {
             foreach (var filter in filters)
             {
-                switch (filter.Operator.ToLower())
+                // Use strongly-typed expressions for known properties
+                if (typeof(T).GetProperty(filter.Field) != null)
                 {
-                    case "eq":
-                        query = query.Where(e => 
-                            EF.Property<string>(e, filter.Field) == filter.Value);
-                        break;
-                    case "contains":
-                        query = query.Where(e => 
-                            EF.Property<string>(e, filter.Field).Contains(filter.Value));
-                        break;
-                    case "startswith":
-                        query = query.Where(e => 
-                            EF.Property<string>(e, filter.Field).StartsWith(filter.Value));
-                        break;
-                    case "endswith":
-                        query = query.Where(e => 
-                            EF.Property<string>(e, filter.Field).EndsWith(filter.Value));
-                        break;
-                    case "gt":
-                        query = query.Where($"{filter.Field} > @0", filter.Value);
-                        break;
-                    case "lt":
-                        query = query.Where($"{filter.Field} < @0", filter.Value);
-                        break;
-                    case "gte":
-                        query = query.Where($"{filter.Field} >= @0", filter.Value);
-                        break;
-                    case "lte":
-                        query = query.Where($"{filter.Field} <= @0", filter.Value);
-                        break;
-                    default:
-                        _logger.LogWarning($"Operador de filtro no soportado: {filter.Operator}");
-                        break;
+                    switch (filter.Operator.ToLower())
+                    {
+                        case "eq":
+                            query = query.Where($"{filter.Field} == @0", filter.Value);
+                            break;
+                        case "contains":
+                            query = query.Where($"{filter.Field}.Contains(@0)", filter.Value);
+                            break;
+                        case "startswith":
+                            query = query.Where($"{filter.Field}.StartsWith(@0)", filter.Value);
+                            break;
+                        case "endswith":
+                            query = query.Where($"{filter.Field}.EndsWith(@0)", filter.Value);
+                            break;
+                        case "gt":
+                            query = query.Where($"{filter.Field} > @0", filter.Value);
+                            break;
+                        case "lt":
+                            query = query.Where($"{filter.Field} < @0", filter.Value);
+                            break;
+                        case "gte":
+                            query = query.Where($"{filter.Field} >= @0", filter.Value);
+                            break;
+                        case "lte":
+                            query = query.Where($"{filter.Field} <= @0", filter.Value);
+                            break;
+                        default:
+                            _logger.LogWarning($"Unsupported filter operator: {filter.Operator}");
+                            break;
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning($"Property '{filter.Field}' does not exist on type '{typeof(T).Name}'");
                 }
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al aplicar filtros: {Message}", ex.Message);
+            _logger.LogError(ex, "Error applying filters: {Message}", ex.Message);
         }
 
         return query;

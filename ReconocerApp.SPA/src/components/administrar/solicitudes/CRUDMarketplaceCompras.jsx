@@ -13,27 +13,40 @@ import {
   Box,
   TextField,
   Divider,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import {
   getPremiosCompras,
+  revisarPremioCompra,
 } from "../../../utils/services/premiosCompra";
 import { useMsal } from "@azure/msal-react";
 import { getColaboradoresFromBatchIds } from "../../../utils/services/colaboradores";
+import { useLoading } from "../../../contexts/LoadingContext";
 
 const CRUDMarketplaceCompras = () => {
   const [compras, setCompras] = useState([]);
   const [colaboradores, setColaboradores] = useState([]);
   const [selectedCompra, setSelectedCompra] = useState(null);
   const [open, setOpen] = useState(false);
-  const [comentarioAprobacion, setComentarioAprobacion] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [comentarioRevision, setComentarioRevision] = useState("");
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "" });
+  const {instance, accounts} = useMsal();
+  const { showLoading, hideLoading } = useLoading();
+  
+
 
   const handleReview = async (action) => {
-    setIsLoading(true);
+    showLoading(`Revisando compra...`);
     try {
-      await reviewCompra(
-        selectedCompra.compraId, // ID de la compra seleccionada
-        action === "aprobado" // true si es aprobado, false si es rechazado
+      await revisarPremioCompra({
+        id: selectedCompra.compraId, // ID de la compra seleccionada
+        payload:{
+          aprobar: action === "aprobado",
+          comentarioRevision: comentarioRevision,
+          aprobadorId: accounts[0]?.homeAccountId,
+        }
+      }
       );
 
       setSnackbar({
@@ -51,23 +64,23 @@ const CRUDMarketplaceCompras = () => {
         message: `Error al ${action === "aprobado" ? "aprobar" : "rechazar"} la compra.`,
         severity: "error",
       });
-    } finally {
-      setIsLoading(false);
     }
+    hideLoading();
   };
 
+  const handleCloseSnackbar = () => {
+    setSnackbar((prev) => ({ ...prev, open: false }));
+  };
 
   const handleClose = () => {
     setOpen(false);
   };
 
-  const { instance, accounts } = useMsal();
-
   const fetchCompras = async () => {
     try {
       const data = await getPremiosCompras({
         filters: [{
-          field: "estado",
+          field: "Estado",
           operator: "eq",
           value: "pendiente",
         }],
@@ -137,6 +150,9 @@ const CRUDMarketplaceCompras = () => {
           {selectedCompra && (
             <>
               <Typography variant="body1" sx={{ my: 1 }}>
+                <strong>ID de compra:</strong> {selectedCompra.compraId}
+              </Typography>
+              <Typography variant="body1" sx={{ my: 1 }}>
                 <strong>Solicitante:</strong>{" "}
                 {colaboradores.find((col) => col.id === selectedCompra.tokenColaborador)?.displayName || selectedCompra.tokenColaborador}
               </Typography>
@@ -180,8 +196,8 @@ const CRUDMarketplaceCompras = () => {
                   rows={3}
                   variant="outlined"
                   placeholder="Ingrese un comentario para la aprobación o rechazo"
-                  value={comentarioAprobacion}
-                  onChange={(e) => setComentarioAprobacion(e.target.value)}
+                  value={comentarioRevision}
+                  onChange={(e) => setComentarioRevision(e.target.value)}
                 />
               </Box>
             </>
@@ -192,7 +208,6 @@ const CRUDMarketplaceCompras = () => {
             variant="outlined"
             color="secondary"
             onClick={handleClose}
-            disabled={isLoading}
           >
             Cerrar
           </Button>
@@ -201,24 +216,32 @@ const CRUDMarketplaceCompras = () => {
               variant="contained"
               color="error"
               onClick={() => handleReview("rechazado")}
-              disabled={isLoading}
               sx={{ mx: 1 }}
             >
-              {isLoading ? "Procesando..." : "Rechazar"}
+              Rechazar
             </Button>
             <Button
               variant="contained"
               color="success"
               onClick={() => handleReview("aprobado")}
-              disabled={isLoading}
               sx={{ mx: 1 }}
             >
-              {isLoading ? "Procesando..." : "Aceptar"}
+              Aceptar
             </Button>
           </Box>
         </DialogActions>
-
       </Dialog>
+
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 };

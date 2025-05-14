@@ -72,10 +72,12 @@ export const deletePremioCompra = async (id) => {
 };
 
 // Funcion para revisar una compra de premio por ID
-export const revisarPremioCompra = async (id, aprobar) => {
+export const revisarPremioCompra = async ({
+    id,
+    payload
+}) => {
     try {
-        console.log(`Revisando compra con ID ${id}, aprobar: ${aprobar}`);
-        const response = await api.post(`/MarketplaceCompras/review/${id}`, aprobar);
+        const response = await api.post(`/MarketplaceCompras/review/${id}`, payload);
         console.log("Respuesta de revisarPremioCompra:", response.data);
         return response.data;
     } catch (error) {

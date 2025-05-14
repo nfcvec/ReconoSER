@@ -1,13 +1,16 @@
 import { Button, Card, CardContent, CardActions, Typography, Container, Box, List, ListItem, ListItemText } from "@mui/material";
 import { solicitarReconocimiento } from "../../utils/services/certificado";
 import { useMsal } from "@azure/msal-react";
+import { useLoading } from "../../contexts/LoadingContext";
 
 export default function ConfirmacionReconocimiento({ data, onConfirm, onBack }) {
   const {accounts} = useMsal();
   const user = accounts[0];
   const { Reconocido, Comportamientos, Justificacion, Texto } = data;
+  const { showLoading, hideLoading } = useLoading(); // Corrected function names
 
   const handleConfirm = async () => {
+    showLoading("Solicitando reconocimiento..."); // Corrected function name
     const payload = {
       reconocedorId: user?.idTokenClaims?.oid, // OID del usuario que está reconociendo
       reconocidoId: Reconocido.id, // OID del colaborador seleccionado
@@ -24,6 +27,7 @@ export default function ConfirmacionReconocimiento({ data, onConfirm, onBack }) 
     } catch (error) {
       console.error("Error al crear el certificado:", error);
     }
+    hideLoading(); // Corrected function name
   };
 
   return (

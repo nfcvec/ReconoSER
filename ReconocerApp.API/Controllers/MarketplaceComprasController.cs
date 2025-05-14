@@ -128,10 +128,21 @@ public class MarketplaceComprasController : ControllerBase
         return NoContent();
     }
 
-    [HttpPost("review/{id}")]
-    public async Task<IActionResult> Review([FromRoute] int id, [FromBody] bool aprobar)
+    public class CompraReviewRequest
     {
-        var item = await _dbSet.FindAsync(id);
+        public bool Aprobar { get; set; }
+        public string ComentarioRevision { get; set; } = string.Empty;
+        public string AprobadorId { get; set; } = string.Empty;
+        public DateTime FechaResolucion { get; set; } = DateTime.UtcNow;
+
+    }
+
+    [HttpPost("review/{compraId}")]
+    public async Task<IActionResult> Review([FromRoute] int compraId, [FromBody] CompraReviewRequest request)
+    {
+        var aprobar = request.Aprobar;
+
+        var item = await _dbSet.FindAsync(compraId);
         if (item == null) return NotFound();
 
         var premio = await _context.MarketplacePremios
@@ -139,7 +150,7 @@ public class MarketplaceComprasController : ControllerBase
 
         if (premio == null) return NotFound("El premio asociado a la compra no existe.");
 
-        if (aprobar)
+        if (request.Aprobar)
         {
             item.Estado = "aprobado";
         }
@@ -156,6 +167,8 @@ public class MarketplaceComprasController : ControllerBase
 
             item.Estado = "rechazado";
         }
+        item.ComentarioRevision = request.ComentarioRevision;
+        item.AprobadorId = request.AprobadorId;
 
         item.FechaResolucion = DateTime.UtcNow;
 
