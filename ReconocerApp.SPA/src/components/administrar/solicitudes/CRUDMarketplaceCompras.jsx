@@ -31,9 +31,9 @@ const CRUDMarketplaceCompras = () => {
   const [open, setOpen] = useState(false);
   const [comentarioRevision, setComentarioRevision] = useState("");
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "" });
-  const {instance, accounts} = useMsal();
+  const { instance, accounts } = useMsal();
   const { showLoading, hideLoading } = useLoading();
-  
+
 
 
   const handleReview = async (action) => {
@@ -41,7 +41,7 @@ const CRUDMarketplaceCompras = () => {
     try {
       await revisarPremioCompra({
         id: selectedCompra.compraId, // ID de la compra seleccionada
-        payload:{
+        payload: {
           aprobar: action === "aprobado",
           comentarioRevision: comentarioRevision,
           aprobadorId: accounts[0]?.homeAccountId,
@@ -141,6 +141,11 @@ const CRUDMarketplaceCompras = () => {
             setSelectedCompra(params.row);
             setOpen(true);
           }
+        }}
+        sx={{
+          '& .MuiDataGrid-columnHeaderTitle': {
+            fontWeight: 'bold',
+          },
         }}
       />
 

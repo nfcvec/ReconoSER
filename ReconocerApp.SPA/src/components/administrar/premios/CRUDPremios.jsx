@@ -14,6 +14,7 @@ import { getOrganizaciones } from "../../../utils/services/organizaciones";
 import { getCategorias } from "../../../utils/services/categorias";
 import { useMsal } from "@azure/msal-react";
 import { useAlert } from "../../../contexts/AlertContext";
+import CRUDImagenes from "./CRUDImagenes";
 
 const CRUDPremios = ({ onSelect, multiple = false, selectionMode = false }) => {
   const [premios, setPremios] = useState([]);
@@ -94,6 +95,7 @@ const CRUDPremios = ({ onSelect, multiple = false, selectionMode = false }) => {
   };
 
   const columns = [
+    { field: "premioId", headerName: "ID", width: 100 },
     { field: "nombre", headerName: "Nombre", width: 200 },
     { field: "descripcion", headerName: "Descripción", width: 300 },
     { field: "costoWallet", headerName: "Costo Wallet", width: 150 },
@@ -114,6 +116,13 @@ const CRUDPremios = ({ onSelect, multiple = false, selectionMode = false }) => {
     <Container>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2, width: "100%", overflow: "auto" }}>
         <h1>{selectionMode ? "Seleccionar Premios" : "Ver Premios"}</h1>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => console.log("Botón de Imágenes presionado")}
+        >
+          Imágenes
+        </Button>
       </Box>
       <DataGrid
         rows={premios}
@@ -124,6 +133,11 @@ const CRUDPremios = ({ onSelect, multiple = false, selectionMode = false }) => {
         loading={loading}
         checkboxSelection={selectionMode}
         onSelectionModelChange={selectionMode ? handleSelectionChange : undefined}
+        sx={{
+          '& .MuiDataGrid-columnHeaderTitle': {
+            fontWeight: 'bold',
+          },
+        }}
       />
       {selectionMode && (
         <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>

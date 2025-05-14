@@ -54,3 +54,41 @@ export const deletePremio = async (id) => {
     throw error; // Lanza el error para manejarlo en el componente
   }
 };
+
+// funciones de las imagenes 
+// Función para subir imágenes a un premio
+export const uploadPremioImages = async (premioId, formData) => {
+  try {
+    const response = await api.post(`/MarketplacePremios/${premioId}/upload-images`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data", // Especifica que se está enviando un formulario
+      },
+    });
+    return response.data; // Devuelve los datos de la respuesta
+  } catch (error) {
+    console.error(`Error al subir imágenes para el premio con ID ${premioId}:`, error.message);
+    throw error; // Lanza el error para manejarlo en el componente
+  }
+};
+
+// Función para obtener las imágenes de un premio
+export const getPremioImages = async (premioId) => {
+  try {
+    const response = await api.get(`/MarketplacePremios/${premioId}/images`);
+    return response.data; // Devuelve los datos de las imágenes
+  } catch (error) {
+    console.error(`Error al obtener las imágenes del premio con ID ${premioId}:`, error.message);
+    throw error; // Lanza el error para manejarlo en el componente
+  }
+};
+
+// Función para eliminar una imagen específica de un premio
+export const deletePremioImage = async (premioId, imageName) => {
+  try {
+    const response = await api.delete(`/MarketplacePremios/${premioId}/images/${imageName}`);
+    return response.data; // Devuelve los datos de la respuesta
+  } catch (error) {
+    console.error(`Error al eliminar la imagen ${imageName} del premio con ID ${premioId}:`, error.message);
+    throw error; // Lanza el error para manejarlo en el componente
+  }
+};

@@ -102,6 +102,7 @@ const CRUDCategorias = () => {
 
     // Columnas de la tabla
     const columns = [
+        { field: "categoriaId", headerName: "ID", width: 100 },
         { field: "nombre", headerName: "Nombre", width: 200 },
         { field: "descripcion", headerName: "Descripción", width: 300 },
         {
@@ -135,10 +136,14 @@ const CRUDCategorias = () => {
             <DataGrid
                 rows={categorias}
                 columns={columns}
-                autoHeight
                 pageSize={5}
                 rowsPerPageOptions={[5]}
                 getRowId={(row) => row.categoriaId} // Especifica que `categoriaId` es el identificador único
+                sx={{
+                    '& .MuiDataGrid-columnHeaderTitle': {
+                      fontWeight: 'bold',
+                    },
+                  }}
             />
             <Dialog open={openDialog} onClose={handleCloseDialog}>
                 <DialogTitle>

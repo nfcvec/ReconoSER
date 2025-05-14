@@ -37,6 +37,7 @@ import CRUDMarketplaceCompras from "./components/administrar/solicitudes/CRUDMar
 import Administrar from "./components/administrar/administrar";
 import { OrganizacionProvider } from "./contexts/OrganizacionContext.jsx";
 import { LoadingProvider } from "./contexts/LoadingContext.jsx";
+import CRUDImagenes from "./components/administrar/premios/CRUDImagenes.jsx";
 
 function App({ pca }) {
   // The next 3 lines are optional. This is how you configure MSAL to take advantage of the router's navigate functions when MSAL redirects between pages in your app
@@ -90,6 +91,7 @@ function Pages() {
       <Route path="/administrar/marketplace-compras" element={<CRUDMarketplaceCompras />} />
       <Route path="/administrar/premios" element={<CRUDPremios />} />
       <Route path="/administrar/categorias" element={<CRUDCategorias />} />
+      <Route path="/administrar/imagenes" element={<CRUDImagenes />} />
     </Routes>
   );
 }

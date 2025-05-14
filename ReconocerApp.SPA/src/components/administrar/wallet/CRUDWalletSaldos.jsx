@@ -77,6 +77,11 @@ const CRUDWalletSaldos = () => {
                 rowsPerPageOptions={[5]}
                 getRowId={(row) => row.walletSaldoId}
                 loading={loading}
+                sx={{
+                    '& .MuiDataGrid-columnHeaderTitle': {
+                      fontWeight: 'bold',
+                    },
+                  }}
             />
         </Container>
     );

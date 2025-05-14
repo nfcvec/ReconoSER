@@ -176,6 +176,11 @@ const CRUDReconocimientos = () => {
           setSelectedReconocimiento(params.row);
           setOpenDialog(true);
         }}
+        sx={{
+          '& .MuiDataGrid-columnHeaderTitle': {
+            fontWeight: 'bold',
+          },
+        }}
       />
       <Dialog
         open={openDialog}
@@ -190,7 +195,7 @@ const CRUDReconocimientos = () => {
           {selectedReconocimiento && (
             <>
               <Typography variant="body1" sx={{ my: 1 }}>
-                <strong>Reconocedor:</strong> {colaboradores.find((colaborador) => colaborador.id === selectedReconocimiento.reconocedorId)?.displayName || selectedReconocimiento.reconocedorId}
+                <strong>Solicitante:</strong> {colaboradores.find((colaborador) => colaborador.id === selectedReconocimiento.reconocedorId)?.displayName || selectedReconocimiento.reconocedorId}
               </Typography>
               <Typography variant="body1" sx={{ my: 1 }}>
                 <strong>Reconocido:</strong> {colaboradores.find((colaborador) => colaborador.id === selectedReconocimiento.reconocidoId)?.displayName || selectedReconocimiento.reconocidoId}

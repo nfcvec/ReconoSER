@@ -103,7 +103,7 @@ export default function Certificados() {
 
   const columns = [
     { 
-      field: "id", 
+      field: "reconocimientoId", 
       headerName: "ID", 
     },
     {
@@ -115,7 +115,7 @@ export default function Certificados() {
     },
     { 
       field: "texto", 
-      headerName: "Texto"
+      headerName: "Mensaje del Solicitante"
     },
   ];
 
@@ -135,6 +135,11 @@ export default function Certificados() {
           getRowId={(row) => row.reconocimientoId}
           pageSize={5}
           onRowClick={handleRowClick}
+          sx={{
+            '& .MuiDataGrid-columnHeaderTitle': {
+              fontWeight: 'bold',
+            },
+          }}
         />
       </Box>
 
@@ -149,13 +154,6 @@ export default function Certificados() {
         onClose={handleClose}
         maxWidth="md"
         fullWidth
-        PaperProps={{
-          sx: {
-            maxHeight: '90vh',
-            width: '100%',
-            m: 2
-          }
-        }}
       >
         {selectedCertificado && (
           <>
