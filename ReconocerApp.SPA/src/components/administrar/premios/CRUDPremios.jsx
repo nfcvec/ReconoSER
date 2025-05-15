@@ -6,6 +6,9 @@ import {
   Button,
   Box,
   Container,
+  Dialog,
+  DialogTitle,
+  DialogContent,
 } from "@mui/material";
 import {
   getPremios,
@@ -18,10 +21,10 @@ import CRUDImagenes from "./CRUDImagenes";
 
 const CRUDPremios = ({ onSelect, multiple = false, selectionMode = false }) => {
   const [premios, setPremios] = useState([]);
-  const [categorias, setCategorias] = useState([]);
   const [selectedPremios, setSelectedPremios] = useState([]);
   const [loading, setLoading] = useState(false);
   const [organizacionId, setOrganizacionId] = useState(null);
+  const [openDialog, setOpenDialog] = useState(false);
 
   const { accounts } = useMsal();
   const showAlert = useAlert();
@@ -94,6 +97,14 @@ const CRUDPremios = ({ onSelect, multiple = false, selectionMode = false }) => {
     onSelect(multiple ? selectedPremios : selectedPremios[0]);
   };
 
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
   const columns = [
     { field: "premioId", headerName: "ID", width: 100 },
     { field: "nombre", headerName: "Nombre", width: 200 },
@@ -119,9 +130,9 @@ const CRUDPremios = ({ onSelect, multiple = false, selectionMode = false }) => {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => console.log("Botón de Imágenes presionado")}
+          onClick={handleOpenDialog}
         >
-          Imágenes
+          Agregar Imágenes
         </Button>
       </Box>
       <DataGrid
@@ -150,6 +161,14 @@ const CRUDPremios = ({ onSelect, multiple = false, selectionMode = false }) => {
           </Button>
         </Box>
       )}
+
+      {/* Diálogo para CRUDImagenes */}
+      <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="md">
+        <DialogTitle>Gestión de Imágenes</DialogTitle>
+        <DialogContent>
+          <CRUDImagenes />
+        </DialogContent>
+      </Dialog>
     </Container>
   );
 };

@@ -2,128 +2,110 @@ import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
-  TextField,
   Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  IconButton,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
-import { getPremioImages, uploadPremioImages, deletePremioImage } from "../../../utils/services/premios";
+import { getPremioImages, uploadPremioImages, getPremios } from "../../../utils/services/premios";
+import SelectorImagen from "./SelectorImages";
 
-const CRUDImagenes = ({ premioId }) => {
-  const [imagenes, setImagenes] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filteredImages, setFilteredImages] = useState([]);
+const CRUDImagenes = () => {
+  const [premios, setPremios] = useState([]);
+  const [selectedPremio, setSelectedPremio] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
+  const [imageData, setImageData] = useState(null);
 
-  // Cargar imágenes al montar el componente
+  // Cargar premios al montar el componente
   useEffect(() => {
-    const fetchImages = async () => {
+    const fetchPremios = async () => {
       try {
-        const data = await getPremioImages(premioId);
-        setImagenes(data);
-        setFilteredImages(data);
+        const data = await getPremios();
+        setPremios(data);
+        console.log("Premios cargados:", data);
       } catch (error) {
-        console.error("Error al obtener las imágenes:", error);
+        console.error("Error al obtener los premios:", error);
       }
     };
-    fetchImages();
-  }, [premioId]);
+    fetchPremios();
+  }, []);
 
-  // Filtrar imágenes por nombre
-  useEffect(() => {
-    const filtered = imagenes.filter((img) =>
-      img.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredImages(filtered);
-  }, [searchTerm, imagenes]);
+  // Manejar el cambio de premio seleccionado
+  const handleSelectChange = async (e) => {
+    const premioId = e.target.value;
+    console.log("Premio seleccionado:", premioId);
+    setSelectedPremio(premioId);
 
-  // Manejar la subida de imágenes
-  const handleUpload = async () => {
-    if (!selectedFile) return;
-    const formData = new FormData();
-    formData.append("file", selectedFile);
-
+    // Obtener las imágenes asociadas al premio seleccionado
     try {
-      await uploadPremioImages(premioId, formData);
-      alert("Imagen subida con éxito");
-      setSelectedFile(null);
-      const updatedImages = await getPremioImages(premioId);
-      setImagenes(updatedImages);
+      const images = await getPremioImages(premioId);
+      if (images.length > 0) {
+        const image = images[0];
+        setImageData({
+          name: image.name,
+          content: `data:image/jpeg;base64,${image.content}`,
+        });
+        console.log("Imagen obtenida:", image);
+      } else {
+        setImageData(null);
+        console.log("No hay imágenes para el premio seleccionado.");
+      }
     } catch (error) {
-      console.error("Error al subir la imagen:", error);
+      console.error("Error al obtener las imágenes:", error);
     }
   };
 
-  // Manejar la eliminación de imágenes
-  const handleDelete = async (imageName) => {
+  // Manejar la subida de imágenes
+  const handleUpload = async () => {
+    if (!selectedFile || !selectedPremio) {
+      console.warn("No hay imagen o premio seleccionado");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("files", selectedFile);
+
     try {
-      await deletePremioImage(premioId, imageName);
-      alert("Imagen eliminada con éxito");
-      const updatedImages = await getPremioImages(premioId);
-      setImagenes(updatedImages);
+      const response = await uploadPremioImages(selectedPremio, formData);
+      console.log("✅ Respuesta de la API:", response);
+      alert("Imagen subida con éxito");
+      setSelectedFile(null);
+      handleSelectChange({ target: { value: selectedPremio } });
     } catch (error) {
-      console.error("Error al eliminar la imagen:", error);
+      console.error("❌ Error al subir la imagen:", error.message);
     }
   };
 
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h5" gutterBottom>
-        Gestión de Imágenes para el Premio
+        Gestión de la Imagen para el Premio
       </Typography>
 
-      {/* Campo de búsqueda */}
-      <TextField
-        label="Buscar por nombre"
-        variant="outlined"
-        fullWidth
-        margin="normal"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-
-      {/* Tabla de imágenes */}
-      <TableContainer component={Paper} sx={{ mt: 2 }}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableCell>Nombre de la Imagen</TableCell>
-              <TableCell align="right">Acciones</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {filteredImages.map((imageName) => (
-              <TableRow key={imageName}>
-                <TableCell>{imageName}</TableCell>
-                <TableCell align="right">
-                  <IconButton
-                    color="error"
-                    onClick={() => handleDelete(imageName)}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-
-      {/* Subir imágenes */}
-      <Box sx={{ mt: 3, display: "flex", alignItems: "center", gap: 2 }}>
-        <Button
-          variant="contained"
-          component="label"
-          startIcon={<UploadFileIcon />}
+      <FormControl fullWidth margin="normal">
+        <InputLabel>Seleccionar Premio</InputLabel>
+        <Select
+          value={selectedPremio}
+          onChange={handleSelectChange}
+          label="Seleccionar Premio"
         >
+          <MenuItem value="" disabled>
+            Seleccione el Premio
+          </MenuItem>
+          {premios.map((premio) => (
+            <MenuItem key={premio.premioId} value={String(premio.premioId)}>
+              {premio.nombre}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      {/* Componente para visualizar la imagen */}
+      <SelectorImagen imageData={imageData} />
+
+      <Box sx={{ mt: 2 }}>
+        <Button variant="outlined" component="label" fullWidth>
           Seleccionar Imagen
           <input
             type="file"
@@ -131,19 +113,24 @@ const CRUDImagenes = ({ premioId }) => {
             onChange={(e) => setSelectedFile(e.target.files[0])}
           />
         </Button>
+      </Box>
+
+      {selectedFile && (
+        <Typography variant="body2" sx={{ mt: 1 }}>
+          Imagen seleccionada: {selectedFile.name}
+        </Typography>
+      )}
+
+      <Box sx={{ mt: 2 }}>
         <Button
           variant="contained"
           color="primary"
+          fullWidth
           onClick={handleUpload}
-          disabled={!selectedFile}
+          disabled={!selectedFile || !selectedPremio}
         >
           Subir Imagen
         </Button>
-        {selectedFile && (
-          <Typography variant="body2">
-            Archivo seleccionado: {selectedFile.name}
-          </Typography>
-        )}
       </Box>
     </Box>
   );

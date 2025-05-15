@@ -55,19 +55,24 @@ export const deletePremio = async (id) => {
   }
 };
 
-// funciones de las imagenes 
+// Funciones de las imagenes 
 // Función para subir imágenes a un premio
 export const uploadPremioImages = async (premioId, formData) => {
   try {
-    const response = await api.post(`/MarketplacePremios/${premioId}/upload-images`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data", // Especifica que se está enviando un formulario
-      },
-    });
-    return response.data; // Devuelve los datos de la respuesta
+    // Enviar el ID y el archivo en el FormData
+    const response = await api.post(
+      `/MarketplacePremios/${premioId}/upload-images`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
   } catch (error) {
-    console.error(`Error al subir imágenes para el premio con ID ${premioId}:`, error.message);
-    throw error; // Lanza el error para manejarlo en el componente
+    console.error(`❌ Error al subir imágenes para el premio con ID ${premioId}:`, error.message);
+    throw error;
   }
 };
 

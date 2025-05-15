@@ -20,6 +20,7 @@ import {
   getPremiosCompras,
   revisarPremioCompra,
 } from "../../../utils/services/premiosCompra";
+import { getPremioImages } from "../../../utils/services/premios"; // Importar la función para obtener imágenes
 import { useMsal } from "@azure/msal-react";
 import { getColaboradoresFromBatchIds } from "../../../utils/services/colaboradores";
 import { useLoading } from "../../../contexts/LoadingContext";
@@ -28,13 +29,12 @@ const CRUDMarketplaceCompras = () => {
   const [compras, setCompras] = useState([]);
   const [colaboradores, setColaboradores] = useState([]);
   const [selectedCompra, setSelectedCompra] = useState(null);
+  const [imagenUrl, setImagenUrl] = useState(null); // Estado para la URL de la imagen
   const [open, setOpen] = useState(false);
   const [comentarioRevision, setComentarioRevision] = useState("");
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "" });
   const { instance, accounts } = useMsal();
   const { showLoading, hideLoading } = useLoading();
-
-
 
   const handleReview = async (action) => {
     showLoading(`Revisando compra...`);
@@ -46,8 +46,7 @@ const CRUDMarketplaceCompras = () => {
           comentarioRevision: comentarioRevision,
           aprobadorId: accounts[0]?.homeAccountId,
         }
-      }
-      );
+      });
 
       setSnackbar({
         open: true,
@@ -74,6 +73,7 @@ const CRUDMarketplaceCompras = () => {
 
   const handleClose = () => {
     setOpen(false);
+    setImagenUrl(null); // Limpiar la imagen al cerrar el diálogo
   };
 
   const fetchCompras = async () => {
@@ -100,6 +100,21 @@ const CRUDMarketplaceCompras = () => {
     setColaboradores(data);
   };
 
+  const fetchPremioImage = async (premioId) => {
+    try {
+      const images = await getPremioImages(premioId);
+      if (images.length > 0) {
+        const image = images[0]; // Usar la primera imagen disponible
+        setImagenUrl(`data:image/jpeg;base64,${image.content}`); // Convertir el contenido a base64
+      } else {
+        setImagenUrl("https://via.placeholder.com/250"); // Placeholder si no hay imágenes
+      }
+    } catch (error) {
+      console.error(`Error al cargar la imagen del premio con ID ${premioId}:`, error.message);
+      setImagenUrl("https://via.placeholder.com/250"); // Placeholder en caso de error
+    }
+  };
+
   useEffect(() => {
     fetchCompras();
   }, []);
@@ -123,13 +138,15 @@ const CRUDMarketplaceCompras = () => {
       width: 250,
       valueGetter: (params) => params.nombre,
     },
-    { field: "fechaCompra", headerName: "Fecha de Compra", width: 200 },
-    { field: "estado", headerName: "Estado", width: 150 },
+    { field: "fechaCompra", headerName: "Fecha de Compra", width: 200 }
   ];
 
   return (
     <Container>
       <Typography variant="h4">Revisar solicitudes de compra</Typography>
+      <Typography variant="h5" sx={{ mt: 2 }} padding={2}>
+        Tienes {compras.length} solicitud/es de compra pendientes, da click en ellas para revisar.
+      </Typography>
       <DataGrid
         rows={compras}
         columns={columns}
@@ -139,6 +156,7 @@ const CRUDMarketplaceCompras = () => {
         onRowClick={(params) => {
           if (params.row) {
             setSelectedCompra(params.row);
+            fetchPremioImage(params.row.premioId); // Cargar la imagen del premio seleccionado
             setOpen(true);
           }
         }}
@@ -148,7 +166,6 @@ const CRUDMarketplaceCompras = () => {
           },
         }}
       />
-
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
         <DialogTitle>Detalles de la Compra</DialogTitle>
         <DialogContent>
@@ -180,10 +197,10 @@ const CRUDMarketplaceCompras = () => {
               <Typography variant="body1" sx={{ my: 1 }}>
                 <strong>Estado:</strong> {selectedCompra.estado}
               </Typography>
-              {selectedCompra.premio?.imagenUrl && (
+              {imagenUrl && (
                 <div style={{ textAlign: "center", marginTop: 16 }}>
                   <img
-                    src={selectedCompra.premio.imagenUrl}
+                    src={imagenUrl}
                     alt="Imagen del premio"
                     style={{ maxHeight: 200, borderRadius: 8 }}
                   />

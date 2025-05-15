@@ -1,9 +1,31 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardMedia, Typography, Button, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { getPremioImages } from "../../utils/services/premios"; // Importar la función para obtener imágenes
 
-export default function PremiosComponent({ imagenUrl, nombre, descripcion, costoWallet, canAfford, premioId }) {
+export default function PremiosComponent({ nombre, descripcion, costoWallet, canAfford, premioId }) {
   const navigate = useNavigate();
+  const [imagenUrl, setImagenUrl] = useState(null); // Estado para la URL de la imagen
+
+  // Cargar la imagen del premio al montar el componente
+  useEffect(() => {
+    const fetchImage = async () => {
+      try {
+        const images = await getPremioImages(premioId); // Llamar a la API para obtener las imágenes
+        if (images.length > 0) {
+          const image = images[0]; // Usar la primera imagen disponible
+          setImagenUrl(`data:image/jpeg;base64,${image.content}`); // Convertir el contenido a base64
+        } else {
+          setImagenUrl("https://via.placeholder.com/250"); // Placeholder si no hay imágenes
+        }
+      } catch (error) {
+        console.error(`Error al cargar la imagen del premio con ID ${premioId}:`, error.message);
+        setImagenUrl("https://via.placeholder.com/250"); // Placeholder en caso de error
+      }
+    };
+
+    fetchImage();
+  }, [premioId]);
 
   const handleCanjear = () => {
     navigate(`/marketplace/${premioId}`); // Redirige a la página de detalles del premio
@@ -12,7 +34,7 @@ export default function PremiosComponent({ imagenUrl, nombre, descripcion, costo
   return (
     <Card
       sx={{
-        width: 250, // Cambiado para mantener un ancho fijo
+        width: 250, // Ancho fijo
         height: "100%",
         display: "flex",
         flexDirection: "column",
@@ -20,11 +42,20 @@ export default function PremiosComponent({ imagenUrl, nombre, descripcion, costo
         transition: "transform 0.3s, box-shadow 0.3s",
         "&:hover": {
           transform: "translateY(-5px)",
-          boxShadow: 6
-        }
+          boxShadow: 6,
+        },
       }}
     >
-      <CardMedia component="img" height="140" image={imagenUrl} alt={nombre} />
+      {/* Mostrar la imagen del premio */}
+      <CardMedia
+        component="img"
+        height="140"
+        image={imagenUrl} // Usar la URL de la imagen
+        alt={nombre}
+        sx={{
+          objectFit: "contain", // Ajustar la imagen sin deformación
+        }}
+      />
       <CardContent>
         <Typography variant="h6" component="div">
           {nombre}
