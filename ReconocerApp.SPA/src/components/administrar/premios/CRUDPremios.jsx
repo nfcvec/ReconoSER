@@ -6,25 +6,22 @@ import {
   Button,
   Box,
   Container,
-  Dialog,
-  DialogTitle,
-  DialogContent,
+  Typography,
 } from "@mui/material";
 import {
   getPremios,
 } from "../../../utils/services/premios";
 import { getOrganizaciones } from "../../../utils/services/organizaciones";
-import { getCategorias } from "../../../utils/services/categorias";
 import { useMsal } from "@azure/msal-react";
 import { useAlert } from "../../../contexts/AlertContext";
-import CRUDImagenes from "./CRUDImagenes";
+import PremioComponent from "./PremioComponent"; // Importar PremioComponent
 
-const CRUDPremios = ({ onSelect, multiple = false, selectionMode = false }) => {
+const CRUDPremios = () => {
   const [premios, setPremios] = useState([]);
-  const [selectedPremios, setSelectedPremios] = useState([]);
+  const [selectedPremio, setSelectedPremio] = useState(null); // Premio seleccionado para editar
   const [loading, setLoading] = useState(false);
   const [organizacionId, setOrganizacionId] = useState(null);
-  const [openDialog, setOpenDialog] = useState(false);
+  const [openPremioDialog, setOpenPremioDialog] = useState(false); // Controla el diálogo de Premio
 
   const { accounts } = useMsal();
   const showAlert = useAlert();
@@ -74,35 +71,17 @@ const CRUDPremios = ({ onSelect, multiple = false, selectionMode = false }) => {
     }
   }, [organizacionId, fetchPremios]);
 
-  useEffect(() => {
-    const fetchCategorias = async () => {
-      try {
-        const data = await getCategorias();
-        setCategorias(data);
-      } catch (error) {
-        console.error("Error al cargar las categorías:", error);
-        showAlert("Error al cargar las categorías.", "error");
-      }
-    };
-
-    fetchCategorias();
-  }, [showAlert]);
-
-  const handleSelectionChange = (selection) => {
-    const selected = premios.filter((premio) => selection.includes(premio.premioId));
-    setSelectedPremios(selected);
+  const handleOpenPremioDialog = (premio = null) => {
+    setSelectedPremio(premio); // Establecer el premio seleccionado (o null para crear uno nuevo)
+    setOpenPremioDialog(true);
   };
 
-  const handleConfirmSelection = () => {
-    onSelect(multiple ? selectedPremios : selectedPremios[0]);
-  };
-
-  const handleOpenDialog = () => {
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
+  const handleClosePremioDialog = (shouldReload = false) => {
+    setOpenPremioDialog(false);
+    setSelectedPremio(null); // Limpiar el premio seleccionado
+    if (shouldReload) {
+      fetchPremios(); // Recargar la lista de premios si se creó o editó uno
+    }
   };
 
   const columns = [
@@ -121,18 +100,32 @@ const CRUDPremios = ({ onSelect, multiple = false, selectionMode = false }) => {
         return params.row?.categoria?.nombre || "No asignada";
       },
     },
+    {
+      field: "acciones",
+      headerName: "Acciones",
+      width: 150,
+      renderCell: (params) => (
+        <Button
+          variant="outlined"
+          color="primary"
+          onClick={() => handleOpenPremioDialog(params.row)}
+        >
+          Editar
+        </Button>
+      ),
+    },
   ];
 
   return (
     <Container>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2, width: "100%", overflow: "auto" }}>
-        <h1>{selectionMode ? "Seleccionar Premios" : "Ver Premios"}</h1>
+        <h1>Gestión de Premios</h1>
         <Button
           variant="contained"
           color="primary"
-          onClick={handleOpenDialog}
+          onClick={() => handleOpenPremioDialog()}
         >
-          Agregar Imágenes
+          Agregar Premio
         </Button>
       </Box>
       <DataGrid
@@ -142,33 +135,22 @@ const CRUDPremios = ({ onSelect, multiple = false, selectionMode = false }) => {
         rowsPerPageOptions={[5]}
         getRowId={(row) => row.premioId}
         loading={loading}
-        checkboxSelection={selectionMode}
-        onSelectionModelChange={selectionMode ? handleSelectionChange : undefined}
         sx={{
           '& .MuiDataGrid-columnHeaderTitle': {
             fontWeight: 'bold',
           },
         }}
       />
-      {selectionMode && (
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
-          <Button
-            variant="contained"
-            onClick={handleConfirmSelection}
-            disabled={selectedPremios.length === 0}
-          >
-            Confirmar Selección
-          </Button>
-        </Box>
-      )}
 
-      {/* Diálogo para CRUDImagenes */}
-      <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="md">
-        <DialogTitle>Gestión de Imágenes</DialogTitle>
-        <DialogContent>
-          <CRUDImagenes />
-        </DialogContent>
-      </Dialog>
+      {/* Diálogo para crear o editar un premio */}
+      {openPremioDialog && (
+        <PremioComponent
+          open={openPremioDialog}
+          onClose={handleClosePremioDialog}
+          premioData={selectedPremio}
+          organizacionId={organizacionId}
+        />
+      )}
     </Container>
   );
 };

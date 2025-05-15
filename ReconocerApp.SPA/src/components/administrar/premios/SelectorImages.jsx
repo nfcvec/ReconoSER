@@ -6,7 +6,7 @@ const SelectorImagen = ({ imageData }) => {
     return (
       <Box sx={{ mt: 2 }}>
         <Typography variant="body2" color="textSecondary">
-          No hay imagen disponible, agrege una imagen para el premio.
+          Agrege una imagen para el premio.
         </Typography>
       </Box>
     );
