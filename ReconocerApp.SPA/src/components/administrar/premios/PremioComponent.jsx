@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -8,7 +8,6 @@ import {
   Button,
   MenuItem,
   Box,
-  Typography,
 } from "@mui/material";
 import {
   createPremio,
@@ -28,75 +27,65 @@ const PremioComponent = ({ open, onClose, premioData = null, organizacionId }) =
     imagenUrl: "",
     cantidadActual: 0,
     ultimaActualizacion: new Date().toISOString(),
-    categoriaId: 0,
+    categoriaId: "",
   });
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const showAlert = useAlert?.() ?? (() => {});
 
-  useEffect(() => {
-    const fetchCategorias = async () => {
-      try {
-        const data = await getCategorias();
-        setCategorias(data);
-      } catch (error) {
-        console.error("Error al cargar categorías:", error);
-        showAlert("Error al cargar categorías.", "error");
-      }
-    };
-    fetchCategorias();
-
-    if (premioData) {
-      setFormData({ ...premioData });
-      if (premioData.premioId) {
-        fetchPremioImages(premioData.premioId); // Cargar imágenes al editar
-      }
-    }
-  }, [premioData]);
-
-  // Cargar las imágenes del premio si existe
-  const fetchPremioImages = async (premioId) => {
-    try {
-      const images = await getPremioImages(premioId);
-      if (images.length > 0) {
-        const image = images[0];
-        setSelectedFile({
-          name: image.name,
-          content: `data:image/jpeg;base64,${image.content}`,
-        });
-        console.log("Imagen cargada:", image.name);
-      } else {
-        console.log("No hay imágenes para el premio");
-        setSelectedFile(null);
-      }
-    } catch (error) {
-      console.error("Error al obtener las imágenes:", error);
-      showAlert("Error al obtener las imágenes del premio.", "error");
-    }
-  };
-
   const handleChange = ({ target: { name, value } }) =>
     setFormData((prev) => ({ ...prev, [name]: value }));
 
   const handleImageChange = ({ target: { files } }) => {
     const file = files[0];
-    if (file) {
-      setSelectedFile({ name: file.name, content: URL.createObjectURL(file), file });
-      console.log("Imagen seleccionada:", file.name);
-    }
+    if (file) setSelectedFile({ name: file.name, content: URL.createObjectURL(file), file });
   };
+
+  const fetchCategorias = useCallback(async () => {
+    try {
+      const data = await getCategorias();
+      setCategorias(data);
+      if (premioData) {
+        const categoriaId = Number(premioData.categoria?.categoriaId);
+        setFormData((prev) => ({
+          ...prev,
+          ...premioData,
+          categoriaId: categoriaId || "",
+        }));
+        if (premioData.premioId) fetchPremioImages(premioData.premioId);
+      }
+    } catch (error) {
+      showAlert("Error al cargar categorías.", "error");
+    }
+  }, [premioData, showAlert]);
+
+  const fetchPremioImages = useCallback(async (premioId) => {
+    try {
+      const images = await getPremioImages(premioId);
+      if (images.length) {
+        const image = images[0];
+        setSelectedFile({ name: image.name, content: `data:image/jpeg;base64,${image.content}` });
+      } else {
+        setSelectedFile(null);
+      }
+    } catch {
+      showAlert("Error al obtener las imágenes del premio.", "error");
+    }
+  }, [showAlert]);
+
+  useEffect(() => {
+    fetchCategorias();
+  }, [fetchCategorias]);
 
   const uploadImage = async (premioId) => {
     if (!selectedFile?.file) return;
     try {
       const formData = new FormData();
       formData.append("files", selectedFile.file);
-      console.log("Subiendo imagen - ID:", premioId, "Archivo:", selectedFile.file);
       await uploadPremioImages(premioId, formData);
       showAlert("Imagen subida exitosamente.", "success");
-    } catch (error) {
-      console.error("Error al subir la imagen:", error);
+    } catch {
       showAlert("Error al subir la imagen.", "error");
     }
   };
@@ -105,23 +94,17 @@ const PremioComponent = ({ open, onClose, premioData = null, organizacionId }) =
     setLoading(true);
     try {
       const payload = { ...formData, organizacionId, ultimaActualizacion: new Date().toISOString() };
-      console.log("Payload enviado:", payload);
-
-      let premioId = premioData?.premioId;
+      const premioId = premioData?.premioId;
       if (premioId) {
         await editPremio(premioId, payload);
         showAlert("Premio actualizado.", "success");
       } else {
         const { premioId: newId } = await createPremio(payload);
         showAlert("Premio creado.", "success");
-        premioId = newId;
-        console.log("Premio creado con ID:", premioId);
+        await uploadImage(newId);
       }
-
-      if (selectedFile) await uploadImage(premioId);
       onClose(true);
-    } catch (error) {
-      console.error("Error al guardar el premio:", error);
+    } catch {
       showAlert("Error al guardar el premio.", "error");
     } finally {
       setLoading(false);
@@ -151,30 +134,22 @@ const PremioComponent = ({ open, onClose, premioData = null, organizacionId }) =
             label="Categoría"
             name="categoriaId"
             select
-            value={formData.categoriaId}
+            value={Number(formData.categoriaId)}
             onChange={handleChange}
             fullWidth
             required
           >
             {categorias.map((cat) => (
-              <MenuItem key={cat.categoriaId} value={cat.categoriaId}>
+              <MenuItem key={cat.categoriaId} value={Number(cat.categoriaId)}>
                 {cat.nombre}
               </MenuItem>
             ))}
           </TextField>
-
           <SelectorImagen imageData={selectedFile} />
-
           <Button variant="outlined" component="label" fullWidth>
             Seleccionar Imagen
             <input type="file" hidden onChange={handleImageChange} accept="image/*" />
           </Button>
-
-          {selectedFile && (
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              Imagen seleccionada: {selectedFile.name}
-            </Typography>
-          )}
         </Box>
       </DialogContent>
       <DialogActions>

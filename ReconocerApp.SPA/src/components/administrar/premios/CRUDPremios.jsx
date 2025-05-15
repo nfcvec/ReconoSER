@@ -3,10 +3,10 @@ import {
   DataGrid,
 } from "@mui/x-data-grid";
 import {
-  Button,
   Box,
   Container,
   Typography,
+  Button,
 } from "@mui/material";
 import {
   getPremios,
@@ -38,11 +38,9 @@ const CRUDPremios = () => {
         if (org) {
           setOrganizacionId(org.organizacionId);
         } else {
-          console.error("Organización no encontrada para el dominio:", domain);
           showAlert("Organización no encontrada para el dominio: " + domain, "error");
         }
       } catch (error) {
-        console.error("Error al obtener organizaciones:", error);
         showAlert("Error al obtener organizaciones", "error");
       }
     };
@@ -58,7 +56,6 @@ const CRUDPremios = () => {
       const filtered = data.filter((p) => p.organizacionId === organizacionId);
       setPremios(filtered);
     } catch (error) {
-      console.error("Error al cargar los premios:", error);
       showAlert("Error al cargar los premios.", "error");
     } finally {
       setLoading(false);
@@ -72,15 +69,15 @@ const CRUDPremios = () => {
   }, [organizacionId, fetchPremios]);
 
   const handleOpenPremioDialog = (premio = null) => {
-    setSelectedPremio(premio); // Establecer el premio seleccionado (o null para crear uno nuevo)
+    setSelectedPremio(premio); 
     setOpenPremioDialog(true);
   };
 
   const handleClosePremioDialog = (shouldReload = false) => {
     setOpenPremioDialog(false);
-    setSelectedPremio(null); // Limpiar el premio seleccionado
+    setSelectedPremio(null); 
     if (shouldReload) {
-      fetchPremios(); // Recargar la lista de premios si se creó o editó uno
+      fetchPremios();
     }
   };
 
@@ -96,30 +93,14 @@ const CRUDPremios = () => {
       field: "categoriaNombre",
       headerName: "Categoría",
       width: 200,
-      renderCell: (params) => {
-        return params.row?.categoria?.nombre || "No asignada";
-      },
-    },
-    {
-      field: "acciones",
-      headerName: "Acciones",
-      width: 150,
-      renderCell: (params) => (
-        <Button
-          variant="outlined"
-          color="primary"
-          onClick={() => handleOpenPremioDialog(params.row)}
-        >
-          Editar
-        </Button>
-      ),
+      renderCell: (params) => params.row?.categoria?.nombre || "No asignada",
     },
   ];
 
   return (
     <Container>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2, width: "100%", overflow: "auto" }}>
-        <h1>Gestión de Premios</h1>
+        <Typography variant="h4">Gestión de Premios</Typography>
         <Button
           variant="contained"
           color="primary"
@@ -128,6 +109,7 @@ const CRUDPremios = () => {
           Agregar Premio
         </Button>
       </Box>
+      <Typography variant="h6" padding={2}>Has click en los premios para revisar su información</Typography>
       <DataGrid
         rows={premios}
         columns={columns}
@@ -135,14 +117,18 @@ const CRUDPremios = () => {
         rowsPerPageOptions={[5]}
         getRowId={(row) => row.premioId}
         loading={loading}
+        onRowClick={(params) => handleOpenPremioDialog(params.row)}
         sx={{
           '& .MuiDataGrid-columnHeaderTitle': {
             fontWeight: 'bold',
           },
+          '& .MuiDataGrid-row:hover': {
+            cursor: 'pointer',
+            backgroundColor: '#f0f0f0',
+          },
         }}
       />
 
-      {/* Diálogo para crear o editar un premio */}
       {openPremioDialog && (
         <PremioComponent
           open={openPremioDialog}
