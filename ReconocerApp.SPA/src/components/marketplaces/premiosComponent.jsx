@@ -3,32 +3,21 @@ import { Card, CardContent, CardMedia, Typography, Button, Box } from "@mui/mate
 import { useNavigate } from "react-router-dom";
 import { getPremioImages } from "../../utils/services/premios"; // Importar la función para obtener imágenes
 
-export default function PremiosComponent({ nombre, descripcion, costoWallet, canAfford, premioId }) {
+export default function PremiosComponent({ premio }) {
   const navigate = useNavigate();
   const [imagenUrl, setImagenUrl] = useState(null); // Estado para la URL de la imagen
 
   // Cargar la imagen del premio al montar el componente
   useEffect(() => {
-    const fetchImage = async () => {
-      try {
-        const images = await getPremioImages(premioId); // Llamar a la API para obtener las imágenes
-        if (images.length > 0) {
-          const image = images[0]; // Usar la primera imagen disponible
-          setImagenUrl(`data:image/jpeg;base64,${image.content}`); // Convertir el contenido a base64
-        } else {
-          setImagenUrl("https://via.placeholder.com/250"); // Placeholder si no hay imágenes
-        }
-      } catch (error) {
-        console.error(`Error al cargar la imagen del premio con ID ${premioId}:`, error.message);
-        setImagenUrl("https://via.placeholder.com/250"); // Placeholder en caso de error
-      }
-    };
-
-    fetchImage();
-  }, [premioId]);
+    if (premio?.imagenPrincipal) {
+      setImagenUrl(`data:image/jpeg;base64,${premio.imagenPrincipal}`); // Convertir el contenido a base64
+    } else {
+      setImagenUrl("/no-image.jpg"); // Placeholder si no hay imágenes
+    }
+  }, [premio]);
 
   const handleCanjear = () => {
-    navigate(`/marketplace/${premioId}`); // Redirige a la página de detalles del premio
+    navigate(`/marketplace/${premio.premioId}`); // Redirige a la página de detalles del premio
   };
 
   return (
@@ -46,32 +35,31 @@ export default function PremiosComponent({ nombre, descripcion, costoWallet, can
         },
       }}
     >
-      {/* Mostrar la imagen del premio */}
       <CardMedia
         component="img"
         height="140"
         image={imagenUrl} // Usar la URL de la imagen
-        alt={nombre}
+        alt={premio?.nombre}
         sx={{
           objectFit: "contain", // Ajustar la imagen sin deformación
         }}
       />
       <CardContent>
         <Typography variant="h6" component="div">
-          {nombre}
+          {premio?.nombre}
         </Typography>
         <Typography variant="body2" color="text.secondary">
-          {descripcion}
+          {premio?.descripcion}
         </Typography>
         <Typography variant="body2" color="text.primary" sx={{ mt: 1 }}>
-          Costo: {costoWallet} ULIs
+          Costo: {premio?.costoWallet} ULIs
         </Typography>
         <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
           <Button
             variant="contained"
             color="primary"
             onClick={handleCanjear}
-            disabled={!canAfford} // Deshabilitar si no tiene saldo suficiente
+            disabled={false} // Deshabilitar si no tiene saldo suficiente
           >
             Canjear
           </Button>

@@ -100,6 +100,47 @@ public class MinioService
         return images;
     }
 
+    public async Task<ImageDto?> GetFirstImageAsync(string prefix)
+    {
+        try
+        {
+            var listArgs = new ListObjectsArgs()
+                .WithBucket(_bucketName)
+                .WithPrefix(prefix)
+                .WithRecursive(true);
+
+            await foreach (var item in _minioClient.ListObjectsEnumAsync(listArgs).ConfigureAwait(false))
+            {
+                if (!item.IsDir)
+                {
+                    var getObjectArgs = new GetObjectArgs()
+                        .WithBucket(_bucketName)
+                        .WithObject(item.Key);
+
+                    using var memoryStream = new MemoryStream();
+                    await _minioClient.GetObjectAsync(getObjectArgs.WithCallbackStream(stream =>
+                    {
+                        stream.CopyTo(memoryStream);
+                    })).ConfigureAwait(false);
+
+                    return new ImageDto
+                    {
+                        Name = item.Key,
+                        Content = memoryStream.ToArray()
+                    };
+                }
+            }
+        }
+        catch (Exception ex) 
+        {
+            
+            // Handle the case where the bucket does not exist by returning null
+            return null;
+        }
+
+        return null;
+    }
+
     public async Task DeleteImageAsync(string objectName)
     {
         var removeArgs = new RemoveObjectArgs()

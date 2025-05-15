@@ -147,12 +147,7 @@ export default function Marketplace() {
         {currentPrizes.map((premio) => (
           <Grid item key={premio.premioId}>
             <PremiosComponent
-              imagenUrl={premio.imagenUrl}
-              nombre={premio.nombre}
-              descripcion={premio.descripcion}
-              costoWallet={premio.costoWallet}
-              canAfford={userBalance >= premio.costoWallet}
-              premioId={premio.premioId}
+              premio={premio}
             />
           </Grid>
         ))}

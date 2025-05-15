@@ -77,6 +77,15 @@ public class MarketplacePremiosController : BaseCrudController<MarketplacePremio
             .ProjectTo<MarketplacePremioResponse>(_mapper.ConfigurationProvider)
             .ToListAsync();
 
+        foreach (var item in items)
+        {
+            var firstImage = await _minioService.GetFirstImageAsync($"premios/{item.PremioId}/");
+            if (firstImage != null)
+            {
+                item.ImagenPrincipal = Convert.ToBase64String(firstImage.Content);
+            }
+        }
+
         Response.Headers["X-Total-Count"] = totalItems.ToString();
         return Ok(items);
     }

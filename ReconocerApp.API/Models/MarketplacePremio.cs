@@ -12,11 +12,12 @@ public class MarketplacePremio
     public string Descripcion { get; set; } = string.Empty;
     public int CostoWallet { get; set; }
     public string ImagenUrl { get; set; } = string.Empty;
+    public string? ImagenPrincipal { get; set; } = string.Empty;
     public int CantidadActual { get; set; }
     public string UltimaActualizacion { get; set; } = string.Empty;
 
     public virtual Organizacion? Organizacion { get; set; }
-        public virtual Categoria? Categoria { get; set; } 
+    public virtual Categoria? Categoria { get; set; } 
     public virtual ICollection<MarketplaceCompra>? Compras { get; set; }
     public virtual ICollection<InventarioTransaccion>? InventarioTransacciones { get; set; }
 }
