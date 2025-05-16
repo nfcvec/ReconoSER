@@ -144,6 +144,7 @@ namespace ReconocerApp.API.Migrations
                     Descripcion = table.Column<string>(type: "text", nullable: false),
                     CostoWallet = table.Column<int>(type: "integer", nullable: false),
                     ImagenUrl = table.Column<string>(type: "text", nullable: false),
+                    ImagenPrincipal = table.Column<string>(type: "text", nullable: true),
                     CantidadActual = table.Column<int>(type: "integer", nullable: false),
                     UltimaActualizacion = table.Column<string>(type: "text", nullable: false)
                 },

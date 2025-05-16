@@ -12,8 +12,8 @@ using ReconocerApp.API.Data;
 namespace ReconocerApp.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250515200245_next")]
-    partial class next
+    [Migration("20250516172533_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
