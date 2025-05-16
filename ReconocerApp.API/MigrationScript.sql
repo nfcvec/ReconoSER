@@ -75,6 +75,7 @@ CREATE TABLE "MarketplacePremios" (
     "Descripcion" text NOT NULL,
     "CostoWallet" integer NOT NULL,
     "ImagenUrl" text NOT NULL,
+    "ImagenPrincipal" text,
     "CantidadActual" integer NOT NULL,
     "UltimaActualizacion" text NOT NULL,
     CONSTRAINT "PK_MarketplacePremios" PRIMARY KEY ("PremioId"),
@@ -149,7 +150,7 @@ CREATE INDEX "IX_WalletTransacciones_CategoriaId" ON "WalletTransacciones" ("Cat
 CREATE INDEX "IX_WalletTransacciones_WalletSaldoId" ON "WalletTransacciones" ("WalletSaldoId");
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20250514040810_Initial', '9.0.4');
+VALUES ('20250516172533_Initial', '9.0.4');
 
 COMMIT;
 
