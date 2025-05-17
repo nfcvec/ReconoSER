@@ -23,9 +23,6 @@ export default function CanjeExito() {
           </Box>
         </CardContent>
         <CardActions sx={{ p: 3, justifyContent: "center", gap: 2 }}>
-          <Button variant="outlined" onClick={() => navigate("/historial-canje")}>
-            Ver Historial de Canjes
-          </Button>
           <Button variant="contained" onClick={() => navigate("/")}>
             Volver al Inicio
           </Button>
