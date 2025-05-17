@@ -7,68 +7,47 @@ import {
   Container,
   Typography,
   Button,
+  Avatar,
 } from "@mui/material";
 import {
   getPremios,
 } from "../../../utils/services/premios";
-import { getOrganizaciones } from "../../../utils/services/organizaciones";
-import { useMsal } from "@azure/msal-react";
 import { useAlert } from "../../../contexts/AlertContext";
 import PremioForm from "./PremioForm";
+import { useOrganizacion } from "../../../contexts/OrganizacionContext";
 
 const CrudPremios = () => {
   const [premios, setPremios] = useState([]);
   const [selectedPremio, setSelectedPremio] = useState(null); // Premio seleccionado para editar
   const [loading, setLoading] = useState(false);
-  const [organizacionId, setOrganizacionId] = useState(null);
   const [openPremioDialog, setOpenPremioDialog] = useState(false); // Controla el diálogo de Premio
   const showAlert = useAlert();
+  const {organizacion} = useOrganizacion();
 
-
-  const { accounts } = useMsal();
-
-  useEffect(() => {
-    const fetchOrganizacionId = async () => {
-      const email = accounts[0]?.username || "";
-      const domain = email.split("@")[1];
-      try {
-        const organizaciones = await getOrganizaciones();
-        const org = organizaciones.find(
-          (o) => o?.dominioEmail?.toLowerCase() === domain.toLowerCase()
-        );
-        if (org) {
-          setOrganizacionId(org.organizacionId);
-        } else {
-          showAlert("Organización no encontrada para el dominio: " + domain, "error");
-        }
-      } catch (error) {
-        showAlert("Error al obtener organizaciones", "error");
-      }
-    };
-
-    fetchOrganizacionId();
-  }, [accounts, showAlert]);
-
-  const fetchPremios = useCallback(async () => {
-    if (!organizacionId) return;
+  const fetchPremios = async () => {
     setLoading(true);
     try {
-      const data = await getPremios();
-      const filtered = data.filter((p) => p.organizacionId === organizacionId);
-      setPremios(filtered);
+      const data = await getPremios({
+        filters: [
+          { field: "organizacionId", operator: 'eq', value: `${organizacion.organizacionId}` },
+        ],
+        orderBy: "nombre",
+        orderDirection: "asc",
+        page: 1,
+        pageSize: 1000,
+      });
+      setPremios(data);
     } catch (error) {
       showAlert("Error al cargar los premios.", "error");
       console.error("Error al cargar los premios:", error);
     } finally {
       setLoading(false);
     }
-  }, [organizacionId, showAlert]);
+  }
 
   useEffect(() => {
-    if (organizacionId) {
-      fetchPremios();
-    }
-  }, [organizacionId, fetchPremios]);
+    fetchPremios();
+  }, [organizacion]);
 
   const handleOpenPremioDialog = (premio = null) => {
     setSelectedPremio(premio); 
@@ -84,6 +63,7 @@ const CrudPremios = () => {
   };
 
   const columns = [
+    { field: "imagenPrincipal", headerName: "Imagen", width: 150, renderCell: (params) => <Avatar src={params.value ? `data:image/jpeg;base64,${params.value}` : "/no-image.jpg"} /> },
     { field: "nombre", headerName: "Nombre", width: 200 },
     { field: "descripcion", headerName: "Descripción", width: 300 },
     { field: "costoWallet", headerName: "Precio", width: 150 },
@@ -124,7 +104,6 @@ const CrudPremios = () => {
           open={openPremioDialog}
           onClose={handleClosePremioDialog}
           premio={selectedPremio}
-          organizacionId={organizacionId}
         />
       )}
     </Container>

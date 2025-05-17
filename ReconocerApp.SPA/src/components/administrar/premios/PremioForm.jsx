@@ -23,8 +23,9 @@ import {
 import { getCategorias } from "../../../utils/services/categorias";
 import { useAlert } from "../../../contexts/AlertContext";
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useOrganizacion } from "../../../contexts/OrganizacionContext";
 
-const PremioForm = ({ open, onClose, premio = null, organizacionId }) => {
+const PremioForm = ({ open, onClose, premio = null }) => {
   const [formData, setFormData] = useState({
     nombre: "",
     descripcion: "",
@@ -38,6 +39,8 @@ const PremioForm = ({ open, onClose, premio = null, organizacionId }) => {
   const [loading, setLoading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const showAlert = useAlert?.() ?? (() => {});
+  const { organizacion } = useOrganizacion();
+  const organizacionId = organizacion?.organizacionId;
 
   const handleChange = ({ target: { name, value } }) =>
     setFormData((prev) => ({ ...prev, [name]: value }));
