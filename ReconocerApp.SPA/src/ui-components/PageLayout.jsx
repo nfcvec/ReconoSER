@@ -46,29 +46,27 @@ export const PageLayout = (props) => {
                 }}>
                     <Box
                         component={Paper}
-                        elevation={6}
+                        display={'flex'}
+                        flexDirection={'column'}
                         sx={{
+                            padding: 4,
+                            borderRadius: 2,
+                            boxShadow: 3,
+                            backgroundColor: theme.palette.background.paper,
                             width: '100%',
-                            maxWidth: 600,
-                            bgcolor: 'rgba(255,255,255,0.95)',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            p: 5
+                            maxWidth: '600px',
                         }}
                     >
-                        <Typography variant="h4" color="error" fontWeight="bold" gutterBottom>
+                        <Typography variant="h4" fontWeight="bold" gutterBottom>
                             No hay una organización asociada al dominio <b>{dominio}</b>.
                         </Typography>
-                        <Typography variant="h6" color="text.secondary" gutterBottom>
-                            Puedes solicitar agregar la organización o mapear tu usuario a una organización existente.
+                        <Typography variant="h6" gutterBottom>
+                            Puedes solicitar agregar la organización como nueva, o agregar tu usuario a una organización existente.
+                        </Typography>
+                        <Typography variant="body1" gutterBottom>
+                            Tu id de usuario es: <b>{instance.getActiveAccount()?.idTokenClaims?.oid}</b>
                         </Typography>
                         <Button
-                            variant="contained"
-                            color="error"
-                            size="large"
-                            sx={{ mt: 4, px: 4, py: 2, fontSize: '1.2rem', borderRadius: 2 }}
                             onClick={() => instance.logout()}
                         >
                             Cerrar sesión (Esc)
@@ -83,7 +81,7 @@ export const PageLayout = (props) => {
         <MuiThemeProvider theme={theme}>
             <CssBaseline /> {/* Normaliza los estilos y aplica el color de fondo del tema */}
             <NavBar />
-            <Box sx={{ 
+            <Box sx={{
                 marginTop: '64px', // Altura estándar de AppBar en Material UI
                 paddingTop: 3      // Añadir algo de padding adicional
             }}>
