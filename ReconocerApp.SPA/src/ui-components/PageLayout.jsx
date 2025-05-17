@@ -9,7 +9,7 @@ import { Paper, Button } from '@mui/material';
 
 export const PageLayout = (props) => {
     const { darkMode } = useTheme();
-    const { organizacion, dominio, instance } = useOrganizacion();
+    const { organizacion, dominio, instance, loading, error } = useOrganizacion();
     // Solo mostrar el mensaje de error si el usuario está logueado (hay una cuenta activa)
     const isLoggedIn = !!instance?.getActiveAccount?.();
 
@@ -30,8 +30,53 @@ export const PageLayout = (props) => {
         },
     });
 
-    // Mensaje de error de organización
-    if (isLoggedIn && organizacion === null) {
+    // Mostrar loading mientras se obtiene la organización
+    if (loading) {
+        return (
+            <MuiThemeProvider theme={theme}>
+                <CssBaseline />
+                <NavBar />
+                <Box sx={{
+                    marginTop: '64px',
+                    paddingTop: 3,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minHeight: 'calc(100vh - 64px)'
+                }}>
+                    <Typography variant="h5">Cargando organización...</Typography>
+                </Box>
+            </MuiThemeProvider>
+        );
+    }
+
+    // Mostrar error si ocurre
+    if (error) {
+        return (
+            <MuiThemeProvider theme={theme}>
+                <CssBaseline />
+                <NavBar />
+                <Box sx={{
+                    marginTop: '64px',
+                    paddingTop: 3,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minHeight: 'calc(100vh - 64px)'
+                }}>
+                    <Box component={Paper} sx={{ p: 4, borderRadius: 2, boxShadow: 3, maxWidth: 600 }}>
+                        <Typography variant="h5" color="error" gutterBottom>
+                            {error}
+                        </Typography>
+                        <Button onClick={() => instance.logout()}>Cerrar sesión</Button>
+                    </Box>
+                </Box>
+            </MuiThemeProvider>
+        );
+    }
+
+    // Mensaje de error de organización SOLO si ya no está cargando y no hay error
+    if (isLoggedIn && organizacion === null && !loading && !error) {
         return (
             <MuiThemeProvider theme={theme}>
                 <CssBaseline />

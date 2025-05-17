@@ -24,7 +24,7 @@ import { useOrganizacion } from "../contexts/OrganizacionContext";
 export default function Home() {
   const { accounts } = useMsal();
   const user = accounts[0];
-  const organizacion = useOrganizacion();
+  const { organizacion } = useOrganizacion();
 
   const cardItems = [
     {
