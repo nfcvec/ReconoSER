@@ -39,7 +39,7 @@ public class OrganizacionesController : BaseCrudController<Organizacion, Organiz
             {
                 // Map the result to the response model
                 var excepcion = _mapper.Map<OrganizacionResponse>(organizacion);
-                return Ok(new List<OrganizacionResponse> { excepcion });
+                return Ok(excepcion);
             }
         }
 
