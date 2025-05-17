@@ -1,5 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ReconocerApp.API.Controllers.Base;
 using ReconocerApp.API.Data;
 using ReconocerApp.API.Models;
@@ -14,20 +15,53 @@ public class OrganizacionesController : BaseCrudController<Organizacion, Organiz
     public OrganizacionesController(ApplicationDbContext context, IMapper mapper)
         : base(context, mapper) { }
 
-        [HttpGet("by-user")]
-        public async Task<ActionResult<IEnumerable<WalletSaldoResponse>>> GetUserWallet()
+    [HttpGet("by-user")]
+    public async Task<ActionResult<OrganizacionResponse>> GetByUser()
+    {
+        var user = HttpContext.Items["User"] as DecodedUser;
+
+        if (user == null)
         {
-            var user = HttpContext.Items["User"] as DecodedUser;
+            return Unauthorized("Usuario no autenticado.");
+        }
 
-            if (user == null)
+        // Primero, buscar en la tabla de Colaboradores si existe una relación
+        var colaborador = await _context.Colaboradores
+            .FirstOrDefaultAsync(c => c.ColaboradorId == user.Oid);
+
+        if (colaborador != null)
+        {
+            // Si existe, devolver la organización asociada
+            var organizacion = await _context.Organizaciones
+                .FirstOrDefaultAsync(o => o.OrganizacionId == colaborador.OrganizacionId);
+
+            if (organizacion != null)
             {
-                return Unauthorized("No token provided or token is invalid.");
+                // Map the result to the response model
+                var excepcion = _mapper.Map<OrganizacionResponse>(organizacion);
+                return Ok(new List<OrganizacionResponse> { excepcion });
             }
+        }
 
-            //debug user, return as json
-            var userJson = JsonSerializer.Serialize(user);
+        var email = user.Email;
+        if (string.IsNullOrEmpty(email))
+        {
+            return BadRequest("El usuario no tiene un correo electrónico asociado.");
+        }
 
-            return Ok(userJson);
-
+        // Separate the email into username and domain
+        var emailParts = email.Split('@');
+        var username = emailParts[0];
+        var domain = emailParts[1];
+        var organizaciones = await _context.Organizaciones
+            .Where(o => o.DominioEmail == domain)
+            .ToListAsync();
+        if (organizaciones == null || !organizaciones.Any())
+        {
+            return NotFound("No se encontraron organizaciones para el usuario.");
+        }
+        // Map the result to the response model
+        var response = _mapper.Map<OrganizacionResponse>(organizaciones.First());
+        return Ok(response);
         }
 }

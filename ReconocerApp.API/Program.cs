@@ -11,6 +11,7 @@ using ReconocerApp.API.Services.Notifications;
 using ReconocerApp.API.Services.Graph;
 using ReconocerApp.API.Services.Filtering;
 using ReconocerApp.API.Services.Reconocimientos;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 // Habilitar logs de consola
@@ -82,7 +83,41 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Configuración básica
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Reconoser API", Version = "v1" });
+
+    // Configuración OpenID Connect (Microsoft)
+    var azureAdSection = builder.Configuration.GetSection("AzureAd");
+    var clientId = azureAdSection["ClientId"];
+    var tenantId = azureAdSection["TenantId"];
+    var authority = $"https://login.microsoftonline.com/{tenantId}/v2.0";
+
+    options.AddSecurityDefinition("openid", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.OpenIdConnect,
+        OpenIdConnectUrl = new Uri($"{authority}/.well-known/openid-configuration"),
+        Description = "Autenticación OpenID Connect con Azure AD",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Scheme = "Bearer"
+    });
+
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        [
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "openid"
+                }
+            }
+        ] = new List<string>()
+    });
+});
 
 var app = builder.Build();
 
