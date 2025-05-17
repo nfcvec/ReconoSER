@@ -5,7 +5,7 @@ import { useWallet } from '../contexts/WalletContext';
 
 
 const WalletBalance = () => {
-  const { wallet, loading, error } = useWallet();
+  const { wallet, loading, error, refreshWallet } = useWallet();
   const balance = wallet?.saldoActual;
 
   return (
@@ -16,7 +16,7 @@ const WalletBalance = () => {
           <CircularProgress size={32} sx={{ color: 'white' }} />
         </Box>
       ) : (
-        <Typography variant="h5">
+        <Typography variant="h5" onClick={refreshWallet} sx={{ cursor: 'pointer', color: 'white' }}>
           {balance !== undefined ? `$${balance.toFixed(2)}` : 'Sin saldo'}
         </Typography>
       )}

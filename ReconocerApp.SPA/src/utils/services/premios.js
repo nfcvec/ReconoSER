@@ -106,7 +106,8 @@ export const getPremioImages = async (premioId) => {
 // Función para eliminar una imagen específica de un premio
 export const deletePremioImage = async (premioId, imageName) => {
   try {
-    const response = await api.delete(`/MarketplacePremios/${premioId}/images/${imageName}`);
+    const encodedImageName = encodeURIComponent(imageName);
+    const response = await api.delete(`/MarketplacePremios/${premioId}/images/${encodedImageName}`);
     return response.data; // Devuelve los datos de la respuesta
   } catch (error) {
     console.error(`Error al eliminar la imagen ${imageName} del premio con ID ${premioId}:`, error.message);

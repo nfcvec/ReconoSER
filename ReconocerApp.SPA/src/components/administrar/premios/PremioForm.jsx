@@ -18,9 +18,11 @@ import {
   editPremio,
   uploadPremioImages,
   getPremioImages,
+  deletePremioImage,
 } from "../../../utils/services/premios";
 import { getCategorias } from "../../../utils/services/categorias";
 import { useAlert } from "../../../contexts/AlertContext";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const PremioForm = ({ open, onClose, premio = null, organizacionId }) => {
   const [formData, setFormData] = useState({
@@ -40,9 +42,24 @@ const PremioForm = ({ open, onClose, premio = null, organizacionId }) => {
   const handleChange = ({ target: { name, value } }) =>
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-  const handleImageChange = ({ target: { files } }) => {
+  const handleImageChange = async ({ target: { files } }) => {
     const file = files[0];
-    if (file) setSelectedFiles([{ name: file.name, content: URL.createObjectURL(file), file }]);
+    if (!file) return;
+    // Si estamos editando (premio?.premioId existe), subimos la imagen inmediatamente
+    if (premio?.premioId) {
+      try {
+        const formData = new FormData();
+        formData.append("files", file);
+        await uploadPremioImages(premio.premioId, formData);
+        showAlert("Imagen subida exitosamente.", "success");
+        await fetchPremioImages(premio.premioId);
+      } catch {
+        showAlert("Error al subir la imagen.", "error");
+      }
+    } else {
+      // Si estamos creando, solo previsualizamos
+      setSelectedFiles([{ name: file.name, content: URL.createObjectURL(file), file }]);
+    }
   };
 
   const fetchCategorias = useCallback(async () => {
@@ -92,6 +109,18 @@ const PremioForm = ({ open, onClose, premio = null, organizacionId }) => {
     }
   };
 
+  const handleDeleteImage = async (imageName) => {
+    if (!premio?.premioId) return;
+    try {
+      const imageFileName = imageName.split('/').pop();
+      await deletePremioImage(premio.premioId, imageFileName);
+      showAlert("Imagen eliminada exitosamente.", "success");
+      await fetchPremioImages(premio.premioId);
+    } catch {
+      showAlert("Error al eliminar la imagen.", "error");
+    }
+  };
+
   const handleSubmit = async () => {
     setLoading(true);
     try {
@@ -99,6 +128,10 @@ const PremioForm = ({ open, onClose, premio = null, organizacionId }) => {
       const premioId = premio?.premioId;
       if (premioId) {
         await editPremio(premioId, payload);
+        // Si hay una nueva imagen seleccionada (con propiedad 'file'), subirla
+        if (selectedFiles[0]?.file) {
+          await uploadImage(premioId);
+        }
         showAlert("Premio actualizado.", "success");
       } else {
         const { premioId: newId } = await createPremio(payload);
@@ -151,13 +184,22 @@ const PremioForm = ({ open, onClose, premio = null, organizacionId }) => {
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 2 }}>
             {selectedFiles.length > 0 ? (
               selectedFiles.map((img, idx) => (
-                <Card key={idx} sx={{ maxWidth: 150 }}>
+                <Card key={idx} sx={{ maxWidth: 150, position: 'relative' }}>
                   <CardMedia
                     component="img"
                     image={img.content}
                     alt={img.name}
                     sx={{ height: 100, width: "100%", objectFit: "contain", borderRadius: "4px" }}
                   />
+                  {premio?.premioId && (
+                    <Button
+                      size="small"
+                      sx={{ position: 'absolute', top: 0, right: 0, minWidth: 0, padding: '4px', background: 'rgba(255,255,255,0.7)' }}
+                      onClick={() => handleDeleteImage(img.name)}
+                    >
+                      <DeleteIcon fontSize="small" color="error" />
+                    </Button>
+                  )}
                 </Card>
               ))
             ) : (
