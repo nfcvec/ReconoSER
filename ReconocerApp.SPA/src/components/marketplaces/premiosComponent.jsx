@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardMedia, Typography, Button, Box } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { getPremioImages } from "../../utils/services/premios"; // Importar la función para obtener imágenes
+import { getPremioImages } from "../../utils/services/premios";
+import { useWallet } from "../../contexts/WalletContext";
 
 export default function PremiosComponent({ premio }) {
   const navigate = useNavigate();
-  const [imagenUrl, setImagenUrl] = useState(null); // Estado para la URL de la imagen
+  const [imagenUrl, setImagenUrl] = useState(null);
+  const { wallet } = useWallet();
+  const userBalance = wallet?.saldoActual ?? 0;
 
   // Cargar la imagen del premio al montar el componente
   useEffect(() => {
@@ -19,6 +22,8 @@ export default function PremiosComponent({ premio }) {
   const handleCanjear = () => {
     navigate(`/marketplace/${premio.premioId}`); // Redirige a la página de detalles del premio
   };
+
+  const canCanjear = userBalance >= (premio?.costoWallet ?? 0);
 
   return (
     <Card
@@ -59,7 +64,7 @@ export default function PremiosComponent({ premio }) {
             variant="contained"
             color="primary"
             onClick={handleCanjear}
-            disabled={false} // Deshabilitar si no tiene saldo suficiente
+            disabled={!canCanjear} // Deshabilitar si no tiene saldo suficiente
           >
             Canjear
           </Button>

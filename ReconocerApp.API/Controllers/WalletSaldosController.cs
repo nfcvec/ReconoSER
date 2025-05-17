@@ -116,5 +116,39 @@ namespace ReconocerApp.API.Controllers
 
             return Ok(userJson);
         }
+
+        [HttpGet("by-user")]
+        public async Task<ActionResult<WalletSaldoResponse>> GetByUser()
+        {
+            var user = HttpContext.Items["User"] as DecodedUser;
+
+            if (user == null)
+            {
+                return Unauthorized("Usuario no autenticado.");
+            }
+
+            var entity = await _context.WalletSaldos
+                .FirstOrDefaultAsync(ws => ws.TokenColaborador == user.Oid);
+
+            if (entity == null)
+            {
+                // Obtener todas las transacciones del usuario y sumar el total
+                var total = await _context.WalletTransacciones
+                    .Where(t => t.TokenColaborador == user.Oid)
+                    .SumAsync(t => t.Cantidad);
+
+                entity = new WalletSaldo
+                {
+                    TokenColaborador = user.Oid!,
+                    SaldoActual = total
+                };
+
+                _context.WalletSaldos.Add(entity);
+                await _context.SaveChangesAsync();
+            }
+
+            var response = _mapper.Map<WalletSaldoResponse>(entity);
+            return Ok(response);
+        }
     }
 }

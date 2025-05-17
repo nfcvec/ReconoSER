@@ -4,7 +4,7 @@ import { useTheme } from "../../contexts/ThemeContext"; // Importar el contexto 
 import CRUDWalletSaldos from "./wallet/CRUDWalletSaldos";
 import CRUDReconocimientos from "./solicitudes/CRUDReconocimientos";
 import CRUDMarketplaceCompras from "./solicitudes/CRUDMarketplaceCompras";
-import CRUDPremios from "./premios/CRUDPremios";
+import CrudPremios from "./premios/CrudPremios";
 import CRUDCategorias from "./categorias/CRUDCategorias";
 
 const Administrar = () => {
@@ -20,7 +20,7 @@ const Administrar = () => {
       case "marketplace-compras":
         return <CRUDMarketplaceCompras />;
       case "premios":
-        return <CRUDPremios />;
+        return <CrudPremios />;
       case "categorias":
         return <CRUDCategorias />;
       default:

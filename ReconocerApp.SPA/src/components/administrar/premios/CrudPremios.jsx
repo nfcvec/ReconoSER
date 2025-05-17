@@ -14,17 +14,18 @@ import {
 import { getOrganizaciones } from "../../../utils/services/organizaciones";
 import { useMsal } from "@azure/msal-react";
 import { useAlert } from "../../../contexts/AlertContext";
-import PremioComponent from "./PremioComponent"; // Importar PremioComponent
+import PremioForm from "./PremioForm";
 
-const CRUDPremios = () => {
+const CrudPremios = () => {
   const [premios, setPremios] = useState([]);
   const [selectedPremio, setSelectedPremio] = useState(null); // Premio seleccionado para editar
   const [loading, setLoading] = useState(false);
   const [organizacionId, setOrganizacionId] = useState(null);
   const [openPremioDialog, setOpenPremioDialog] = useState(false); // Controla el diálogo de Premio
+  const showAlert = useAlert();
+
 
   const { accounts } = useMsal();
-  const showAlert = useAlert();
 
   useEffect(() => {
     const fetchOrganizacionId = async () => {
@@ -57,6 +58,7 @@ const CRUDPremios = () => {
       setPremios(filtered);
     } catch (error) {
       showAlert("Error al cargar los premios.", "error");
+      console.error("Error al cargar los premios:", error);
     } finally {
       setLoading(false);
     }
@@ -82,13 +84,10 @@ const CRUDPremios = () => {
   };
 
   const columns = [
-    { field: "premioId", headerName: "ID", width: 100 },
     { field: "nombre", headerName: "Nombre", width: 200 },
     { field: "descripcion", headerName: "Descripción", width: 300 },
-    { field: "costoWallet", headerName: "Costo Wallet", width: 150 },
-    { field: "imagenUrl", headerName: "Imagen URL", width: 200 },
-    { field: "cantidadActual", headerName: "Cantidad Actual", width: 150 },
-    { field: "ultimaActualizacion", headerName: "Última Actualización", width: 200 },
+    { field: "costoWallet", headerName: "Precio", width: 150 },
+    { field: "cantidadActual", headerName: "Stock", width: 150 },
     {
       field: "categoriaNombre",
       headerName: "Categoría",
@@ -109,7 +108,7 @@ const CRUDPremios = () => {
           Agregar Premio
         </Button>
       </Box>
-      <Typography variant="h6" padding={2}>Has click en los premios para revisar su información</Typography>
+      <Typography variant="h6" padding={2}>Haz click en los premios para revisar su información</Typography>
       <DataGrid
         rows={premios}
         columns={columns}
@@ -118,22 +117,13 @@ const CRUDPremios = () => {
         getRowId={(row) => row.premioId}
         loading={loading}
         onRowClick={(params) => handleOpenPremioDialog(params.row)}
-        sx={{
-          '& .MuiDataGrid-columnHeaderTitle': {
-            fontWeight: 'bold',
-          },
-          '& .MuiDataGrid-row:hover': {
-            cursor: 'pointer',
-            backgroundColor: '#f0f0f0',
-          },
-        }}
       />
 
       {openPremioDialog && (
-        <PremioComponent
+        <PremioForm
           open={openPremioDialog}
           onClose={handleClosePremioDialog}
-          premioData={selectedPremio}
+          premio={selectedPremio}
           organizacionId={organizacionId}
         />
       )}
@@ -141,4 +131,4 @@ const CRUDPremios = () => {
   );
 };
 
-export default CRUDPremios;
+export default CrudPremios;

@@ -54,3 +54,17 @@ export const updateWallet = async (id, data) => {
     }
 }
 
+export const getUserWallet = async (token) => {
+    try {
+        const response = await api.get(`/WalletSaldos/by-user`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        return response.data; // Devuelve los datos de la respuesta
+    }
+    catch (error) {
+        console.error('Error al obtener la billetera del usuario:', error.message);
+        throw error; // Lanza el error para manejarlo en el componente
+    }
+}

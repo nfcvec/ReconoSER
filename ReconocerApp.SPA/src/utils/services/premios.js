@@ -1,9 +1,25 @@
 import api from "../api";
 
 // Función para obtener los premios desde la API
-export const getPremios = async () => {
+export const getPremios = async ({
+  filters = [],
+  orderBy = "",
+  orderDirection = "asc",
+  page = 1,
+  pageSize = 100,
+} = {}) => {
   try {
-    const response = await api.get("/MarketplacePremios?page=1&pageSize=100");
+    const response = await api.get("/MarketplacePremios",
+      {
+        params: {
+          filters: JSON.stringify(filters),
+          orderBy,
+          orderDirection,
+          page,
+          pageSize,
+        },
+      }
+    );
     return response.data; // Devuelve los datos de los premios
   } catch (error) {
     console.error("Error al obtener los premios:", error.message);

@@ -30,14 +30,14 @@ import ReconocimientoExito from "./components/reconocimiento/page.jsx";
 
 // Importar componentes de administración
 import CRUDCategorias from "./components/administrar/categorias/CRUDCategorias.jsx";
-import CRUDPremios from "./components/administrar/premios/CRUDPremios.jsx";
+import CrudPremios from "./components/administrar/premios/CrudPremios.jsx";
 import CRUDReconocimientos from "./components/administrar/solicitudes/CRUDReconocimientos.jsx";
 import CRUDWalletSaldos from "./components/administrar/wallet/CRUDWalletSaldos.jsx";
 import CRUDMarketplaceCompras from "./components/administrar/solicitudes/CRUDMarketplaceCompras.jsx";
 import Administrar from "./components/administrar/administrar";
 import { OrganizacionProvider } from "./contexts/OrganizacionContext.jsx";
 import { LoadingProvider } from "./contexts/LoadingContext.jsx";
-import CRUDImagenes from "./components/administrar/premios/CRUDImagenes.jsx";
+import { WalletProvider } from "./contexts/WalletContext.jsx";
 
 function App({ pca }) {
   // The next 3 lines are optional. This is how you configure MSAL to take advantage of the router's navigate functions when MSAL redirects between pages in your app
@@ -49,13 +49,15 @@ function App({ pca }) {
     <ThemeProvider>
       <MsalProvider instance={pca}>
         <OrganizacionProvider>
-          <LoadingProvider>
-            <PageLayout>
-              <Grid container justifyContent="center">
-                <Pages />
-              </Grid>
-            </PageLayout>
-          </LoadingProvider>
+          <WalletProvider>
+            <LoadingProvider>
+              <PageLayout>
+                <Grid container justifyContent="center">
+                  <Pages />
+                </Grid>
+              </PageLayout>
+            </LoadingProvider>
+          </WalletProvider>
         </OrganizacionProvider>
       </MsalProvider>
     </ThemeProvider>
@@ -89,9 +91,9 @@ function Pages() {
       <Route path="/administrar/wallet-saldos" element={<CRUDWalletSaldos />} />
       <Route path="/administrar/reconocimientos" element={<CRUDReconocimientos />} />
       <Route path="/administrar/marketplace-compras" element={<CRUDMarketplaceCompras />} />
-      <Route path="/administrar/premios" element={<CRUDPremios />} />
+      <Route path="/administrar/premios" element={<CrudPremios />} />
       <Route path="/administrar/categorias" element={<CRUDCategorias />} />
-      <Route path="/administrar/imagenes" element={<CRUDImagenes />} />
+      {/* <Route path="/administrar/imagenes" element={<CRUDImagenes />} /> */}  // Eliminada porque la gestión de imágenes está en CRUDPremios
     </Routes>
   );
 }

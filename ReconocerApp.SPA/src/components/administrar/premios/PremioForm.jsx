@@ -8,6 +8,10 @@ import {
   Button,
   MenuItem,
   Box,
+  Card,
+  CardContent,
+  CardMedia,
+  Typography
 } from "@mui/material";
 import {
   createPremio,
@@ -17,9 +21,8 @@ import {
 } from "../../../utils/services/premios";
 import { getCategorias } from "../../../utils/services/categorias";
 import { useAlert } from "../../../contexts/AlertContext";
-import SelectorImagen from "./SelectorImages";
 
-const PremioComponent = ({ open, onClose, premioData = null, organizacionId }) => {
+const PremioForm = ({ open, onClose, premio = null, organizacionId }) => {
   const [formData, setFormData] = useState({
     nombre: "",
     descripcion: "",
@@ -31,7 +34,7 @@ const PremioComponent = ({ open, onClose, premioData = null, organizacionId }) =
   });
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const showAlert = useAlert?.() ?? (() => {});
 
   const handleChange = ({ target: { name, value } }) =>
@@ -39,35 +42,34 @@ const PremioComponent = ({ open, onClose, premioData = null, organizacionId }) =
 
   const handleImageChange = ({ target: { files } }) => {
     const file = files[0];
-    if (file) setSelectedFile({ name: file.name, content: URL.createObjectURL(file), file });
+    if (file) setSelectedFiles([{ name: file.name, content: URL.createObjectURL(file), file }]);
   };
 
   const fetchCategorias = useCallback(async () => {
     try {
       const data = await getCategorias();
       setCategorias(data);
-      if (premioData) {
-        const categoriaId = Number(premioData.categoria?.categoriaId);
+      if (premio) {
+        const categoriaId = Number(premio.categoria?.categoriaId);
         setFormData((prev) => ({
           ...prev,
-          ...premioData,
+          ...premio,
           categoriaId: categoriaId || "",
         }));
-        if (premioData.premioId) fetchPremioImages(premioData.premioId);
+        if (premio.premioId) fetchPremioImages(premio.premioId);
       }
     } catch (error) {
       showAlert("Error al cargar categorías.", "error");
     }
-  }, [premioData, showAlert]);
+  }, [premio, showAlert]);
 
   const fetchPremioImages = useCallback(async (premioId) => {
     try {
       const images = await getPremioImages(premioId);
       if (images.length) {
-        const image = images[0];
-        setSelectedFile({ name: image.name, content: `data:image/jpeg;base64,${image.content}` });
+        setSelectedFiles(images.map(image => ({ name: image.name, content: `data:image/jpeg;base64,${image.content}` })));
       } else {
-        setSelectedFile(null);
+        setSelectedFiles([]);
       }
     } catch {
       showAlert("Error al obtener las imágenes del premio.", "error");
@@ -79,10 +81,10 @@ const PremioComponent = ({ open, onClose, premioData = null, organizacionId }) =
   }, [fetchCategorias]);
 
   const uploadImage = async (premioId) => {
-    if (!selectedFile?.file) return;
+    if (!selectedFiles[0]?.file) return;
     try {
       const formData = new FormData();
-      formData.append("files", selectedFile.file);
+      formData.append("files", selectedFiles[0].file);
       await uploadPremioImages(premioId, formData);
       showAlert("Imagen subida exitosamente.", "success");
     } catch {
@@ -94,7 +96,7 @@ const PremioComponent = ({ open, onClose, premioData = null, organizacionId }) =
     setLoading(true);
     try {
       const payload = { ...formData, organizacionId, ultimaActualizacion: new Date().toISOString() };
-      const premioId = premioData?.premioId;
+      const premioId = premio?.premioId;
       if (premioId) {
         await editPremio(premioId, payload);
         showAlert("Premio actualizado.", "success");
@@ -113,7 +115,7 @@ const PremioComponent = ({ open, onClose, premioData = null, organizacionId }) =
 
   return (
     <Dialog open={open} onClose={() => onClose(false)} fullWidth maxWidth="sm">
-      <DialogTitle>{premioData?.premioId ? "Editar Premio" : "Crear Premio"}</DialogTitle>
+      <DialogTitle>{premio?.premioId ? "Editar Premio" : "Crear Premio"}</DialogTitle>
       <DialogContent>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {["nombre", "descripcion", "costoWallet", "cantidadActual"].map((field) => (
@@ -145,7 +147,27 @@ const PremioComponent = ({ open, onClose, premioData = null, organizacionId }) =
               </MenuItem>
             ))}
           </TextField>
-          <SelectorImagen imageData={selectedFile} />
+          {/* Imagenes Preview Inline */}
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 2 }}>
+            {selectedFiles.length > 0 ? (
+              selectedFiles.map((img, idx) => (
+                <Card key={idx} sx={{ maxWidth: 150 }}>
+                  <CardMedia
+                    component="img"
+                    image={img.content}
+                    alt={img.name}
+                    sx={{ height: 100, width: "100%", objectFit: "contain", borderRadius: "4px" }}
+                  />
+                </Card>
+              ))
+            ) : (
+              <Box>
+                <Typography variant="body2" color="textSecondary">
+                  Agregue una imagen para el premio.
+                </Typography>
+              </Box>
+            )}
+          </Box>
           <Button variant="outlined" component="label" fullWidth>
             Seleccionar Imagen
             <input type="file" hidden onChange={handleImageChange} accept="image/*" />
@@ -157,11 +179,11 @@ const PremioComponent = ({ open, onClose, premioData = null, organizacionId }) =
           Cancelar
         </Button>
         <Button onClick={handleSubmit} color="primary" variant="contained" disabled={loading}>
-          {premioData?.premioId ? "Guardar" : "Crear"}
+          {premio?.premioId ? "Guardar" : "Crear"}
         </Button>
       </DialogActions>
     </Dialog>
   );
 };
 
-export default PremioComponent;
+export default PremioForm;
