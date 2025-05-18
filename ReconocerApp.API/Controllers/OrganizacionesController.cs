@@ -26,13 +26,13 @@ public class OrganizacionesController : BaseCrudController<Organizacion, Organiz
             return Unauthorized("Usuario no autenticado.");
         }
 
-        string? oidToUse;
+        string? oidToUse = !string.IsNullOrEmpty(oid) ? oid : user?.Oid;
         string? emailToUse = null;
-        if (!string.IsNullOrEmpty(oid))
+
+        // Buscar primero en la tabla de Colaboradores si existe una relación (excepción)
+        if (!string.IsNullOrEmpty(oidToUse))
         {
-            oidToUse = oid;
-            Console.WriteLine($"[GetByUser] OID tomado del parámetro: {oidToUse}");
-            // Buscar en la tabla de Colaboradores si existe una relación
+            Console.WriteLine($"[GetByUser] OID utilizado para buscar excepción en Colaboradores: {oidToUse}");
             var colaborador = await _context.Colaboradores.FirstOrDefaultAsync(c => c.ColaboradorId == oidToUse);
             if (colaborador != null)
             {
@@ -45,9 +45,14 @@ public class OrganizacionesController : BaseCrudController<Organizacion, Organiz
                     return Ok(excepcion);
                 }
             }
-            // Si no está en colaboradores, buscar en Azure AD con GraphService
+        }
+
+        // Si no está en colaboradores, buscar email
+        if (!string.IsNullOrEmpty(oid) && emailToUse == null)
+        {
+            // Si el oid vino por parámetro, buscar en Azure AD con GraphService
             var graphService = HttpContext.RequestServices.GetService(typeof(ReconocerApp.API.Services.Graph.IGraphService)) as ReconocerApp.API.Services.Graph.IGraphService;
-            if (graphService != null)
+            if (graphService != null && !string.IsNullOrEmpty(oidToUse))
             {
                 try
                 {
@@ -61,10 +66,8 @@ public class OrganizacionesController : BaseCrudController<Organizacion, Organiz
                 }
             }
         }
-        else
+        else if (emailToUse == null)
         {
-            oidToUse = user?.Oid;
-            Console.WriteLine($"[GetByUser] OID tomado del token: {oidToUse}");
             emailToUse = user?.Email;
         }
 
