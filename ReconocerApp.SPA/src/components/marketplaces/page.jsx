@@ -5,6 +5,7 @@ import { getPremios } from "../../utils/services/premios";
 import PremiosComponent from "./premiosComponent";
 import { useWallet } from "../../contexts/WalletContext";
 import { useOrganizacion } from "../../contexts/OrganizacionContext";
+import { useLoading } from "../../contexts/LoadingContext";
 
 export default function Marketplace() {
   const { instance } = useMsal();
@@ -16,6 +17,7 @@ export default function Marketplace() {
   const { wallet, loading: walletLoading, refreshWallet } = useWallet();
   const userBalance = wallet?.saldoActual ?? null;
   const {organizacion} = useOrganizacion();
+  const { showLoading, hideLoading } = useLoading(); // Usar el contexto de carga
 
   useEffect(() => {
     if (refreshWallet) {
@@ -26,6 +28,7 @@ export default function Marketplace() {
 
   useEffect(() => {
     const fetchData = async () => {
+      showLoading("Cargando premios...");
       try {
         const account = instance.getActiveAccount();
         if (!account) {
@@ -36,12 +39,12 @@ export default function Marketplace() {
         const premios = await getPremios({
           filters: [
             {
-              field: "organizacionId",
+              field: "OrganizacionId",
               operator: "eq",
               value: `${organizacion.organizacionId}`
             }
           ],
-          orderBy: "costoWallet",
+          orderBy: "CostoWallet",
           orderDirection: "asc",
         });
         if (!Array.isArray(premios)) {
@@ -58,6 +61,8 @@ export default function Marketplace() {
         setPriceRange([0, maxCosto]); // Ajustar el rango inicial
       } catch (error) {
         console.error("Error al obtener datos:", error.message);
+      } finally {
+        hideLoading();
       }
     };
 
@@ -72,7 +77,6 @@ export default function Marketplace() {
       .filter((premio) =>
         premio.costoWallet >= priceRange[0] && premio.costoWallet <= priceRange[1] // Filtrar por rango de precios
       )
-      .sort((a, b) => a.costoWallet - b.costoWallet);
     setFilteredPrizes(filtered);
   }, [priceRange, prizes, searchTerm]);
 

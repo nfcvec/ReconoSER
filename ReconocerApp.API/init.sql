@@ -1,42 +1,108 @@
 -- Insertar datos en organizaciones
-INSERT INTO "Organizaciones" ("Nombre", "DominioEmail", "Descripcion", "Activa") VALUES
-('UDLA', 'udla.edu.ec', 'Universidad de Las Americas', true),
-('ULatina', 'ulatina.cr', 'Universidad Latina de Costa Rica', true);
+INSERT INTO "Organizaciones" ("Nombre", "DominioEmail", "Descripcion", "ColorPrincipal", "Activa") VALUES
+('UDLA', 'udla.edu.ec', 'Universidad de Las Americas', '#8b2738', true),
+('ECCE', 'ecce.com.ec', 'ECCE', '#8b2738', true),
+('Academikus', 'academikus.com', 'Academikus', '#8b2738', true),
+('ULatina', 'ulatina.cr', 'Universidad Latina de Costa Rica', '#97d700', true),
+('UAM', 'uam.cr', 'Universidad Latina de Costa Rica', '#8b2738', true);
 
--- Insertar datos en comportamientos
--- Para UDLA (referenciada por el dominio de email)
+-- Insertar datos en comportamientos para todas las organizaciones
 INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
 SELECT o."OrganizacionId", 'Inclusión/Humanismo', 'Toma en cuenta las sugerencias y experiencias de los demás, manteniendo una actitud abierta a aprender de otros y fomentando un ambiente de confianza y colaboración.', 2
-FROM "Organizaciones" o WHERE o."DominioEmail" = 'udla.edu.ec';
+FROM "Organizaciones" o;
 
 INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
 SELECT o."OrganizacionId", 'Inclusión/Humanismo', 'Reconoce y valida las emociones de los demás, identificando las fortalezas y habilidades de cada uno para el logro de los objetivos comunes.', 4
-FROM "Organizaciones" o WHERE o."DominioEmail" = 'udla.edu.ec';
+FROM "Organizaciones" o;
 
 INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
 SELECT o."OrganizacionId", 'Resiliencia', 'Se muestra seguro de sí mismo y supera cualquier obstáculo para alcanzar sus objetivos.', 2
-FROM "Organizaciones" o WHERE o."DominioEmail" = 'udla.edu.ec';
+FROM "Organizaciones" o;
 
 INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
 SELECT o."OrganizacionId", 'Resiliencia', 'Brinda soluciones efectivas a los problemas que se le presentan, demostrando capacidad para superar obstáculos y adaptarse a las circunstancias.', 4
-FROM "Organizaciones" o WHERE o."DominioEmail" = 'udla.edu.ec';
+FROM "Organizaciones" o;
 
--- Para ULatina (referenciada por el dominio de email)
 INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
 SELECT o."OrganizacionId", 'Respeto', 'Sabe escuchar y es receptivo a las opiniones de los demás mostrando interés genuino a las solicitudes, asegurando un servicio respetuoso y efectivo.', 4
-FROM "Organizaciones" o WHERE o."DominioEmail" = 'ulatina.cr';
+FROM "Organizaciones" o;
 
 INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
 SELECT o."OrganizacionId", 'Respeto', 'Se dirige a todos con amabilidad, mostrando interés en sus ideas y perspectivas.', 2
-FROM "Organizaciones" o WHERE o."DominioEmail" = 'ulatina.cr';
+FROM "Organizaciones" o;
 
 INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
 SELECT o."OrganizacionId", 'Integridad', 'Reconoce los errores cometidos, aprende de ellos y los rectifica, promoviendo la transparencia en sus acciones.', 2
-FROM "Organizaciones" o WHERE o."DominioEmail" = 'ulatina.cr';
+FROM "Organizaciones" o;
 
 INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
 SELECT o."OrganizacionId", 'Integridad', 'Piensa y actúa de manera consciente, sin afectar los intereses de los demás, incluso cuando nadie lo está observando.', 4
-FROM "Organizaciones" o WHERE o."DominioEmail" = 'ulatina.cr';
+FROM "Organizaciones" o;
+
+INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
+SELECT o."OrganizacionId", 'Innovación', 'Establece objetivos específicos y cuantificables para mejorar su desempeño en sus funciones diarias.', 2
+FROM "Organizaciones" o;
+
+INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
+SELECT o."OrganizacionId", 'Innovación', 'Utiliza el análisis de datos para identificar áreas de mejora y desarrollar estrategias enfocadas en la calidad.', 4
+FROM "Organizaciones" o;
+
+INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
+SELECT o."OrganizacionId", 'Flexibilidad', 'Expresa sus opiniones basadas en su conocimiento y experiencia, enriqueciendo el debate y generando soluciones.', 4
+FROM "Organizaciones" o;
+
+INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
+SELECT o."OrganizacionId", 'Flexibilidad', 'Fomenta la libertad para aprender, investigar y compartir conocimiento.', 2
+FROM "Organizaciones" o;
+
+INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
+SELECT o."OrganizacionId", 'Búsqueda de la excelencia', 'Visualiza oportunidades y transforma procesos o procedimientos que generen mayor valor para la Institución.', 4
+FROM "Organizaciones" o;
+
+INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
+SELECT o."OrganizacionId", 'Búsqueda de la excelencia', 'Implementa ideas de manera efectiva en su rutina diaria que impulsan nuevos proyectos en su puesto de trabajo.', 2
+FROM "Organizaciones" o;
+
+INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
+SELECT o."OrganizacionId", 'Exponencial', 'Muestra disposición para salir de su zona de confort al hacer diferentes tareas con grupos multidisciplinarios según sea necesario.', 4
+FROM "Organizaciones" o;
+
+INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
+SELECT o."OrganizacionId", 'Exponencial', 'Demuestra apertura cuando se presenta nueva información o evidencia contraria.', 2
+FROM "Organizaciones" o;
+
+INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
+SELECT o."OrganizacionId", 'Libertad Académica', 'Busca oportunidades de desarrollo y crecimiento constante.', 2
+FROM "Organizaciones" o;
+
+INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
+SELECT o."OrganizacionId", 'Libertad Académica', 'Asume desafíos y retos con pasión y determinación.', 4
+FROM "Organizaciones" o;
+
+INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
+SELECT o."OrganizacionId", 'Comunicación asertiva', 'Comunica sus ideas y emociones de forma directa y comprensible, manteniendo siempre un tono respetuoso y considerado hacia los demás.', 2
+FROM "Organizaciones" o;
+
+INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
+SELECT o."OrganizacionId", 'Comunicación asertiva', 'Adapta su lenguaje verbal y no verbal según la audiencia y el contexto, asegurando una comunicación bidireccional efectiva que facilite el logro de los objetivos establecidos.', 4
+FROM "Organizaciones" o;
+
+INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
+SELECT o."OrganizacionId", 'Liderazgo', 'Fomenta un ambiente de colaboración, alentando a los miembros del equipo a compartir conocimientos y trabajar juntos para alcanzar objetivos comunes.', 2
+FROM "Organizaciones" o;
+
+INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
+SELECT o."OrganizacionId", 'Liderazgo', 'Inspira al equipo a superar sus propios límites para desarrollar habilidades que impulsen su crecimiento.', 4
+FROM "Organizaciones" o;
+
+INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
+SELECT o."OrganizacionId", 'Pensamiento crítico', 'Analiza la información, hechos y evidencias antes de tomar una decisión.', 2
+FROM "Organizaciones" o;
+
+INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
+SELECT o."OrganizacionId", 'Pensamiento crítico', 'Analiza a profundidad la causa principal de un problema y desarrolla soluciones efectivas.', 4
+FROM "Organizaciones" o;
+
 
 -- Insertar datos en categorias (asegurándose que no existan previamente)
 INSERT INTO "Categorias" ("Nombre", "Descripcion") 

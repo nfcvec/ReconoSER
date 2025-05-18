@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext, use } from 'react';
 import { useMsal } from '@azure/msal-react';
 import { getUserOrganizacion } from '../utils/services/organizaciones';
+import { useTheme } from './ThemeContext';
 
 const OrganizacionContext = createContext();
 
@@ -11,6 +12,7 @@ export const OrganizacionProvider = ({ children }) => {
     const [dominio, setDominio] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const { setPrimaryColor } = useTheme();
 
     useEffect(() => {
         setDominio(activeAccount?.username.split('@')[1]);
@@ -44,6 +46,14 @@ export const OrganizacionProvider = ({ children }) => {
 
         fetchOrganizacion();
     }, [accounts, instance]);
+
+    useEffect(() => {
+        if (organizacion) {
+            const color = organizacion.colorPrincipal || '#8b2738'; 
+            setPrimaryColor(color);
+        }
+    }
+    , [organizacion, setPrimaryColor]);
 
     return (
         <OrganizacionContext.Provider value={{ organizacion, dominio, instance, loading, error }}>

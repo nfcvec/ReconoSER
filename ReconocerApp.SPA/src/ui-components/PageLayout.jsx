@@ -1,40 +1,21 @@
 import Typography from "@mui/material/Typography";
 import NavBar from "./NavBar";
 import { Container, Box } from "@mui/material";
-import { ThemeProvider as MuiThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { useTheme } from '../contexts/ThemeContext';
 import { useOrganizacion } from '../contexts/OrganizacionContext';
 import { Paper, Button } from '@mui/material';
 
 export const PageLayout = (props) => {
-    const { darkMode } = useTheme();
+    const { darkMode, primaryColor, theme } = useTheme();
     const { organizacion, dominio, instance, loading, error } = useOrganizacion();
     // Solo mostrar el mensaje de error si el usuario está logueado (hay una cuenta activa)
     const isLoggedIn = !!instance?.getActiveAccount?.();
 
-    // Creamos el tema basado en el modo actual
-    const theme = createTheme({
-        palette: {
-            mode: darkMode ? 'dark' : 'light',
-            // Los colores predeterminados de Material UI se aplicarán automáticamente
-        },
-        typography: {
-            fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
-            h1: {
-                fontWeight: 500,
-            },
-            h2: {
-                fontWeight: 500,
-            },
-        },
-    });
-
     // Mostrar loading mientras se obtiene la organización
     if (loading) {
         return (
-            <MuiThemeProvider theme={theme}>
-                <CssBaseline />
+            <>
                 <NavBar />
                 <Box sx={{
                     marginTop: '64px',
@@ -46,15 +27,14 @@ export const PageLayout = (props) => {
                 }}>
                     <Typography variant="h5">Cargando organización...</Typography>
                 </Box>
-            </MuiThemeProvider>
+            </>
         );
     }
 
     // Mostrar error si ocurre
     if (error) {
         return (
-            <MuiThemeProvider theme={theme}>
-                <CssBaseline />
+            <>
                 <NavBar />
                 <Box sx={{
                     marginTop: '64px',
@@ -71,15 +51,14 @@ export const PageLayout = (props) => {
                         <Button onClick={() => instance.logout()}>Cerrar sesión</Button>
                     </Box>
                 </Box>
-            </MuiThemeProvider>
+            </>
         );
     }
 
     // Mensaje de error de organización SOLO si ya no está cargando y no hay error
     if (isLoggedIn && organizacion === null && !loading && !error) {
         return (
-            <MuiThemeProvider theme={theme}>
-                <CssBaseline />
+            <>
                 <NavBar />
                 <Box sx={{
                     marginTop: '64px',
@@ -97,7 +76,7 @@ export const PageLayout = (props) => {
                             padding: 4,
                             borderRadius: 2,
                             boxShadow: 3,
-                            backgroundColor: theme.palette.background.paper,
+                            backgroundColor: 'background.paper',
                             width: '100%',
                             maxWidth: '600px',
                         }}
@@ -118,12 +97,12 @@ export const PageLayout = (props) => {
                         </Button>
                     </Box>
                 </Box>
-            </MuiThemeProvider>
+            </>
         );
     }
 
     return (
-        <MuiThemeProvider theme={theme}>
+        <>
             <CssBaseline /> {/* Normaliza los estilos y aplica el color de fondo del tema */}
             <NavBar />
             <Box sx={{
@@ -134,6 +113,6 @@ export const PageLayout = (props) => {
                     {props.children}
                 </Container>
             </Box>
-        </MuiThemeProvider>
+        </>
     );
 };

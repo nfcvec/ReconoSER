@@ -6,5 +6,6 @@ public class OrganizacionResponse
     public string Nombre { get; set; } = string.Empty;
     public string Descripcion { get; set; } = string.Empty;
     public string DominioEmail { get; set; } = string.Empty;
+    public string ColorPrincipal { get; set; } = string.Empty;
     public bool Activa { get; set; }
 }

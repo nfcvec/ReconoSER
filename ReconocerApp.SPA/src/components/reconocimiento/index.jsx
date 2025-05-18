@@ -13,11 +13,14 @@ import {
   Paper,
   Autocomplete,
 } from "@mui/material";
-import { getOrganizaciones } from "../../utils/services/organizaciones";
+import { getOrganizaciones, getUserOrganizacion } from "../../utils/services/organizaciones";
 import { getComportamientos } from "../../utils/services/comportamientos";
 import { getColaboradores } from "../../utils/services/colaboradores";
 import { useMsal } from "@azure/msal-react";
 import ConfirmacionReconocimiento from "./ConfirmacionReconocimiento";
+import { useOrganizacion } from "../../contexts/OrganizacionContext";
+import { useAlert } from "../../contexts/AlertContext";
+import { useLoading } from "../../contexts/LoadingContext";
 
 export default function Reconocimiento() {
   const navigate = useNavigate();
@@ -30,17 +33,9 @@ export default function Reconocimiento() {
   const [Texto, setCertificateText] = useState("");
   const [step, setStep] = useState("form"); // "form" | "confirm"
   const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
-
-  const toggleSelection = (list, item, maxItems) => {
-    if (list.some((i) => i.comportamientoId === item.comportamientoId)) {
-      return list.filter((i) => i.comportamientoId !== item.comportamientoId);
-    }
-    if (list.length >= maxItems) {
-      alert(`Solo puedes seleccionar un máximo de ${maxItems} comportamientos.`);
-      return list;
-    }
-    return [...list, item];
-  };
+  const { organizacion } = useOrganizacion();
+  const showAlert = useAlert();
+  const { showLoading, hideLoading } = useLoading();
 
   // Cargar organizaiones desde la API
   useEffect(() => {
@@ -90,37 +85,71 @@ export default function Reconocimiento() {
 
   // Cargar comportamientos desde la API
   useEffect(() => {
-    const fetchComportamientos = async () => {
+    if (!Reconocido || !Reconocido.id) return;
+    const activeAccount = instance.getActiveAccount();
+    const fetchComportamientosConOrganizacion = async () => {
+      showLoading("Cargando comportamientos...");
+      setComportamientos([]); // Limpiar comportamientos antes de la consulta
       try {
+        const tokenResponse = await instance.acquireTokenSilent({
+          scopes: ['openid email profile User.Read.All'],
+          account: activeAccount,
+        });
+        const token = tokenResponse.accessToken;
+        if (!token) {
+          showAlert('No se pudo obtener el token de acceso', 'error');
+          hideLoading();
+          return;
+        }
+        const organizacionColaborador = await getUserOrganizacion(token, Reconocido.id);
+
+        if (!organizacionColaborador?.organizacionId) {
+          showAlert('La organización del colaborador aún no está implementada. Selecciona otro colaborador.', 'warning');
+          setSelectedCollaborator(null);
+          hideLoading();
+          return;
+        }
+
         const comportamientos = await getComportamientos({
-            page: 1,
-            pageSize: 100,
-        }); // Llama a la API
+          page: 1,
+          pageSize: 100,
+          filters: [
+            {
+              field: "OrganizacionId",
+              operator: "eq",
+              value: `${organizacionColaborador.organizacionId}`
+            }
+          ]
+        });
         console.log("Comportamientos obtenidos:", comportamientos);
-        setComportamientos(comportamientos); // Actualiza el estado con los comportamientos
+        setComportamientos(comportamientos);
+        hideLoading();
       } catch (error) {
-        console.error("Error al obtener los comportamientos:", error.message);
+        showAlert('La organización del colaborador aún no está implementada. Selecciona otro colaborador.', 'error');
+        setSelectedCollaborator(null);
+        console.error('Error al obtener la organización o comportamientos:', error);
+        hideLoading();
       }
     };
 
-    fetchComportamientos();
-  }, []);
+    fetchComportamientosConOrganizacion();
+  }, [Reconocido, instance]);
 
   const handleValueChange = (event, value) => {
     const checked = event.target.checked;
-  
+
     if (checked) {
       // Verificar si ya se alcanzó el límite de 3 comportamientos
       if (Comportamientos.length >= 3) {
         alert("Solo puedes seleccionar un máximo de 3 comportamientos.");
         return;
       }
-  
+
       // Filtrar comportamientos para asegurarnos de que no haya duplicados por nombre
       const filteredComportamientos = Comportamientos.filter(
         (item) => item.nombre !== value.nombre
       );
-  
+
       setSelectedValues([...filteredComportamientos, value]);
     } else {
       // Si se desmarca, eliminar el comportamiento de la lista
@@ -233,7 +262,9 @@ export default function Reconocimiento() {
                         ))
                       ) : (
                         <Typography variant="body2" color="text.secondary">
-                          Cargando comportamientos...
+                          {Reconocido == null
+                            ? "Selecciona un colaborador"
+                            : "Cargando comportamientos..."}
                         </Typography>
                       )}
                     </Paper>

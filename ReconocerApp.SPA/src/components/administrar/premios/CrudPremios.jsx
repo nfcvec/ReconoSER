@@ -29,9 +29,9 @@ const CrudPremios = () => {
     try {
       const data = await getPremios({
         filters: [
-          { field: "organizacionId", operator: 'eq', value: `${organizacion.organizacionId}` },
+          { field: "OrganizacionId", operator: 'eq', value: `${organizacion.organizacionId}` },
         ],
-        orderBy: "nombre",
+        orderBy: "Nombre",
         orderDirection: "asc",
         page: 1,
         pageSize: 1000,

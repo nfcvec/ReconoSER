@@ -11,11 +11,14 @@ export const getOrganizaciones = async () => {
   }
 };
 
-export const getUserOrganizacion = async (token) => {
+export const getUserOrganizacion = async (token, oid=null) => {
   try {
     const response = await api.get(`/Organizaciones/by-user`, {
       headers: {
         Authorization: `Bearer ${token}`,
+      },
+      params: {
+        oid: oid,
       },
     });
     return response.data; // Devuelve los datos de la respuesta
