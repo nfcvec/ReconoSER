@@ -50,13 +50,11 @@ function App({ pca }) {
       <MsalProvider instance={pca}>
         <OrganizacionProvider>
           <WalletProvider>
-            <LoadingProvider>
-              <PageLayout>
-                <Grid container justifyContent="center">
-                  <Pages />
-                </Grid>
-              </PageLayout>
-            </LoadingProvider>
+            <PageLayout>
+              <Grid container justifyContent="center">
+                <Pages />
+              </Grid>
+            </PageLayout>
           </WalletProvider>
         </OrganizacionProvider>
       </MsalProvider>

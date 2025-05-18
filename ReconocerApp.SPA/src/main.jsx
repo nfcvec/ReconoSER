@@ -7,6 +7,7 @@ import App from "./App"
 import { PublicClientApplication, EventType } from "@azure/msal-browser";
 import { msalConfig } from "./authConfig";
 import { AlertProvider } from "./contexts/AlertContext";
+import { LoadingProvider } from "./contexts/LoadingContext";
 
 export const msalInstance = new PublicClientApplication(msalConfig);
 
@@ -30,10 +31,12 @@ msalInstance.initialize().then(() => {
   const container = document.getElementById("root");
   const root = ReactDOM.createRoot(container);
   root.render(
-      <Router>
-        <AlertProvider>
-          <App pca={msalInstance}/>
-        </AlertProvider>
-      </Router>
+    <Router>
+      <AlertProvider>
+        <LoadingProvider>
+          <App pca={msalInstance} />
+        </LoadingProvider>
+      </AlertProvider>
+    </Router>
   )
 });

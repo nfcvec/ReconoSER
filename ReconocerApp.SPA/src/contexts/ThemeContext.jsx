@@ -22,7 +22,7 @@ export const ThemeProvider = ({ children }) => {
   }, [darkMode]);
 
   // Obtenemos el color primario guardado o usamos el valor por defecto
-  const [primaryColor, setPrimaryColor] = useState('#8b2738');
+  const [primaryColor, setPrimaryColor] = useState('#9b9b9b');
 
   // Crear un tema personalizado basado en el color seleccionado y el modo
   const theme = useMemo(

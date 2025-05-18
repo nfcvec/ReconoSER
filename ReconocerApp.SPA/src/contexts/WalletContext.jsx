@@ -6,7 +6,6 @@ const WalletContext = createContext();
 
 export const WalletProvider = ({ children }) => {
     const { instance, accounts } = useMsal();
-    const activeAccount = instance.getActiveAccount();
     const [wallet, setWallet] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -15,9 +14,15 @@ export const WalletProvider = ({ children }) => {
         setLoading(true);
         setError(null);
         try {
+            // Si no hay cuenta activa, no hacemos nada
+            if (!instance.getActiveAccount()) {
+                setWallet(null);
+                setLoading(false);
+                return;
+            }
             const tokenResponse = await instance.acquireTokenSilent({
                 scopes: ['openid email profile User.Read.All'],
-                account: activeAccount,
+                account: instance.getActiveAccount(),
             });
             const token = tokenResponse.accessToken;
             if (!token) {

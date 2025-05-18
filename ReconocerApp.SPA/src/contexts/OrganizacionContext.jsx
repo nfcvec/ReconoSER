@@ -2,61 +2,66 @@ import React, { createContext, useState, useEffect, useContext, use } from 'reac
 import { useMsal } from '@azure/msal-react';
 import { getUserOrganizacion } from '../utils/services/organizaciones';
 import { useTheme } from './ThemeContext';
+import { useLoading } from './LoadingContext';
+import { useAlert } from './AlertContext';
 
 const OrganizacionContext = createContext();
 
 export const OrganizacionProvider = ({ children }) => {
     const { instance, accounts } = useMsal();
     const [organizacion, setOrganizacion] = useState(null);
-    const activeAccount = instance.getActiveAccount();
     const [dominio, setDominio] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const { setPrimaryColor } = useTheme();
-
-    useEffect(() => {
-        setDominio(activeAccount?.username.split('@')[1]);
-        console.log('Dominio:', activeAccount?.username.split('@')[1]);
-    }, [activeAccount]);
+    const { showLoading, hideLoading } = useLoading();
+    const showAlert = useAlert();
 
     useEffect(() => {
         const fetchOrganizacion = async () => {
-            setLoading(true);
-            setError(null);
+            showLoading('Cargando organización...', true);
             try {
+                console.log('[OrganizacionContext] useEffect organizacion ejecutado', instance.getActiveAccount(), instance);
+                if (!instance.getActiveAccount()) {
+                    setPrimaryColor('#c9c9c9');
+                    setOrganizacion(null);
+                    setDominio(null);
+                    hideLoading();
+                    return;
+                }
                 const tokenResponse = await instance.acquireTokenSilent({
                     scopes: ['openid email profile User.Read.All'],
-                    account: activeAccount,
+                    account: instance.getActiveAccount(),
                 });
                 const token = tokenResponse.accessToken;
                 if (!token) {
-                    setError('No se pudo obtener el token de acceso');
-                    setLoading(false);
+                    showAlert('No se pudo obtener el token de acceso', 'error');
+                    hideLoading();
                     return;
                 }
                 const data = await getUserOrganizacion(token);
                 setOrganizacion(data);
             } catch (error) {
-                setError('Error al obtener la organización: ' + error.message);
+                showAlert('Error al obtener la organización: ' + error.message, 'error');
                 console.error('Error al obtener la organización:', error);
+                console.log('[OrganizacionContext] useEffect dominio ejecutado', instance.getActiveAccount());
+                setDominio(instance.getActiveAccount()?.username.split('@')[1]);
+                console.log('Dominio:', instance.getActiveAccount()?.username.split('@')[1]);
             } finally {
-                setLoading(false);
+                hideLoading();
             }
         };
-
         fetchOrganizacion();
-    }, [accounts, instance]);
+    }, [instance, accounts]);
 
     useEffect(() => {
+        console.log('[OrganizacionContext] useEffect color ejecutado', organizacion);
         if (organizacion) {
-            const color = organizacion.colorPrincipal || '#8b2738'; 
+            const color = organizacion.colorPrincipal || '#c9c9c9';
             setPrimaryColor(color);
         }
-    }
-    , [organizacion, setPrimaryColor]);
+    }, [organizacion]);
 
     return (
-        <OrganizacionContext.Provider value={{ organizacion, dominio, instance, loading, error }}>
+        <OrganizacionContext.Provider value={{ organizacion, dominio, instance }}>
             {children}
         </OrganizacionContext.Provider>
     );

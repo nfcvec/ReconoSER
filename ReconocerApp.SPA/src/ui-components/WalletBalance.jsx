@@ -17,7 +17,7 @@ const WalletBalance = () => {
         </Box>
       ) : (
         <Typography variant="h5" onClick={refreshWallet} sx={{ cursor: 'pointer', color: 'white' }}>
-          {balance !== undefined ? `$${balance.toFixed(2)}` : 'Sin saldo'}
+          {balance !== undefined ? `$${balance.toFixed(2)}` : '--.--'}
         </Typography>
       )}
     </Box>

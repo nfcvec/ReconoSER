@@ -255,7 +255,7 @@ export default function Reconocimiento() {
                             </Box>
                             <Box sx={{ textAlign: "right", mt: 1 }}>
                               <Typography variant="caption" color="text.secondary">
-                                {value.nombre}
+                                {value.nombre} - {value.organizacion.nombre}
                               </Typography>
                             </Box>
                           </Box>
