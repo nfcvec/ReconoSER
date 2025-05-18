@@ -21,7 +21,7 @@ export const OrganizacionProvider = ({ children }) => {
             try {
                 console.log('[OrganizacionContext] useEffect organizacion ejecutado', instance.getActiveAccount(), instance);
                 if (!instance.getActiveAccount()) {
-                    setPrimaryColor('#c9c9c9');
+                    setPrimaryColor('#9b9b9b');
                     setOrganizacion(null);
                     setDominio(null);
                     hideLoading();

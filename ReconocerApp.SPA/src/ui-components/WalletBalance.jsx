@@ -10,13 +10,13 @@ const WalletBalance = () => {
 
   return (
     <Box sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
-      <AccountBalanceWalletIcon sx={{ fontSize: 40, color: 'white', mr: 2 }} />
+      <AccountBalanceWalletIcon sx={{ fontSize: 40, mr: 2 }} />
       {error ? null : loading ? (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <CircularProgress size={32} sx={{ color: 'white' }} />
+          <CircularProgress size={32} />
         </Box>
       ) : (
-        <Typography variant="h5" onClick={refreshWallet} sx={{ cursor: 'pointer', color: 'white' }}>
+        <Typography variant="h5" onClick={refreshWallet} sx={{ cursor: 'pointer' }}>
           {balance !== undefined ? `$${balance.toFixed(2)}` : '--.--'}
         </Typography>
       )}
