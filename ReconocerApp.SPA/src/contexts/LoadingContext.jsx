@@ -25,7 +25,7 @@ export const LoadingProvider = ({ children }) => {
   }, []);
 
   return (
-    <LoadingContext.Provider value={{ showLoading, updateProgress, hideLoading }}>
+    <LoadingContext.Provider value={{ showLoading, updateProgress, hideLoading, loading }}>
       {children}
       <Dialog open={loading.loading}>
         <div style={{ padding: "20px", textAlign: "center" }}>

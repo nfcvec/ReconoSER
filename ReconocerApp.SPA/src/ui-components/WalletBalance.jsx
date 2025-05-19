@@ -17,7 +17,7 @@ const WalletBalance = () => {
         </Box>
       ) : (
         <Typography variant="h5" onClick={refreshWallet} sx={{ cursor: 'pointer' }}>
-          {balance !== undefined ? `$${balance.toFixed(2)}` : '--.--'}
+          {balance !== undefined ? `$${balance.toFixed(2)}` : ''}
         </Typography>
       )}
     </Box>

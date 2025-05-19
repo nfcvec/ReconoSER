@@ -36,7 +36,6 @@ import CRUDWalletSaldos from "./components/administrar/wallet/CRUDWalletSaldos.j
 import CRUDMarketplaceCompras from "./components/administrar/solicitudes/CRUDMarketplaceCompras.jsx";
 import Administrar from "./components/administrar/administrar";
 import { OrganizacionProvider } from "./contexts/OrganizacionContext.jsx";
-import { LoadingProvider } from "./contexts/LoadingContext.jsx";
 import { WalletProvider } from "./contexts/WalletContext.jsx";
 
 function App({ pca }) {
@@ -91,7 +90,6 @@ function Pages() {
       <Route path="/administrar/marketplace-compras" element={<CRUDMarketplaceCompras />} />
       <Route path="/administrar/premios" element={<CrudPremios />} />
       <Route path="/administrar/categorias" element={<CRUDCategorias />} />
-      {/* <Route path="/administrar/imagenes" element={<CRUDImagenes />} /> */}  // Eliminada porque la gestión de imágenes está en CRUDPremios
     </Routes>
   );
 }

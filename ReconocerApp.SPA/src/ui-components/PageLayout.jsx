@@ -5,15 +5,18 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { useTheme } from '../contexts/ThemeContext';
 import { useOrganizacion } from '../contexts/OrganizacionContext';
 import { Paper, Button } from '@mui/material';
+import { useLoading } from "../contexts/LoadingContext";
+import { useAlert } from "../contexts/AlertContext";
 
 export const PageLayout = (props) => {
-    const { darkMode, primaryColor, theme } = useTheme();
-    const { organizacion, dominio, instance, loading, error } = useOrganizacion();
+    const { organizacion, dominio, instance } = useOrganizacion();
+    const { loading } = useLoading();
+    const { error } = useAlert();
     // Solo mostrar el mensaje de error si el usuario está logueado (hay una cuenta activa)
     const isLoggedIn = !!instance?.getActiveAccount?.();
 
     // Mostrar loading mientras se obtiene la organización
-    if (loading) {
+    if (loading.loading) {
         return (
             <>
                 <NavBar />
@@ -56,7 +59,7 @@ export const PageLayout = (props) => {
     }
 
     // Mensaje de error de organización SOLO si ya no está cargando y no hay error
-    if (isLoggedIn && organizacion === null && !loading && !error) {
+    if (isLoggedIn && organizacion === null && !loading.loading && !error) {
         return (
             <>
                 <NavBar />
