@@ -37,6 +37,8 @@ import CRUDMarketplaceCompras from "./components/administrar/solicitudes/CRUDMar
 import Administrar from "./components/administrar/administrar";
 import { OrganizacionProvider } from "./contexts/OrganizacionContext.jsx";
 import { WalletProvider } from "./contexts/WalletContext.jsx";
+import { AlertProvider } from "./contexts/AlertContext.jsx";
+import { LoadingProvider } from "./contexts/LoadingContext.jsx";
 
 function App({ pca }) {
   // The next 3 lines are optional. This is how you configure MSAL to take advantage of the router's navigate functions when MSAL redirects between pages in your app
@@ -45,19 +47,24 @@ function App({ pca }) {
   pca.setNavigationClient(navigationClient);
 
   return (
-    <ThemeProvider>
-      <MsalProvider instance={pca}>
-        <OrganizacionProvider>
-          <WalletProvider>
-            <PageLayout>
-              <Grid container justifyContent="center">
-                <Pages />
-              </Grid>
-            </PageLayout>
-          </WalletProvider>
-        </OrganizacionProvider>
-      </MsalProvider>
-    </ThemeProvider>
+    <MsalProvider instance={pca}>
+      <ThemeProvider>
+        <AlertProvider>
+          <LoadingProvider>
+            <OrganizacionProvider>
+              <WalletProvider>
+                <PageLayout>
+                  <Grid container justifyContent="center">
+                    <Pages />
+                  </Grid>
+                </PageLayout>
+              </WalletProvider>
+            </OrganizacionProvider>
+          </LoadingProvider>
+        </AlertProvider>
+      </ThemeProvider>
+
+    </MsalProvider>
   );
 }
 

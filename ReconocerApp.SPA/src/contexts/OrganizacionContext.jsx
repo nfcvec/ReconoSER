@@ -48,7 +48,7 @@ export const OrganizacionProvider = ({ children }) => {
             const color = organizacion.colorPrincipal || '#c9c9c9';
             setPrimaryColor(color);
         }
-    }, [organizacion]);
+    }, [organizacion, instance]);
 
     return (
         <OrganizacionContext.Provider value={{ organizacion, dominio, instance }}>

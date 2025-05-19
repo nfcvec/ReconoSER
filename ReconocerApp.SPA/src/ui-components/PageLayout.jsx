@@ -2,34 +2,19 @@ import Typography from "@mui/material/Typography";
 import NavBar from "./NavBar";
 import { Container, Box } from "@mui/material";
 import CssBaseline from '@mui/material/CssBaseline';
-import { useTheme } from '../contexts/ThemeContext';
 import { useOrganizacion } from '../contexts/OrganizacionContext';
 import { Paper, Button } from '@mui/material';
-import { useLoading } from "../contexts/LoadingContext";
-import { useAlert } from "../contexts/AlertContext";
 
 export const PageLayout = (props) => {
-    const { organizacion, dominio, instance } = useOrganizacion();
-    const { loading } = useLoading();
-    const { error } = useAlert();
+    const { organizacion, dominio, instance, loading, error } = useOrganizacion();
     // Solo mostrar el mensaje de error si el usuario está logueado (hay una cuenta activa)
     const isLoggedIn = !!instance?.getActiveAccount?.();
 
     // Mostrar loading mientras se obtiene la organización
-    if (loading.loading) {
+    if (loading) {
         return (
             <>
                 <NavBar />
-                <Box sx={{
-                    marginTop: '64px',
-                    paddingTop: 3,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minHeight: 'calc(100vh - 64px)'
-                }}>
-                    <Typography variant="h5">Cargando organización...</Typography>
-                </Box>
             </>
         );
     }
@@ -59,7 +44,7 @@ export const PageLayout = (props) => {
     }
 
     // Mensaje de error de organización SOLO si ya no está cargando y no hay error
-    if (isLoggedIn && organizacion === null && !loading.loading && !error) {
+    if (isLoggedIn && organizacion === null && !loading && !error) {
         return (
             <>
                 <NavBar />

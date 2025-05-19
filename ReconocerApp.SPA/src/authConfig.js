@@ -47,6 +47,7 @@ export const msalConfig = {
                         return;
                 }
             },
+            logLevel: LogLevel.Error,
         },
     },
 };

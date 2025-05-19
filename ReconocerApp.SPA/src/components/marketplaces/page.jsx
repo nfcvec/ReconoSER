@@ -27,15 +27,11 @@ export default function Marketplace() {
   }, []);
 
   useEffect(() => {
+    console.log('[Marketplace] useEffect premios ejecutado', { organizacion, instance });
+    if (!organizacion) return; // Espera a que organización esté disponible
     const fetchData = async () => {
       showLoading("Cargando premios...");
       try {
-        const account = instance.getActiveAccount();
-        if (!account) {
-          console.error("No active account! Please log in.");
-          return;
-        }
-
         const premios = await getPremios({
           filters: [
             {
@@ -47,6 +43,7 @@ export default function Marketplace() {
           orderBy: "CostoWallet",
           orderDirection: "asc",
         });
+        console.log('[Marketplace] premios obtenidos', premios);
         if (!Array.isArray(premios)) {
           console.error("Los premios no son un array válido.");
           return;
@@ -67,9 +64,10 @@ export default function Marketplace() {
     };
 
     fetchData();
-  }, [instance]);
+  }, []);
 
   useEffect(() => {
+    console.log('[Marketplace] useEffect filtro ejecutado', { prizes, priceRange, searchTerm });
     const filtered = prizes
       .filter((premio) =>
         premio.nombre.toLowerCase().includes(searchTerm.toLowerCase()) // Filtrar por nombre
