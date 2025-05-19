@@ -7,6 +7,7 @@ import {
   CardContent,
   CardActions,
   Button,
+  Divider,
 } from "@mui/material";
 import {
   FileCopy as CertificateIcon,
@@ -33,6 +34,7 @@ export default function Home() {
       icon: <CertificateIcon sx={{ fontSize: 64, color: "primary.main" }} />,
       link: "/certificados",
       buttonText: "Ver Certificados",
+      menu: "main",
     },
     {
       title: "Reconocer",
@@ -40,6 +42,7 @@ export default function Home() {
       icon: <RecognitionIcon sx={{ fontSize: 64, color: "primary.main" }} />,
       link: "/reconocimiento",
       buttonText: "Dar Reconocimiento",
+      menu: "main",
     },
     {
       title: "Marketplace",
@@ -47,6 +50,7 @@ export default function Home() {
       icon: <MarketplaceIcon sx={{ fontSize: 64, color: "primary.main" }} />,
       link: "/marketplace",
       buttonText: "Ir a canjear",
+      menu: "main",
     },
     {
       title: "ULIs",
@@ -54,6 +58,7 @@ export default function Home() {
       icon: <WalletIcon sx={{ fontSize: 64, color: "primary.main" }} />,
       link: "/administrar/wallet-saldos",
       buttonText: "Ir a billeteras",
+      menu: "approver",
     },
     {
       title: "Revisar reconocimientos",
@@ -61,6 +66,7 @@ export default function Home() {
       icon: <AdminIcon sx={{ fontSize: 64, color: "primary.main" }} />,
       link: "/administrar/reconocimientos",
       buttonText: "Ir a reconocimientos",
+      menu: "approver",
     },
     {
       title: "Revisar compras",
@@ -68,6 +74,7 @@ export default function Home() {
       icon: <ComprasIcon sx={{ fontSize: 64, color: "primary.main" }} />,
       link: "/administrar/marketplace-compras",
       buttonText: "Ir a compras",
+      menu: "approver",
     },
     {
       title: "Administrar Premios",
@@ -75,6 +82,7 @@ export default function Home() {
       icon: <PremiosIcon sx={{ fontSize: 64, color: "primary.main" }} />,
       link: "/administrar/premios",
       buttonText: "Ir a premios",
+      menu: "admin",
     },
     {
       title: "Administrar Categorías",
@@ -82,8 +90,16 @@ export default function Home() {
       icon: <CategoryIcon sx={{ fontSize: 64, color: "primary.main" }} />,
       link: "/administrar/categorias",
       buttonText: "Ir a categorías",
+      menu: "admin",
     },
   ];
+
+  // Menú principal (visible para todos)
+  const mainMenuItems = cardItems.filter((item) => item.menu === "main");
+  // Menú de aprobadores (solo para aprobadores)
+  const approverMenuItems = cardItems.filter((item) => item.menu === "approver");
+  // Menú de administración (solo para administradores)
+  const adminMenuItems = cardItems.filter((item) => item.menu === "admin");
 
   return (
     <Box
@@ -95,7 +111,6 @@ export default function Home() {
         minHeight: "80vh",
         gap: 4,
         textAlign: "center",
-        padding: "20px",
       }}
     >
       {/* Título principal */}
@@ -107,20 +122,140 @@ export default function Home() {
       </Typography>
 
       <Typography
-        variant="h6"
+        variant="body1"
         color="text.secondary"
-        sx={{ px: { xs: 2, md: 2 } }}
+        sx={{ px: { xs: 2, md: 2 }, mb: 4 }}
       >
-        Recompensa comportamientos institucionales y canjea tus ULIs por premios
+        Reconoce lo extraordinario, gana ULIs y cámbialos por premios que te sorprenderán.
       </Typography>
-
       <Grid
         container
         spacing={4}
         justifyContent="center"
         alignItems="stretch"
       >
-        {cardItems.map((item) => (
+        {mainMenuItems.map((item) => (
+          <Grid item key={item.link} xs={12} sm={6} md={4} lg={3}>
+            <Card
+              sx={{
+                maxWidth: 250,
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                transition: "transform 0.3s, box-shadow 0.3s",
+                "&:hover": {
+                  transform: "translateY(-5px)",
+                  boxShadow: 6,
+                },
+              }}
+              elevation={2}
+            >
+              <CardContent sx={{ textAlign: "center", flexGrow: 1 }}>
+                <Typography variant="h5" component="h2" gutterBottom>
+                  {item.title}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 2 }}
+                >
+                  {item.description}
+                </Typography>
+                <Box sx={{ py: 2, display: "flex", justifyContent: "center" }}>
+                  {item.icon}
+                </Box>
+              </CardContent>
+              <CardActions sx={{ p: 2, justifyContent: "center" }}>
+                <Link
+                  to={item.link}
+                  style={{ textDecoration: "none", width: "100%" }}
+                >
+                  <Button variant="contained" fullWidth>
+                    {item.buttonText}
+                  </Button>
+                </Link>
+              </CardActions>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+
+      <Divider sx={{ width: '100%' }} />
+
+      {/* Menú de aprobadores */}
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Menú de aprobadores
+      </Typography>
+      <Grid
+        container
+        spacing={4}
+        justifyContent="center"
+        alignItems="stretch"
+        sx={{ mb: 4 }}
+      >
+        {approverMenuItems.map((item) => (
+          <Grid item key={item.link} xs={12} sm={6} md={4} lg={3}>
+            <Card
+              sx={{
+                maxWidth: 250,
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                transition: "transform 0.3s, box-shadow 0.3s",
+                "&:hover": {
+                  transform: "translateY(-5px)",
+                  boxShadow: 6,
+                },
+              }}
+              elevation={2}
+            >
+              <CardContent sx={{ textAlign: "center", flexGrow: 1 }}>
+                <Typography variant="h5" component="h2" gutterBottom>
+                  {item.title}
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mb: 2 }}
+                >
+                  {item.description}
+                </Typography>
+                <Box sx={{ py: 2, display: "flex", justifyContent: "center" }}>
+                  {item.icon}
+                </Box>
+              </CardContent>
+              <CardActions sx={{ p: 2, justifyContent: "center" }}>
+                <Link
+                  to={item.link}
+                  style={{ textDecoration: "none", width: "100%" }}
+                >
+                  <Button variant="contained" fullWidth>
+                    {item.buttonText}
+                  </Button>
+                </Link>
+              </CardActions>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+
+      <Divider sx={{ width: '100%' }} />
+
+      {/* Menú de administración */}
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Menú de administración
+      </Typography>
+      <Grid
+        container
+        spacing={4}
+        justifyContent="center"
+        alignItems="stretch"
+      >
+        {adminMenuItems.map((item) => (
           <Grid item key={item.link} xs={12} sm={6} md={4} lg={3}>
             <Card
               sx={{
