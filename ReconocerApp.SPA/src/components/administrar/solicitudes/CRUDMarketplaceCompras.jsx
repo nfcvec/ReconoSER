@@ -13,8 +13,8 @@ import {
   Box,
   TextField,
   Divider,
-  Snackbar,
-  Alert,
+  ImageList,
+  ImageListItem,
 } from "@mui/material";
 import {
   getPremiosCompras,
@@ -23,16 +23,21 @@ import {
 import { getPremioImages } from "../../../utils/services/premios"; // Importar la función para obtener imágenes
 import { getColaboradoresFromBatchIds } from "../../../utils/services/colaboradores";
 import { useLoading } from "../../../contexts/LoadingContext";
+import { useMsal } from "@azure/msal-react";
+import { useAlert } from "../../../contexts/AlertContext";
 
 const CRUDMarketplaceCompras = () => {
   const [compras, setCompras] = useState([]);
   const [colaboradores, setColaboradores] = useState([]);
   const [selectedCompra, setSelectedCompra] = useState(null);
-  const [imagenUrl, setImagenUrl] = useState(null); // Estado para la URL de la imagen
+  const [imagenes, setImagenes] = useState([]); // Para todas las imágenes del premio
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedImg, setSelectedImg] = useState(null);
   const [open, setOpen] = useState(false);
   const [comentarioRevision, setComentarioRevision] = useState("");
-  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "" });
   const { showLoading, hideLoading } = useLoading();
+  const { instance } = useMsal();
+  const showAlert = useAlert();
 
   const handleReview = async (action) => {
     showLoading(`Revisando compra...`);
@@ -46,32 +51,20 @@ const CRUDMarketplaceCompras = () => {
         }
       });
 
-      setSnackbar({
-        open: true,
-        message: `Compra ${action === "aprobado" ? "aprobada" : "rechazada"} correctamente.`,
-        severity: "success",
-      });
+      showAlert(`Compra ${action === "aprobado" ? "aprobada" : "rechazada"} correctamente.`, "success");
 
       // Actualiza la lista de compras eliminando la compra revisada
       setCompras((prev) => prev.filter((compra) => compra.compraId !== selectedCompra.compraId));
       handleClose();
     } catch (error) {
-      setSnackbar({
-        open: true,
-        message: `Error al ${action === "aprobado" ? "aprobar" : "rechazar"} la compra.`,
-        severity: "error",
-      });
+      showAlert(`Error al ${action === "aprobado" ? "aprobar" : "rechazar"} la compra.`, "error");
     }
     hideLoading();
   };
 
-  const handleCloseSnackbar = () => {
-    setSnackbar((prev) => ({ ...prev, open: false }));
-  };
-
   const handleClose = () => {
     setOpen(false);
-    setImagenUrl(null); // Limpiar la imagen al cerrar el diálogo
+    setImagenes([]); // Limpiar las imágenes al cerrar el diálogo
   };
 
   const fetchCompras = async () => {
@@ -98,18 +91,12 @@ const CRUDMarketplaceCompras = () => {
     setColaboradores(data);
   };
 
-  const fetchPremioImage = async (premioId) => {
+  const fetchPremioImages = async (premioId) => {
     try {
       const images = await getPremioImages(premioId);
-      if (images.length > 0) {
-        const image = images[0]; // Usar la primera imagen disponible
-        setImagenUrl(`data:image/jpeg;base64,${image.content}`); // Convertir el contenido a base64
-      } else {
-        setImagenUrl("https://via.placeholder.com/250"); // Placeholder si no hay imágenes
-      }
+      setImagenes(images);
     } catch (error) {
-      console.error(`Error al cargar la imagen del premio con ID ${premioId}:`, error.message);
-      setImagenUrl("https://via.placeholder.com/250"); // Placeholder en caso de error
+      setImagenes([]);
     }
   };
 
@@ -154,7 +141,7 @@ const CRUDMarketplaceCompras = () => {
         onRowClick={(params) => {
           if (params.row) {
             setSelectedCompra(params.row);
-            fetchPremioImage(params.row.premioId); // Cargar la imagen del premio seleccionado
+            fetchPremioImages(params.row.premioId); // Cargar todas las imágenes del premio seleccionado
             setOpen(true);
           }
         }}
@@ -195,15 +182,34 @@ const CRUDMarketplaceCompras = () => {
               <Typography variant="body1" sx={{ my: 1 }}>
                 <strong>Estado:</strong> {selectedCompra.estado}
               </Typography>
-              {imagenUrl && (
-                <div style={{ textAlign: "center", marginTop: 16 }}>
-                  <img
-                    src={imagenUrl}
-                    alt="Imagen del premio"
-                    style={{ maxHeight: 200, borderRadius: 8 }}
-                  />
-                </div>
+              {/* Mostrar galería de imágenes si hay imágenes */}
+              {imagenes && Array.isArray(imagenes) && imagenes.length > 0 && (
+                <Box sx={{ my: 2 }}>
+                  <ImageList sx={{ width: 500, height: 200 }} cols={3} rowHeight={120}>
+                    {imagenes.map((img, idx) => (
+                      <ImageListItem key={idx}>
+                        <img
+                          src={`data:image/jpeg;base64,${img.content}`}
+                          alt={`Premio imagen ${idx + 1}`}
+                          loading="lazy"
+                          style={{ objectFit: "contain", width: "100%", height: "100%", cursor: "pointer" }}
+                          onClick={() => {
+                            setSelectedImg(`data:image/jpeg;base64,${img.content}`);
+                            setDialogOpen(true);
+                          }}
+                        />
+                      </ImageListItem>
+                    ))}
+                  </ImageList>
+                </Box>
               )}
+              <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md">
+                <Box sx={{ p: 2, display: "flex", justifyContent: "center", alignItems: "center", bgcolor: "background.paper" }}>
+                  {selectedImg && (
+                    <img src={selectedImg} alt="Imagen grande" style={{ maxWidth: "80vw", maxHeight: "80vh" }} />
+                  )}
+                </Box>
+              </Dialog>
 
               <Divider sx={{ my: 2 }} />
               <Box sx={{ mt: 2 }}>
@@ -251,17 +257,6 @@ const CRUDMarketplaceCompras = () => {
           </Box>
         </DialogActions>
       </Dialog>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Container>
   );
 };

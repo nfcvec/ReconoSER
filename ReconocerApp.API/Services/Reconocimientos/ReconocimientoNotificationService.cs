@@ -29,6 +29,7 @@ public class ReconocimientoNotificationService : IReconocimientoNotificationServ
         Reconocimiento reconocimiento,
         string reconocedorNombre,
         string reconocidoNombre,
+        string reconocidoEmail,
         string reconocedorEmail)
     {
         try
@@ -45,6 +46,7 @@ public class ReconocimientoNotificationService : IReconocimientoNotificationServ
             {
                 ReconocedorNombre = reconocedorNombre,
                 ReconocidoNombre = reconocidoNombre,
+                ReconocidoEmail = reconocidoEmail,
                 FechaCreacion = DateTime.Now.ToString("dd/MM/yyyy HH:mm"),
                 ReconocimientoId = reconocimiento.ReconocimientoId
             };
@@ -85,7 +87,10 @@ public class ReconocimientoNotificationService : IReconocimientoNotificationServ
                 return;
             }
 
-            // Enviar correo al reconocedor
+            bool tieneComentario = !string.IsNullOrWhiteSpace(reviewRequest.ComentarioAprobacion);
+            string templateAprobado = tieneComentario ? "ReconocimientoAprobadoConComentario" : "ReconocimientoAprobadoSinComentario";
+
+            // Correo al reconocedor
             if (!string.IsNullOrEmpty(reconocedorEmail))
             {
                 var reconocedorModel = new
@@ -98,13 +103,13 @@ public class ReconocimientoNotificationService : IReconocimientoNotificationServ
                     FechaResolucion = reviewRequest.FechaResolucion.ToString("dd/MM/yyyy HH:mm"),
                     ReconocimientoId = reconocimiento.ReconocimientoId,
                     ComentarioAprobacion = reviewRequest.ComentarioAprobacion,
-                    EsReconocedor = true
+                    ReconocedorFrase = $"que enviaste a <strong>{reconocidoNombre}</strong>"
                 };
 
                 try
                 {
                     string reconocedorEmailContent = await _templateProvider.GetProcessedTemplateAsync(
-                        "ReconocimientoAprobado",
+                        templateAprobado,
                         reconocedorModel);
 
                     await _emailService.SendEmailAsync(
@@ -122,7 +127,7 @@ public class ReconocimientoNotificationService : IReconocimientoNotificationServ
                 }
             }
 
-            // Enviar correo al reconocido
+            // Correo al reconocido
             if (!string.IsNullOrEmpty(reconocidoEmail))
             {
                 var reconocidoModel = new
@@ -135,13 +140,13 @@ public class ReconocimientoNotificationService : IReconocimientoNotificationServ
                     FechaResolucion = reviewRequest.FechaResolucion.ToString("dd/MM/yyyy HH:mm"),
                     ReconocimientoId = reconocimiento.ReconocimientoId,
                     ComentarioAprobacion = reviewRequest.ComentarioAprobacion,
-                    EsReconocedor = false
+                    ReconocedorFrase = $"que recibiste de <strong>{reconocedorNombre}</strong>"
                 };
 
                 try
                 {
                     string reconocidoEmailContent = await _templateProvider.GetProcessedTemplateAsync(
-                        "ReconocimientoAprobado",
+                        templateAprobado,
                         reconocidoModel);
 
                     await _emailService.SendEmailAsync(
@@ -170,7 +175,8 @@ public class ReconocimientoNotificationService : IReconocimientoNotificationServ
         ReconocimientoReviewRequest reviewRequest,
         string reconocedorEmail,
         string reconocedorNombre,
-        string reconocidoNombre)
+        string reconocidoNombre,
+        string reconocidoEmail)
     {
         try
         {
@@ -181,17 +187,21 @@ public class ReconocimientoNotificationService : IReconocimientoNotificationServ
                 return;
             }
 
+            bool tieneComentario = !string.IsNullOrWhiteSpace(reviewRequest.ComentarioAprobacion);
+            string templateRechazo = tieneComentario ? "ReconocimientoRechazadoConComentario" : "ReconocimientoRechazadoSinComentario";
+
             var templateModel = new
             {
                 ReconocedorNombre = reconocedorNombre,
                 ReconocidoNombre = reconocidoNombre,
+                ReconocidoEmail = reconocidoEmail,
                 FechaResolucion = reviewRequest.FechaResolucion.ToString("dd/MM/yyyy HH:mm"),
                 ReconocimientoId = reconocimiento.ReconocimientoId,
                 ComentarioAprobacion = reviewRequest.ComentarioAprobacion
             };
 
             string emailContent = await _templateProvider.GetProcessedTemplateAsync(
-                "ReconocimientoRechazado",
+                templateRechazo,
                 templateModel);
 
             await _emailService.SendEmailAsync(

@@ -121,4 +121,74 @@ public class WalletService : IWalletService
         string descripcion = $"ULIs otorgados por reconocimiento #{reconocimiento.ReconocimientoId}";
         await ActualizarSaldoAsync(reconocimiento.ReconocidoId, totalULIs, descripcion, reconocimiento.ReconocimientoId);
     }
+
+    public async Task<WalletSaldo> RegistrarCompraMarketplaceAsync(string tokenColaborador, int costo, string descripcion, int compraId)
+    {
+        if (costo <= 0)
+        {
+            _logger.LogWarning($"Se intentó registrar una compra con costo {costo} para el usuario {tokenColaborador}, operación ignorada");
+            return await ObtenerOCrearWalletAsync(tokenColaborador);
+        }
+
+        var walletSaldo = await ObtenerOCrearWalletAsync(tokenColaborador);
+        // Buscar o crear categoría de compras marketplace
+        var categoria = await _context.WalletCategorias.FirstOrDefaultAsync(c => c.Nombre.ToLower().Contains("compra"));
+        if (categoria == null)
+        {
+            categoria = new WalletCategoria { Nombre = "Compras Marketplace", Descripcion = "Descuento por compras de premios" };
+            _context.WalletCategorias.Add(categoria);
+            await _context.SaveChangesAsync();
+        }
+
+        var transaccion = new WalletTransaccion
+        {
+            WalletSaldoId = walletSaldo.WalletSaldoId,
+            TokenColaborador = tokenColaborador,
+            CategoriaId = categoria.CategoriaId,
+            Cantidad = -costo, // Descontar
+            Descripcion = descripcion,
+            Fecha = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
+        };
+        _context.WalletTransacciones.Add(transaccion);
+        // Calcular saldo total
+        var totalSaldo = await _context.WalletTransacciones.Where(wt => wt.TokenColaborador == tokenColaborador).SumAsync(wt => wt.Cantidad) - costo;
+        walletSaldo.SaldoActual = totalSaldo;
+        _context.WalletSaldos.Update(walletSaldo);
+        await _context.SaveChangesAsync();
+        return walletSaldo;
+    }
+
+    public async Task<WalletSaldo> ReponerSaldoPorRechazoCompraAsync(string tokenColaborador, int costo, string descripcion, int compraId)
+    {
+        if (costo <= 0)
+        {
+            _logger.LogWarning($"Se intentó reponer una compra con costo {costo} para el usuario {tokenColaborador}, operación ignorada");
+            return await ObtenerOCrearWalletAsync(tokenColaborador);
+        }
+        var walletSaldo = await ObtenerOCrearWalletAsync(tokenColaborador);
+        // Buscar o crear categoría de reposición
+        var categoria = await _context.WalletCategorias.FirstOrDefaultAsync(c => c.Nombre.ToLower().Contains("reposición"));
+        if (categoria == null)
+        {
+            categoria = new WalletCategoria { Nombre = "Reposición Marketplace", Descripcion = "Reposición por compra rechazada" };
+            _context.WalletCategorias.Add(categoria);
+            await _context.SaveChangesAsync();
+        }
+        var transaccion = new WalletTransaccion
+        {
+            WalletSaldoId = walletSaldo.WalletSaldoId,
+            TokenColaborador = tokenColaborador,
+            CategoriaId = categoria.CategoriaId,
+            Cantidad = costo, // Reponer
+            Descripcion = descripcion,
+            Fecha = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
+        };
+        _context.WalletTransacciones.Add(transaccion);
+        // Calcular saldo total
+        var totalSaldo = await _context.WalletTransacciones.Where(wt => wt.TokenColaborador == tokenColaborador).SumAsync(wt => wt.Cantidad) + costo;
+        walletSaldo.SaldoActual = totalSaldo;
+        _context.WalletSaldos.Update(walletSaldo);
+        await _context.SaveChangesAsync();
+        return walletSaldo;
+    }
 }

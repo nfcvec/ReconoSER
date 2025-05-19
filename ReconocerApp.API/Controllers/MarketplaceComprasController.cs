@@ -8,6 +8,8 @@ using System.Text.Json;
 using ReconocerApp.API.Models.Filters;
 using ReconocerApp.API.Services.Filtering;
 using System.Linq.Dynamic.Core;
+using ReconocerApp.API.Services.Reconocimientos;
+using ReconocerApp.API.Services.Graph;
 
 namespace ReconocerApp.API.Controllers;
 
@@ -19,13 +21,19 @@ public class MarketplaceComprasController : ControllerBase
     protected readonly IMapper _mapper;
     protected readonly DbSet<MarketplaceCompra> _dbSet;
     protected readonly IDynamicFilterService _filterService;
+    private readonly IWalletService _walletService;
+    private readonly IGraphService _graphService;
+    private readonly IMarketplaceCompraNotificationService _notificationService;
 
-    public MarketplaceComprasController(ApplicationDbContext context, IMapper mapper, IDynamicFilterService filterService)
+    public MarketplaceComprasController(ApplicationDbContext context, IMapper mapper, IDynamicFilterService filterService, IWalletService walletService, IGraphService graphService, IMarketplaceCompraNotificationService notificationService)
     {
         _context = context;
         _mapper = mapper;
         _dbSet = _context.Set<MarketplaceCompra>();
         _filterService = filterService;
+        _walletService = walletService;
+        _graphService = graphService;
+        _notificationService = notificationService;
     }
 
     [HttpGet]
@@ -87,10 +95,8 @@ public class MarketplaceComprasController : ControllerBase
     {
         if (entity.FechaCompra.HasValue)
             entity.FechaCompra = DateTime.SpecifyKind(entity.FechaCompra.Value, DateTimeKind.Utc);
-        
         if (entity.FechaResolucion.HasValue)
             entity.FechaResolucion = DateTime.SpecifyKind(entity.FechaResolucion.Value, DateTimeKind.Utc);
-
         foreach (var entry in _context.Entry(entity).References)
         {
             if (entry.TargetEntry != null)
@@ -98,9 +104,22 @@ public class MarketplaceComprasController : ControllerBase
                 entry.TargetEntry.State = EntityState.Unchanged;
             }
         }
-
         _dbSet.Add(entity);
         await _context.SaveChangesAsync();
+        // Descontar saldo al crear la compra
+        var premio = await _context.MarketplacePremios.FirstOrDefaultAsync(p => p.PremioId == entity.PremioId);
+        if (premio != null && !string.IsNullOrEmpty(entity.TokenColaborador))
+        {
+            string descripcion = $"Compra de premio #{premio.PremioId}: {premio.Nombre}";
+            await _walletService.RegistrarCompraMarketplaceAsync(entity.TokenColaborador, premio.CostoWallet, descripcion, entity.CompraId);
+
+            // Obtener datos del colaborador desde Graph
+            var colaboradorInfo = await _graphService.GetUserInfoAsync(entity.TokenColaborador);
+            var colaboradorNombre = colaboradorInfo?.DisplayName ?? "Colaborador";
+            var colaboradorEmail = colaboradorInfo?.Email ?? string.Empty;
+            // Notificar por email
+            await _notificationService.EnviarNotificacionCreacionAsync(entity, colaboradorNombre, colaboradorEmail, premio.Nombre);
+        }
         return Ok(_mapper.Map<MarketplaceCompraResponse>(entity));
     }
 
@@ -109,7 +128,6 @@ public class MarketplaceComprasController : ControllerBase
     {
         if (entity.FechaCompra.HasValue)
             entity.FechaCompra = DateTime.SpecifyKind(entity.FechaCompra.Value, DateTimeKind.Utc);
-        
         if (entity.FechaResolucion.HasValue)
             entity.FechaResolucion = DateTime.SpecifyKind(entity.FechaResolucion.Value, DateTimeKind.Utc);
 
@@ -141,39 +159,45 @@ public class MarketplaceComprasController : ControllerBase
     public async Task<IActionResult> Review([FromRoute] int compraId, [FromBody] CompraReviewRequest request)
     {
         var aprobar = request.Aprobar;
-
         var item = await _dbSet.FindAsync(compraId);
         if (item == null) return NotFound();
-
-        var premio = await _context.MarketplacePremios
-            .FirstOrDefaultAsync(p => p.PremioId == item.PremioId);
-
+        var premio = await _context.MarketplacePremios.FirstOrDefaultAsync(p => p.PremioId == item.PremioId);
         if (premio == null) return NotFound("El premio asociado a la compra no existe.");
-
         if (request.Aprobar)
         {
             item.Estado = "aprobado";
         }
         else
         {
-            var walletSaldo = await _context.WalletSaldos
-                .FirstOrDefaultAsync(ws => ws.TokenColaborador == item.TokenColaborador);
-
-            if (walletSaldo != null)
+            // Reponer saldo si se rechaza
+            if (!string.IsNullOrEmpty(item.TokenColaborador))
             {
-                walletSaldo.SaldoActual += premio.CostoWallet;
-                _context.WalletSaldos.Update(walletSaldo);
+                string descripcion = $"Reposición por rechazo de compra #{item.CompraId} de premio {premio.Nombre}";
+                await _walletService.ReponerSaldoPorRechazoCompraAsync(item.TokenColaborador, premio.CostoWallet, descripcion, item.CompraId);
             }
-
             item.Estado = "rechazado";
         }
         item.ComentarioRevision = request.ComentarioRevision;
         item.AprobadorId = request.AprobadorId;
-
         item.FechaResolucion = DateTime.UtcNow;
-
         _context.Entry(item).State = EntityState.Modified;
         await _context.SaveChangesAsync();
+
+        // Notificación por email usando datos de Graph
+        if (!string.IsNullOrEmpty(item.TokenColaborador))
+        {
+            var colaboradorInfo = await _graphService.GetUserInfoAsync(item.TokenColaborador);
+            var colaboradorNombre = colaboradorInfo?.DisplayName ?? "Colaborador";
+            var colaboradorEmail = colaboradorInfo?.Email ?? string.Empty;
+            if (request.Aprobar)
+            {
+                await _notificationService.EnviarNotificacionAprobacionAsync(item, colaboradorNombre, colaboradorEmail, premio.Nombre, request.ComentarioRevision);
+            }
+            else
+            {
+                await _notificationService.EnviarNotificacionRechazoAsync(item, colaboradorNombre, colaboradorEmail, premio.Nombre, request.ComentarioRevision);
+            }
+        }
         return NoContent();
     }
 }

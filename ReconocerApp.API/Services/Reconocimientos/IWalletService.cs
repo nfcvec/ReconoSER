@@ -9,4 +9,7 @@ public interface IWalletService
     Task<WalletSaldo> ActualizarSaldoAsync(string tokenColaborador, int cantidadULIs, string descripcion, int? reconocimientoId = null);
     
     Task GenerarULIsParaReconocimientoAsync(Reconocimiento reconocimiento);
+
+    Task<WalletSaldo> RegistrarCompraMarketplaceAsync(string tokenColaborador, int costo, string descripcion, int compraId);
+    Task<WalletSaldo> ReponerSaldoPorRechazoCompraAsync(string tokenColaborador, int costo, string descripcion, int compraId);
 }

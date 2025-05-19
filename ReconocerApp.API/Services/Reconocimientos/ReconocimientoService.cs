@@ -201,6 +201,7 @@ public class ReconocimientoService : IReconocimientoService
                     result,
                     reconocedorNombre,
                     reconocidoNombre,
+                    reconocidoEmail,
                     reconocedorEmail
                 );
             }
@@ -308,7 +309,8 @@ public class ReconocimientoService : IReconocimientoService
                     reviewRequest,
                     reconocedorEmail,
                     reconocedorNombre,
-                    reconocidoNombre
+                    reconocidoNombre,
+                    reconocidoEmail
                 );
             }
         }

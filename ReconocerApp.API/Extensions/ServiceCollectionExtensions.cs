@@ -47,6 +47,7 @@ namespace ReconocerApp.API.Extensions
             services.AddScoped<IReconocimientoService, ReconocimientoService>();
             services.AddScoped<IWalletService, WalletService>();
             services.AddScoped<IReconocimientoNotificationService, ReconocimientoNotificationService>();
+            services.AddScoped<IMarketplaceCompraNotificationService, MarketplaceCompraNotificationService>();
 
             // Minio service
             services.AddScoped<MinioService>();
