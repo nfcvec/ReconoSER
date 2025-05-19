@@ -150,5 +150,62 @@ namespace ReconocerApp.API.Controllers
             var response = _mapper.Map<WalletSaldoResponse>(entity);
             return Ok(response);
         }
+
+        public class RecargaBonoRequest
+        {
+            public string ColaboradorId { get; set; } = string.Empty;
+            public int Monto { get; set; }
+        }
+
+        [HttpPost("recargar-bono")]
+        public async Task<ActionResult<WalletSaldoResponse>> RecargarBono([FromBody] RecargaBonoRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.ColaboradorId) || request.Monto <= 0)
+            {
+                return BadRequest("Datos inválidos para recarga de bono.");
+            }
+
+            // Buscar o crear la categoría "Bono"
+            var categoria = await _context.WalletCategorias.FirstOrDefaultAsync(c => c.Nombre.ToLower().Contains("bono"));
+            if (categoria == null)
+            {
+                categoria = new WalletCategoria { Nombre = "Bono", Descripcion = "Recarga por bono" };
+                _context.WalletCategorias.Add(categoria);
+                await _context.SaveChangesAsync();
+            }
+
+            // Buscar o crear el saldo
+            var walletSaldo = await _context.WalletSaldos.FirstOrDefaultAsync(ws => ws.TokenColaborador == request.ColaboradorId);
+            if (walletSaldo == null)
+            {
+                walletSaldo = new WalletSaldo { TokenColaborador = request.ColaboradorId, SaldoActual = 0 };
+                _context.WalletSaldos.Add(walletSaldo);
+                await _context.SaveChangesAsync();
+            }
+
+            // Crear la transacción
+            var transaccion = new WalletTransaccion
+            {
+                WalletSaldoId = walletSaldo.WalletSaldoId,
+                TokenColaborador = request.ColaboradorId,
+                CategoriaId = categoria.CategoriaId,
+                Cantidad = request.Monto,
+                Descripcion = $"Recarga de bono por {request.Monto}",
+                Fecha = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
+            };
+            _context.WalletTransacciones.Add(transaccion);
+            await _context.SaveChangesAsync();
+
+            // Sumar todas las transacciones para actualizar el saldo
+            var totalSaldo = await _context.WalletTransacciones
+                .Where(wt => wt.TokenColaborador == request.ColaboradorId)
+                .SumAsync(wt => wt.Cantidad);
+            walletSaldo.SaldoActual = totalSaldo;
+            _context.WalletSaldos.Update(walletSaldo);
+            await _context.SaveChangesAsync();
+
+            var response = _mapper.Map<WalletSaldoResponse>(walletSaldo);
+            return Ok(response);
+        }
     }
 }

@@ -64,3 +64,17 @@ export const getUserWallet = async () => {
         throw error; // Lanza el error para manejarlo en el componente
     }
 }
+
+// Función para otorgar un bono a un colaborador
+export const otorgarBono = async (colaboradorId, monto) => {
+    try {
+        const response = await api.post("/WalletSaldos/recargar-bono", {
+            colaboradorId,
+            monto
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error al otorgar el bono:", error.message);
+        throw error;
+    }
+};

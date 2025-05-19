@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Button, Box, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import { Button, Box, Typography, Dialog, DialogTitle, DialogContent, DialogActions, IconButton } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import CertificadoComponent from "./certificadoComponent";
 import { getCertificados } from "../../utils/services/certificado";
 import { getColaboradoresFromBatchIds } from "../../utils/services/colaboradores";
 import html2canvas from 'html2canvas';
 import { useMsal } from "@azure/msal-react";
+import CloseIcon from '@mui/icons-material/Close';
+import DownloadIcon from '@mui/icons-material/Download';
+import ShareIcon from '@mui/icons-material/Share';
 
 export default function Certificados() {
   const {instance} = useMsal();
@@ -28,7 +31,7 @@ export default function Certificados() {
 
   const isWebShareSupported = typeof navigator !== 'undefined' && !!navigator.canShare && !!navigator.share;
 
-  const handleShareOrDownload = async () => {
+  const handleDownload = async () => {
     if (certificadoRef.current) {
       try {
         const canvas = await html2canvas(certificadoRef.current, {
@@ -37,8 +40,32 @@ export default function Certificados() {
           logging: false,
           backgroundColor: "#ffffff"
         });
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const link = document.createElement('a');
+            link.download = `certificado-${selectedCertificado.reconocimientoId}.png`;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            URL.revokeObjectURL(link.href);
+          }
+        }, 'image/png');
+      } catch (error) {
+        console.error("Error al exportar el certificado:", error);
+      }
+    }
+  };
+
+  const handleShare = async () => {
+    if (certificadoRef.current && isWebShareSupported) {
+      try {
+        const canvas = await html2canvas(certificadoRef.current, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: "#ffffff"
+        });
         canvas.toBlob(async (blob) => {
-          if (isWebShareSupported && blob && navigator.canShare({ files: [new File([blob], `certificado-${selectedCertificado.reconocimientoId}.png`, { type: 'image/png' })] })) {
+          if (blob && navigator.canShare({ files: [new File([blob], `certificado-${selectedCertificado.reconocimientoId}.png`, { type: 'image/png' })] })) {
             const file = new File([blob], `certificado-${selectedCertificado.reconocimientoId}.png`, { type: 'image/png' });
             try {
               await navigator.share({
@@ -49,17 +76,10 @@ export default function Certificados() {
             } catch (err) {
               // Si el usuario cancela o hay error, no hacer nada
             }
-          } else {
-            // Fallback: descarga
-            const link = document.createElement('a');
-            link.download = `certificado-${selectedCertificado.reconocimientoId}.png`;
-            link.href = URL.createObjectURL(blob);
-            link.click();
-            URL.revokeObjectURL(link.href);
           }
         }, 'image/png');
       } catch (error) {
-        console.error("Error al exportar el certificado:", error);
+        console.error("Error al compartir el certificado:", error);
       }
     }
   };
@@ -170,8 +190,11 @@ export default function Certificados() {
       >
         {selectedCertificado && (
           <>
-            <DialogTitle>
+            <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pr: 1 }}>
               Certificado de Reconocimiento
+              <IconButton aria-label="close" onClick={handleClose} size="large">
+                <CloseIcon />
+              </IconButton>
             </DialogTitle>
             <DialogContent sx={{ 
               overflow: 'auto',
@@ -202,19 +225,14 @@ export default function Certificados() {
               </Box>
             </DialogContent>
             <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
-              <Button 
-                variant="contained" 
-                color="success" 
-                onClick={handleShareOrDownload}
-              >
-                Compartir
-              </Button>
-              <Button
-                variant="contained"
-                onClick={handleClose}
-              >
-                Cerrar
-              </Button>
+              <IconButton color="primary" onClick={handleDownload} aria-label="descargar">
+                <DownloadIcon />
+              </IconButton>
+              {isWebShareSupported && (
+                <IconButton color="success" onClick={handleShare} aria-label="compartir">
+                  <ShareIcon />
+                </IconButton>
+              )}
             </DialogActions>
           </>
         )}
