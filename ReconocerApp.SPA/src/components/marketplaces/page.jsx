@@ -64,7 +64,7 @@ export default function Marketplace() {
     };
 
     fetchData();
-  }, []);
+  }, [instance]);
 
   useEffect(() => {
     console.log('[Marketplace] useEffect filtro ejecutado', { prizes, priceRange, searchTerm });
@@ -161,7 +161,7 @@ export default function Marketplace() {
 
       <Grid container spacing={4} justifyContent="center">
         {currentPrizes.map((premio) => (
-          <Grid item key={premio.premioId}>
+          <Grid key={premio.premioId}>
             <PremiosComponent
               premio={premio}
             />
