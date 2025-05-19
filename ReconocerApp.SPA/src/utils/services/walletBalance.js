@@ -54,17 +54,13 @@ export const updateWallet = async (id, data) => {
     }
 }
 
-export const getUserWallet = async (token) => {
+// Elimina el parámetro token, ya no es necesario
+export const getUserWallet = async () => {
     try {
-        const response = await api.get(`/WalletSaldos/by-user`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        });
+        const response = await api.get(`/WalletSaldos/by-user`);
         return response.data; // Devuelve los datos de la respuesta
-    }
-    catch (error) {
-        console.error('Error al obtener la billetera del usuario:', error.message);
+    } catch (error) {
+        console.error("Error al obtener el wallet del usuario:", error.message);
         throw error; // Lanza el error para manejarlo en el componente
     }
 }

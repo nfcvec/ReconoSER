@@ -22,8 +22,8 @@ import { useMsal } from "@azure/msal-react";
 import { useOrganizacion } from "../contexts/OrganizacionContext";
 
 export default function Home() {
-  const { accounts } = useMsal();
-  const user = accounts[0];
+  const { instance } = useMsal();
+  const user = instance.getActiveAccount();
   const { organizacion } = useOrganizacion();
 
   const cardItems = [

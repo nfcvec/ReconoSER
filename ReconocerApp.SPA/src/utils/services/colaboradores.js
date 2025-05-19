@@ -1,29 +1,16 @@
-import axios from 'axios';
-import { useMsal } from '@azure/msal-react';
+import api from '../api';
 
-export const getColaboradores = async (searchTerm, instance, accounts) => {
-  const response = await instance.acquireTokenSilent({
-    account: accounts[0],
-    scopes: ["User.Read.All"],
-  });
-  const accessToken = response.accessToken; // Obtiene el token de acceso
-  if (!accessToken) {
-    throw new Error("No se pudo obtener el token de acceso.");
-  }
+export const getColaboradores = async (searchTerm) => {
   let url = `https://graph.microsoft.com/v1.0/users`;
   const headers = {
-    Authorization: `Bearer ${accessToken}`, // Token de acceso
     'Content-Type': 'application/json',
   };
-
-
   if (searchTerm) {
     url += `?$search="displayName:${searchTerm}" OR "mail:${searchTerm}" OR "userPrincipalName:${searchTerm}"`;
-    headers['ConsistencyLevel'] = 'eventual'; // Para búsquedas
+    headers['ConsistencyLevel'] = 'eventual';
   }
-
   try {
-    const response = await axios.get(url, { headers });
+    const response = await api.get(url, { headers });
     if (response.data && response.data.value) {
       return response.data.value;
     }
@@ -40,26 +27,14 @@ export const getColaboradores = async (searchTerm, instance, accounts) => {
   }
 };
 
-export const getColaboradoresFromBatchIds = async (ids, instance, accounts) => {
-  const response = await instance.acquireTokenSilent({
-    account: accounts[0],
-    scopes: ["User.Read.All"],
-  });
-  const accessToken = response.accessToken; // Obtiene el token de acceso
-  if (!accessToken) {
-    throw new Error("No se pudo obtener el token de acceso.");
-  }
-
+export const getColaboradoresFromBatchIds = async (ids) => {
   const headers = {
-    Authorization: `Bearer ${accessToken}`, // Token de acceso
     'Content-Type': 'application/json',
   };
-
   const chunkedIds = [];
   for (let i = 0; i < ids.length; i += 20) {
     chunkedIds.push(ids.slice(i, i + 20));
   }
-
   const results = [];
   for (const chunk of chunkedIds) {
     const batchRequests = chunk.map((id, index) => ({
@@ -70,9 +45,8 @@ export const getColaboradoresFromBatchIds = async (ids, instance, accounts) => {
     const body = {
       requests: batchRequests,
     };
-
     try {
-      const response = await axios.post(
+      const response = await api.post(
         `https://graph.microsoft.com/v1.0/$batch`,
         body,
         { headers }
@@ -85,6 +59,5 @@ export const getColaboradoresFromBatchIds = async (ids, instance, accounts) => {
       throw error;
     }
   }
-
   return results;
 };

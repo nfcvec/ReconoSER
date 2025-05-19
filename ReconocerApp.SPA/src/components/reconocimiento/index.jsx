@@ -1,4 +1,4 @@
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Button,
@@ -13,18 +13,17 @@ import {
   Paper,
   Autocomplete,
 } from "@mui/material";
-import { getOrganizaciones, getUserOrganizacion } from "../../utils/services/organizaciones";
+import { getUserOrganizacion } from "../../utils/services/organizaciones";
 import { getComportamientos } from "../../utils/services/comportamientos";
 import { getColaboradores } from "../../utils/services/colaboradores";
-import { useMsal } from "@azure/msal-react";
 import ConfirmacionReconocimiento from "./ConfirmacionReconocimiento";
 import { useOrganizacion } from "../../contexts/OrganizacionContext";
 import { useAlert } from "../../contexts/AlertContext";
 import { useLoading } from "../../contexts/LoadingContext";
+import { useMsal } from "@azure/msal-react";
 
 export default function Reconocimiento() {
   const navigate = useNavigate();
-  const { instance, accounts } = useMsal(); // Asegúrate de que useMsal esté definido y configurado correctamente
   const [collaborators, setCollaborators] = useState([]); // Estado para colaboradores
   const [comportamientos, setComportamientos] = useState([]); // Estado para comportamientos
   const [Reconocido, setSelectedCollaborator] = useState(null);
@@ -34,39 +33,20 @@ export default function Reconocimiento() {
   const [step, setStep] = useState("form"); // "form" | "confirm"
   const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
   const { organizacion } = useOrganizacion();
+  const {instance} = useMsal();
   const showAlert = useAlert();
   const { showLoading, hideLoading } = useLoading();
-
-  // Cargar organizaiones desde la API
-  useEffect(() => {
-    // Llama a la API para obtener las organizaciones
-    const fetchOrganizaciones = async () => {
-      try {
-        const organizaciones = await getOrganizaciones();
-        console.log("Organizaciones:", organizaciones); // Muestra las organizaciones en la consola
-      } catch (error) {
-        console.error("Error al obtener las organizaciones:", error.message);
-      }
-    };
-
-    fetchOrganizaciones();
-  }, []);
 
   // Cargar colaboradores desde la API
   useEffect(() => {
     const fetchColaboradores = async () => {
       try {
-        const account = instance.getActiveAccount();
-        if (!account) {
-          console.error("No active account! Please log in.");
-          return;
-        }
 
-        let colaboradores = await getColaboradores(searchTerm, instance, accounts); // Llama a la API
+        let colaboradores = await getColaboradores(searchTerm); // Llama a la API
         console.log("Colaboradores obtenidos:", colaboradores);
 
         // Obtener el correo del usuario que inició sesión
-        const oid = account.idTokenClaims.oid;
+        const oid = instance.getActiveAccount().idTokenClaims.oid;
 
         // Filtrar los colaboradores para excluir al usuario que inició sesión
         colaboradores = colaboradores.filter(
@@ -81,27 +61,16 @@ export default function Reconocimiento() {
     };
 
     fetchColaboradores();
-  }, [instance, searchTerm]); // Agrega searchTerm como dependencia
+  }, [searchTerm]); // Agrega searchTerm como dependencia
 
   // Cargar comportamientos desde la API
   useEffect(() => {
     if (!Reconocido || !Reconocido.id) return;
-    const activeAccount = instance.getActiveAccount();
     const fetchComportamientosConOrganizacion = async () => {
       showLoading("Cargando comportamientos...");
       setComportamientos([]); // Limpiar comportamientos antes de la consulta
       try {
-        const tokenResponse = await instance.acquireTokenSilent({
-          scopes: ['openid email profile User.Read.All'],
-          account: activeAccount,
-        });
-        const token = tokenResponse.accessToken;
-        if (!token) {
-          showAlert('No se pudo obtener el token de acceso', 'error');
-          hideLoading();
-          return;
-        }
-        const organizacionColaborador = await getUserOrganizacion(token, Reconocido.id);
+        const organizacionColaborador = await getUserOrganizacion(Reconocido.id);
 
         if (!organizacionColaborador?.organizacionId) {
           showAlert('La organización del colaborador aún no está implementada. Selecciona otro colaborador.', 'warning');
@@ -133,7 +102,7 @@ export default function Reconocimiento() {
     };
 
     fetchComportamientosConOrganizacion();
-  }, [Reconocido, instance]);
+  }, [Reconocido]);
 
   const handleValueChange = (event, value) => {
     const checked = event.target.checked;

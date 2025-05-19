@@ -27,17 +27,7 @@ export const OrganizacionProvider = ({ children }) => {
                     hideLoading();
                     return;
                 }
-                const tokenResponse = await instance.acquireTokenSilent({
-                    scopes: ['openid email profile User.Read.All'],
-                    account: instance.getActiveAccount(),
-                });
-                const token = tokenResponse.accessToken;
-                if (!token) {
-                    showAlert('No se pudo obtener el token de acceso', 'error');
-                    hideLoading();
-                    return;
-                }
-                const data = await getUserOrganizacion(token);
+                const data = await getUserOrganizacion();
                 setOrganizacion(data);
             } catch (error) {
                 showAlert('Error al obtener la organización: ' + error.message, 'error');

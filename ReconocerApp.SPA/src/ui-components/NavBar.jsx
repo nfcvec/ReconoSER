@@ -10,8 +10,8 @@ import { useMsal } from "@azure/msal-react";
 import { useTheme } from '../contexts/ThemeContext';
 
 const NavBar = () => {
-  const { accounts } = useMsal();
-  const user = accounts[0];
+  const { instance } = useMsal();
+  const user = instance.getActiveAccount();
   const oid = user?.idTokenClaims?.oid; // Calculamos el OID aquí
   const { darkMode, toggleTheme } = useTheme(); // Acceder al contexto de tema
 

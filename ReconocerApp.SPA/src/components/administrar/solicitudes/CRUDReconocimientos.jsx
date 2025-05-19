@@ -22,8 +22,6 @@ import {
   TextField,
   Switch,
   FormControlLabel,
-  Snackbar,
-  Alert,
   CircularProgress,
 } from "@mui/material";
 import {
@@ -32,7 +30,8 @@ import {
 } from "../../../utils/services/reconocimientos";
 import { getColaboradoresFromBatchIds } from "../../../utils/services/colaboradores";
 import { useMsal } from "@azure/msal-react";
-import { getComportamientos } from "../../../utils/services/comportamientos";
+import { useLoading } from "../../../contexts/LoadingContext";
+import { useAlert } from "../../../contexts/AlertContext";
 
 const CRUDReconocimientos = () => {
   const [reconocimientos, setReconocimientos] = useState([]);
@@ -42,13 +41,9 @@ const CRUDReconocimientos = () => {
   const [comentarioAprobacion, setComentarioAprobacion] = useState("");
   const [generaULIS, setGeneraULIs] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: '',
-    severity: 'success',
-  });
-
-  const { instance, accounts } = useMsal();
+  const { instance } = useMsal();
+  const { showLoading, hideLoading } = useLoading();
+  const showAlert = useAlert();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -81,7 +76,7 @@ const CRUDReconocimientos = () => {
         ids = [...ids, ...reconocimientos.map((rec) => rec.reconocidoId)];
         // distinct ids
         ids = [...new Set(ids)];
-        const users = await getColaboradoresFromBatchIds(ids, instance, accounts);
+        const users = await getColaboradoresFromBatchIds(ids);
         setColaboradores(users);
       } catch (error) {
         console.error("Error al obtener colaboradores:", error);
@@ -97,48 +92,28 @@ const CRUDReconocimientos = () => {
   };
 
   const handleReview = async (action) => {
+    showLoading(action === "aprobado" ? "Aprobando reconocimiento..." : "Rechazando reconocimiento...");
     setIsLoading(true);
     try {
       const payload = {
         aprobar: action === "aprobado",
         comentarioAprobacion,
-        aprobadorId: accounts[0]?.homeAccountId,
+        aprobadorId: instance.getActiveAccount()?.homeAccountId,
         generarULIs: generaULIS
       }
-      reviewReconocimiento(selectedReconocimiento.reconocimientoId, payload)
-        .then((response) => {
-          setSnackbar({
-            open: true,
-            message: `Reconocimiento ${action === "aprobado" ? "aprobado" : "rechazado"} correctamente.`,
-            severity: "success",
-          });
-          setReconocimientos((prev) =>
-            prev.filter((rec) => rec.reconocimientoId !== selectedReconocimiento.reconocimientoId)
-          );
-          handleCloseDialog();
-        })
-        .catch((error) => {
-          console.error("Error al revisar el reconocimiento:", error);
-          setSnackbar({
-            open: true,
-            message: `Error al ${action === "aprobado" ? "aprobar" : "rechazar"} el reconocimiento.`,
-            severity: "error",
-          });
-        })
+      await reviewReconocimiento(selectedReconocimiento.reconocimientoId, payload);
+      showAlert(`Reconocimiento ${action === "aprobado" ? "aprobado" : "rechazado"} correctamente.`, "success");
+      setReconocimientos((prev) =>
+        prev.filter((rec) => rec.reconocimientoId !== selectedReconocimiento.reconocimientoId)
+      );
+      handleCloseDialog();
     } catch (error) {
       console.error("Error al revisar el reconocimiento:", error);
-      setSnackbar({
-        open: true,
-        message: `Error al ${action === "accept" ? "aceptar" : "rechazar"} el reconocimiento.`,
-        severity: "error",
-      });
+      showAlert(`Error al ${action === "aprobado" ? "aprobar" : "rechazar"} el reconocimiento.`, "error");
     } finally {
       setIsLoading(false);
+      hideLoading();
     }
-  };
-
-  const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
   };
 
   const columns = [
@@ -319,17 +294,6 @@ const CRUDReconocimientos = () => {
           </Box>
         </DialogActions>
       </Dialog>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
     </Container>
   );
 };

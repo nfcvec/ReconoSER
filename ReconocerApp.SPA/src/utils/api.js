@@ -1,7 +1,23 @@
 import axios from 'axios';
+import { getAccessToken } from './getAccessToken';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL, // URL base de la API
+});
+
+api.interceptors.request.use(async (config) => {
+  console.log('[API] Interceptor ejecutado para', config.url);
+  try {
+    const token = await getAccessToken();
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${token}`;
+    console.log('[API] Token agregado al request');
+  } catch (e) {
+    // Si no hay usuario activo, no realiza la consulta y notifica
+    console.log('[API] No hay usuario activo, la consulta no se realizará');
+    return Promise.reject(new Error('No hay usuario activo, la consulta no se realizará'));
+  }
+  return config;
 });
 
 // Función para verificar la conexión con la API

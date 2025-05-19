@@ -4,8 +4,8 @@ import { useMsal } from "@azure/msal-react";
 import { useLoading } from "../../contexts/LoadingContext";
 
 export default function ConfirmacionReconocimiento({ data, onConfirm, onBack }) {
-  const {accounts} = useMsal();
-  const user = accounts[0];
+  const { instance } = useMsal();
+  const user = instance.getActiveAccount();
   const { Reconocido, Comportamientos, Justificacion, Texto } = data;
   const { showLoading, hideLoading } = useLoading(); // Corrected function names
 

@@ -13,7 +13,7 @@ const SelectorWalletSaldos = ({ onSelect, multiple = false }) => {
   const [colaboradores, setColaboradores] = useState({});
   const [organizacionId, setOrganizacionId] = useState(null);
   const [loading, setLoading] = useState(false);
-  const { instance, accounts } = useMsal();
+  const { accounts } = useMsal(); // Solo accounts si es necesario para el dominio
   const showAlert = useAlert();
 
   const fetchOrganizacionId = useCallback(async () => {
@@ -53,9 +53,9 @@ const SelectorWalletSaldos = ({ onSelect, multiple = false }) => {
   const fetchColaboradores = useCallback(async () => {
     const ids = walletSaldos.map((item) => item.tokenColaborador);
     const uniqueIds = [...new Set(ids)];
-    const users = await getColaboradoresFromBatchIds(uniqueIds, instance, accounts);
+    const users = await getColaboradoresFromBatchIds(uniqueIds);
     setColaboradores(users);
-  }, [instance, accounts]);
+  }, [walletSaldos]);
 
   useEffect(() => {
     fetchOrganizacionId();

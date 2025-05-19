@@ -4,13 +4,13 @@ import { Button, Box, Typography, Dialog, DialogTitle, DialogContent, DialogActi
 import { DataGrid } from "@mui/x-data-grid";
 import CertificadoComponent from "./certificadoComponent";
 import { getCertificados } from "../../utils/services/certificado";
-import { useMsal } from "@azure/msal-react";
 import { getColaboradoresFromBatchIds } from "../../utils/services/colaboradores";
 import html2canvas from 'html2canvas';
+import { useMsal } from "@azure/msal-react";
 
 export default function Certificados() {
-  const { instance, accounts } = useMsal();
-  const user = accounts[0];
+  const {instance} = useMsal();
+  const user = instance.getActiveAccount();
   const oid = user?.idTokenClaims?.oid;
 
   const [certificates, setCertificados] = useState([]);
@@ -85,9 +85,8 @@ export default function Certificados() {
       ids = [...new Set([...reconocedores, ...reconocidos])];
     }
     const uniqueIds = [...new Set(ids)];
-
     try {
-      const users = await getColaboradoresFromBatchIds(uniqueIds, instance, accounts);
+      const users = await getColaboradoresFromBatchIds(uniqueIds);
       setColaboradores(users);
     }
     catch (error) {
@@ -99,7 +98,7 @@ export default function Certificados() {
     if (certificates.length > 0) {
       fetchColaboradores();
     }
-  }, [certificates, instance, accounts]);
+  }, [certificates]);
 
   const columns = [
     { 

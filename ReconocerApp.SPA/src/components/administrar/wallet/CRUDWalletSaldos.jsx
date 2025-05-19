@@ -3,7 +3,6 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Box, Container, Typography } from "@mui/material";
 import { getWalletBalance } from "../../../utils/services/walletBalance";
 import { getColaboradoresFromBatchIds } from "../../../utils/services/colaboradores";
-import { useMsal } from "@azure/msal-react";
 import { getOrganizaciones } from "../../../utils/services/organizaciones";
 
 const CRUDWalletSaldos = () => {
@@ -11,8 +10,6 @@ const CRUDWalletSaldos = () => {
     const [colaboradores, setColaboradores] = useState([]);
     const [organizacionId, setOrganizacionId] = useState(null);
     const [loading, setLoading] = useState(false);
-
-    const { instance, accounts } = useMsal();
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -32,12 +29,12 @@ const CRUDWalletSaldos = () => {
         try {
             const ids = walletSaldos.map((item) => item.tokenColaborador);
             const uniqueIds = [...new Set(ids)];
-            const users = await getColaboradoresFromBatchIds(uniqueIds, instance, accounts);
+            const users = await getColaboradoresFromBatchIds(uniqueIds);
             setColaboradores(users);
         } catch (error) {
             console.error("Error al obtener colaboradores:", error);
         }
-    }, [walletSaldos, instance, accounts]);
+    }, [walletSaldos]);
 
     useEffect(() => {
         fetchData();

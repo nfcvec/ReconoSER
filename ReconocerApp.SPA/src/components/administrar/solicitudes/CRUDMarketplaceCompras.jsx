@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   DataGrid,
 } from "@mui/x-data-grid";
@@ -21,7 +21,6 @@ import {
   revisarPremioCompra,
 } from "../../../utils/services/premiosCompra";
 import { getPremioImages } from "../../../utils/services/premios"; // Importar la función para obtener imágenes
-import { useMsal } from "@azure/msal-react";
 import { getColaboradoresFromBatchIds } from "../../../utils/services/colaboradores";
 import { useLoading } from "../../../contexts/LoadingContext";
 
@@ -33,7 +32,6 @@ const CRUDMarketplaceCompras = () => {
   const [open, setOpen] = useState(false);
   const [comentarioRevision, setComentarioRevision] = useState("");
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "" });
-  const { instance, accounts } = useMsal();
   const { showLoading, hideLoading } = useLoading();
 
   const handleReview = async (action) => {
@@ -44,7 +42,7 @@ const CRUDMarketplaceCompras = () => {
         payload: {
           aprobar: action === "aprobado",
           comentarioRevision: comentarioRevision,
-          aprobadorId: accounts[0]?.homeAccountId,
+          aprobadorId: instance.getActiveAccount()?.homeAccountId,
         }
       });
 
@@ -96,7 +94,7 @@ const CRUDMarketplaceCompras = () => {
   const fetchColaboradores = async () => {
     const ids = compras.map((compra) => compra.tokenColaborador);
     const uniqueIds = [...new Set(ids)];
-    const data = await getColaboradoresFromBatchIds(uniqueIds, instance, accounts);
+    const data = await getColaboradoresFromBatchIds(uniqueIds);
     setColaboradores(data);
   };
 

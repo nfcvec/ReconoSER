@@ -11,12 +11,10 @@ export const getOrganizaciones = async () => {
   }
 };
 
-export const getUserOrganizacion = async (token, oid=null) => {
+// Elimina el parámetro token, ya no es necesario
+export const getUserOrganizacion = async (oid = null) => {
   try {
     const response = await api.get(`/Organizaciones/by-user`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
       params: {
         oid: oid,
       },
