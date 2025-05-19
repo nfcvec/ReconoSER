@@ -1,4 +1,3 @@
-
 namespace ReconocerApp.API.Services.Notifications;
 
 public interface IEmailTemplateProvider
@@ -10,11 +9,13 @@ public class EmailTemplateProvider : IEmailTemplateProvider
 {
     private readonly string _templatePath;
     private readonly ILogger<EmailTemplateProvider> _logger;
+    private readonly IConfiguration _configuration;
 
-    public EmailTemplateProvider(IWebHostEnvironment environment, ILogger<EmailTemplateProvider> logger)
+    public EmailTemplateProvider(IWebHostEnvironment environment, ILogger<EmailTemplateProvider> logger, IConfiguration configuration)
     {
         _templatePath = Path.Combine(environment.ContentRootPath, "Templates", "Emails");
         _logger = logger;
+        _configuration = configuration;
     }
     
     public async Task<string> GetProcessedTemplateAsync(string templateName, object model)
@@ -33,8 +34,6 @@ public class EmailTemplateProvider : IEmailTemplateProvider
             string templateContent = await File.ReadAllTextAsync(templateFilePath);
             
             // Procesar la plantilla reemplazando variables
-            // Esto es una implementación simple. En producción podrías usar
-            // un motor de templates como Razor, Handlebars o Scriban
             if (model != null)
             {
                 foreach (var prop in model.GetType().GetProperties())
@@ -44,7 +43,18 @@ public class EmailTemplateProvider : IEmailTemplateProvider
                     templateContent = templateContent.Replace(placeholder, value);
                 }
             }
-            
+            // Agregar el link de la aplicación al final del contenido antes del cierre del body
+            var frontendUrl = _configuration["FrontendUrl"] ?? "http://localhost:5173";
+            string appLinkHtml = $"<div style='margin-top:30px;text-align:center;font-size:13px;color:#888;'>Accede a la aplicación aquí: <a href='{frontendUrl}'>{frontendUrl}</a></div>";
+            int bodyCloseIndex = templateContent.LastIndexOf("</body>", StringComparison.OrdinalIgnoreCase);
+            if (bodyCloseIndex >= 0)
+            {
+                templateContent = templateContent.Insert(bodyCloseIndex, appLinkHtml);
+            }
+            else
+            {
+                templateContent += appLinkHtml;
+            }
             return templateContent;
         }
         catch (Exception ex)

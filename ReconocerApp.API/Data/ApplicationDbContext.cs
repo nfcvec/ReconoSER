@@ -19,4 +19,5 @@ public class ApplicationDbContext : DbContext
     public DbSet<Colaborador> Colaboradores => Set<Colaborador>();
     public DbSet<Organizacion> Organizaciones => Set<Organizacion>();
     public DbSet<Categoria> Categorias => Set<Categoria>();
+    public DbSet<CachedUserGraphInfo> CachedUserGraphInfos => Set<CachedUserGraphInfo>();
 }

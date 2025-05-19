@@ -7,11 +7,30 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ReconocerApp.API.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "CachedUserGraphInfos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserId = table.Column<string>(type: "text", nullable: false),
+                    DisplayName = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    JobTitle = table.Column<string>(type: "text", nullable: false),
+                    Department = table.Column<string>(type: "text", nullable: false),
+                    ProfilePhotoBase64 = table.Column<string>(type: "text", nullable: false),
+                    LastUpdated = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CachedUserGraphInfos", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Categorias",
                 columns: table => new
@@ -324,6 +343,9 @@ namespace ReconocerApp.API.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "CachedUserGraphInfos");
+
             migrationBuilder.DropTable(
                 name: "Colaboradores");
 

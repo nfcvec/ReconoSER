@@ -12,8 +12,8 @@ using ReconocerApp.API.Data;
 namespace ReconocerApp.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250518143031_Initial")]
-    partial class Initial
+    [Migration("20250519035004_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,46 @@ namespace ReconocerApp.API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("ReconocerApp.API.Models.CachedUserGraphInfo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("JobTitle")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ProfilePhotoBase64")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CachedUserGraphInfos");
+                });
 
             modelBuilder.Entity("ReconocerApp.API.Models.Categoria", b =>
                 {

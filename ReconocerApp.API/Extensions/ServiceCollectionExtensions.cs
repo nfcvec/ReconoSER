@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Hosting;
 using ReconocerApp.API.Data;
 using ReconocerApp.API.Middleware;
 using ReconocerApp.API.Services;
@@ -38,7 +40,13 @@ namespace ReconocerApp.API.Extensions
             
             // Email Services
             services.AddScoped<IEmailNotificationService, EmailNotificationService>();
-            services.AddScoped<IEmailTemplateProvider, EmailTemplateProvider>();
+            services.AddScoped<IEmailTemplateProvider, EmailTemplateProvider>(provider =>
+                new EmailTemplateProvider(
+                    provider.GetRequiredService<IWebHostEnvironment>(),
+                    provider.GetRequiredService<ILogger<EmailTemplateProvider>>(),
+                    provider.GetRequiredService<IConfiguration>()
+                )
+            );
             
             // Dynamic Filtering
             services.AddScoped<IDynamicFilterService, DynamicFilterService>();

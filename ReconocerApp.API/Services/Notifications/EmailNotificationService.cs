@@ -18,12 +18,12 @@ namespace ReconocerApp.API.Services.Notifications
             _smtpSettings = LoadSmtpSettings();
         }
 
-        public async Task SendEmailAsync(string from, string to, string subject, string body)
+        public Task SendEmailAsync(string from, string to, string subject, string body)
         {
             try
             {
                 _logger.LogInformation($"Sending email to {to} with subject: {subject}");
-                
+
                 // Create email message
                 var message = new MimeMessage();
                 message.From.Add(new MailboxAddress("", from));
@@ -31,16 +31,17 @@ namespace ReconocerApp.API.Services.Notifications
                 message.Subject = subject;
                 message.Body = new BodyBuilder { HtmlBody = body }.ToMessageBody();
 
-                // Send email using MailKit
-                await SendWithMailKitAsync(message);
-                
-                _logger.LogInformation("Email sent successfully");
+                // Send email in background (fire-and-forget)
+                Task.Run(() => SendWithMailKitAsync(message));
+
+                _logger.LogInformation("Email send triggered (not awaited)");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to send email");
+                _logger.LogError(ex, "Failed to trigger email send");
                 throw new ApplicationException("Email sending failed: " + ex.Message, ex);
             }
+            return Task.CompletedTask;
         }
 
         public async Task SendWithMailKitAsync(MimeMessage message)

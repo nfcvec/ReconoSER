@@ -32,7 +32,13 @@ builder.Services.AddNotificationServices(builder.Configuration);
 
 // Register services
 builder.Services.AddScoped<IEmailNotificationService, EmailNotificationService>();
-builder.Services.AddScoped<IEmailTemplateProvider, EmailTemplateProvider>();
+builder.Services.AddScoped<IEmailTemplateProvider, EmailTemplateProvider>(provider =>
+    new EmailTemplateProvider(
+        provider.GetRequiredService<IWebHostEnvironment>(),
+        provider.GetRequiredService<ILogger<EmailTemplateProvider>>(),
+        provider.GetRequiredService<IConfiguration>()
+    )
+);
 builder.Services.AddScoped<IReconocimientoService, ReconocimientoService>();
 builder.Services.AddScoped<IWalletService, WalletService>();
 

@@ -11,6 +11,8 @@ using Microsoft.Extensions.Logging;
 using System.Net.Http.Headers;
 using Microsoft.Graph.Models;
 using Microsoft.Kiota.Abstractions.Authentication;
+using ReconocerApp.API.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace ReconocerApp.API.Services.Graph
 {
@@ -19,18 +21,35 @@ namespace ReconocerApp.API.Services.Graph
         private readonly ILogger<GraphService> _logger;
         private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
+        private readonly ApplicationDbContext _dbContext;
 
-        public GraphService(ILogger<GraphService> logger, IConfiguration configuration, HttpClient httpClient)
+        public GraphService(ILogger<GraphService> logger, IConfiguration configuration, HttpClient httpClient, ApplicationDbContext dbContext)
         {
             _logger = logger;
             _configuration = configuration;
             _httpClient = httpClient;
+            _dbContext = dbContext;
         }
 
         public async Task<UserGraphInfo> GetUserInfoAsync(string userId)
         {
             try
             {
+                // Buscar en caché
+                var cached = await _dbContext.CachedUserGraphInfos.FirstOrDefaultAsync(u => u.UserId == userId);
+                if (cached != null && cached.LastUpdated > DateTime.UtcNow.AddDays(-1))
+                {
+                    return new UserGraphInfo
+                    {
+                        Id = cached.UserId,
+                        DisplayName = cached.DisplayName,
+                        Email = cached.Email,
+                        JobTitle = cached.JobTitle,
+                        Department = cached.Department,
+                        ProfilePhotoBase64 = cached.ProfilePhotoBase64
+                    };
+                }
+
                 // Get access token
                 var scopes = new[] { "https://graph.microsoft.com/.default" };
                 var clientId = _configuration["AzureAd:ClientId"];
@@ -45,9 +64,14 @@ namespace ReconocerApp.API.Services.Graph
 
                 var result = await confidentialClientApplication
                     .AcquireTokenForClient(scopes)
-                    .ExecuteAsync();
+                    .ExecuteAsync()!;
 
-                var accessToken = result.AccessToken;
+                var accessToken = result.AccessToken!;
+
+                if (string.IsNullOrEmpty(accessToken))
+                {
+                    throw new Exception("No se pudo obtener el token de acceso de Azure AD.");
+                }
 
                 // Create Graph client with the ClientSecretCredential
                 var tokenCredential = new ClientSecretCredential(
@@ -60,37 +84,48 @@ namespace ReconocerApp.API.Services.Graph
 
                 // Get user details - using the updated SDK syntax
                 var user = await graphClient.Users[userId].GetAsync();
-                
+                if (user == null)
+                {
+                    throw new Exception($"No se encontró el usuario {userId} en Microsoft Graph.");
+                }
+
                 // Initialize user info
                 var userInfo = new UserGraphInfo
                 {
-                    Id = user.Id,
-                    DisplayName = user.DisplayName,
-                    Email = user.Mail ?? user.UserPrincipalName,
+                    Id = user.Id ?? string.Empty,
+                    DisplayName = user.DisplayName ?? string.Empty,
+                    Email = user.Mail ?? user.UserPrincipalName ?? string.Empty,
                     JobTitle = user.JobTitle ?? string.Empty,
-                    Department = user.Department ?? string.Empty
+                    Department = user.Department ?? string.Empty,
+                    ProfilePhotoBase64 = string.Empty // No photo retrieval, set ProfilePhotoBase64 to empty
                 };
 
-                // Try to get user photo
-                try
+                // Guardar/actualizar caché
+                if (cached == null)
                 {
-                    // Updated to use the newer SDK pattern
-                    var photoStream = await graphClient.Users[userId].Photo.Content.GetAsync();
-                    if (photoStream != null)
+                    cached = new CachedUserGraphInfo
                     {
-                        using (var memoryStream = new MemoryStream())
-                        {
-                            await photoStream.CopyToAsync(memoryStream);
-                            var photoBytes = memoryStream.ToArray();
-                            userInfo.ProfilePhotoBase64 = Convert.ToBase64String(photoBytes);
-                        }
-                    }
+                        UserId = userInfo.Id ?? string.Empty,
+                        DisplayName = userInfo.DisplayName ?? string.Empty,
+                        Email = userInfo.Email ?? string.Empty,
+                        JobTitle = userInfo.JobTitle ?? string.Empty,
+                        Department = userInfo.Department ?? string.Empty,
+                        ProfilePhotoBase64 = userInfo.ProfilePhotoBase64 ?? string.Empty,
+                        LastUpdated = DateTime.UtcNow
+                    };
+                    _dbContext.CachedUserGraphInfos.Add(cached);
                 }
-                catch (Exception ex)
+                else
                 {
-                    // Photo might not exist, that's ok
-                    _logger.LogWarning($"Unable to retrieve photo for user {userId}: {ex.Message}");
+                    cached.DisplayName = userInfo.DisplayName ?? string.Empty;
+                    cached.Email = userInfo.Email ?? string.Empty;
+                    cached.JobTitle = userInfo.JobTitle ?? string.Empty;
+                    cached.Department = userInfo.Department ?? string.Empty;
+                    cached.ProfilePhotoBase64 = userInfo.ProfilePhotoBase64 ?? string.Empty;
+                    cached.LastUpdated = DateTime.UtcNow;
+                    _dbContext.CachedUserGraphInfos.Update(cached);
                 }
+                await _dbContext.SaveChangesAsync();
 
                 return userInfo;
             }
