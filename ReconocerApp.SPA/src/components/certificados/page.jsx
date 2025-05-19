@@ -26,7 +26,9 @@ export default function Certificados() {
 
   const handleClose = () => setOpen(false);
 
-  const handleExportToImage = async () => {
+  const isWebShareSupported = typeof navigator !== 'undefined' && !!navigator.canShare && !!navigator.share;
+
+  const handleShareOrDownload = async () => {
     if (certificadoRef.current) {
       try {
         const canvas = await html2canvas(certificadoRef.current, {
@@ -35,14 +37,26 @@ export default function Certificados() {
           logging: false,
           backgroundColor: "#ffffff"
         });
-        
-        canvas.toBlob((blob) => {
-          const link = document.createElement('a');
-          link.download = `certificado-${selectedCertificado.reconocimientoId}.png`;
-          link.href = URL.createObjectURL(blob);
-          link.click();
-          
-          URL.revokeObjectURL(link.href);
+        canvas.toBlob(async (blob) => {
+          if (isWebShareSupported && blob && navigator.canShare({ files: [new File([blob], `certificado-${selectedCertificado.reconocimientoId}.png`, { type: 'image/png' })] })) {
+            const file = new File([blob], `certificado-${selectedCertificado.reconocimientoId}.png`, { type: 'image/png' });
+            try {
+              await navigator.share({
+                files: [file],
+                title: 'Certificado de Reconocimiento',
+                text: '¡Mira mi certificado de reconocimiento!'
+              });
+            } catch (err) {
+              // Si el usuario cancela o hay error, no hacer nada
+            }
+          } else {
+            // Fallback: descarga
+            const link = document.createElement('a');
+            link.download = `certificado-${selectedCertificado.reconocimientoId}.png`;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            URL.revokeObjectURL(link.href);
+          }
         }, 'image/png');
       } catch (error) {
         console.error("Error al exportar el certificado:", error);
@@ -190,13 +204,13 @@ export default function Certificados() {
             <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
               <Button 
                 variant="contained" 
-                color="primary" 
-                onClick={handleExportToImage}
+                color="success" 
+                onClick={handleShareOrDownload}
               >
-                Descargar
+                Compartir
               </Button>
-              <Button 
-                variant="outlined" 
+              <Button
+                variant="contained"
                 onClick={handleClose}
               >
                 Cerrar
