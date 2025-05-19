@@ -124,7 +124,7 @@ export default function Certificados() {
         Mis Certificados
       </Typography>
       <Typography variant="body1">
-        Aquí puedes ver y visualizar los certificados de comportamientos que has realizado.
+        Aquí puedes consultar tus certificados de reconocimiento. Haz clic en un certificado para verlo en detalle.
       </Typography>
 
       <Box>
@@ -177,6 +177,7 @@ export default function Certificados() {
               <Box sx={{ 
                 minWidth: '720px',
                 minHeight: '720px',
+                display: 'flex',
               }}>
                 <CertificadoComponent
                   Certificado={selectedCertificado}

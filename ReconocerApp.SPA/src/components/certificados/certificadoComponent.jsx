@@ -24,9 +24,8 @@ const CertificadoComponent = forwardRef(({
       ref={ref}
       elevation={3}
       sx={{
-        padding: 6,
+        p: 2,
         width: "720px",
-        height: "720px",
         minWidth: "720px",
         minHeight: "720px",
         backgroundColor: "primary.main",
@@ -35,7 +34,7 @@ const CertificadoComponent = forwardRef(({
         justifyContent: "center",
       }}
     >
-      <Box textAlign="center" mb={4}>
+      <Box textAlign="center" mb={2}>
         <Typography
           variant="h3"
           fontWeight="bold"
@@ -47,7 +46,6 @@ const CertificadoComponent = forwardRef(({
         <Typography
           variant="h5"
           fontWeight="bold"
-          gutterBottom
           sx={textShadowStyle}
         >
           {organizacion.descripcion}
@@ -58,7 +56,7 @@ const CertificadoComponent = forwardRef(({
         sx={{
           backgroundColor: "rgba(0, 0, 0, 0.4)",
           borderRadius: 2,
-          padding: 4,
+          padding: 2,
           boxShadow: 1,
         }}
       >
@@ -69,7 +67,7 @@ const CertificadoComponent = forwardRef(({
         </Box>
 
         <Box textAlign="center" mb={2}>
-          <Typography variant="h4" sx={textShadowStyle}>
+          <Typography variant="h5" sx={textShadowStyle}>
             Para <strong>{Reconocido?.displayName || "Colaborador no encontrado"}</strong>
           </Typography>
         </Box>
@@ -96,9 +94,9 @@ const CertificadoComponent = forwardRef(({
           </Grid>
         </Box>
 
-        <Box textAlign="center" mt={4}>
+        <Box textAlign="center" mt={2}>
           <Typography
-            variant="body1"
+            variant="body2"
             sx={{
               fontStyle: "italic",
               fontWeight: "medium",
