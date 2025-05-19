@@ -9,8 +9,8 @@ services:
         - BROWSER=BROWSER=none
         # - VITE_CLIENT_ID=6885bc59-dbd5-4d8b-a3b2-b753ca53d2c4
         # - VITE_AUTHORITY=https://login.microsoftonline.com/abcce23f-bc94-47e2-834f-01fd1e3d7f7b
-        - VITE_CLIENT_ID=3c1288d3-314b-4ab3-9669-11ab1909e1ab
-        - VITE_AUTHORITY=https://login.microsoftonline.com/05b4b405-3325-479b-88fd-f6c25ea40a8c
+        - VITE_CLIENT_ID=2462d3ca-37eb-4778-98e6-a322b99f5cce
+        - VITE_AUTHORITY=https://login.microsoftonline.com/2af6ae87-3287-4e29-a50a-680f5d852aa3
         - VITE_POPUP_REDIRECT_URI=/redirect
         - VITE_TITLE=ReconoSER
         - VITE_API_URL=https://reconoser-api.lerolero.com.ec/api
@@ -37,9 +37,9 @@ services:
       Email__Password: "ekinotificaciones"
       Email__EnableSsl: "true"
       Email__FromAddress: "notificaciones@upsecuador.com"
-      AzureAd__ClientId: "3c1288d3-314b-4ab3-9669-11ab1909e1ab"
-      AzureAd__TenantId: "05b4b405-3325-479b-88fd-f6c25ea40a8c"
-      AzureAd__ClientSecret: "4dQ8Q~i-K~.biFHAyxERbzj3_G7f62K7KdbDfduR"
+      AzureAd__ClientId: "2462d3ca-37eb-4778-98e6-a322b99f5cce"
+      AzureAd__TenantId: "2af6ae87-3287-4e29-a50a-680f5d852aa3"
+      AzureAd__ClientSecret: "osD8Q~9c-aoRpC.5PMy_u5vdYYhii6p00jVaIcyw"
       FrontendUrl: "https://reconoser.lerolero.com.ec"
     depends_on:
       - db
