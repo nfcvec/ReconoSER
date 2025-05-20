@@ -10,14 +10,26 @@ using ReconocerApp.API.Services.Filtering;
 using System.Linq.Dynamic.Core;
 using System.Text.Json;
 using ReconocerApp.API.Middleware;
+using ReconocerApp.API.Services.Notifications;
+using ReconocerApp.API.Services.Graph;
 
 namespace ReconocerApp.API.Controllers
 {
     public class WalletSaldosController : BaseCrudController<WalletSaldo, WalletSaldoResponse, int>
     {
-        public WalletSaldosController(ApplicationDbContext context, IMapper mapper, IDynamicFilterService filterService)
-            : base(context, mapper, filterService) 
-        { }
+        private readonly IEmailNotificationService _emailService;
+        private readonly IEmailTemplateProvider _templateProvider;
+        private readonly IGraphService _graphService;
+        private readonly IConfiguration _configuration;
+
+        public WalletSaldosController(ApplicationDbContext context, IMapper mapper, IDynamicFilterService filterService, IEmailNotificationService emailService, IEmailTemplateProvider templateProvider, IGraphService graphService, IConfiguration configuration)
+            : base(context, mapper, filterService)
+        {
+            _emailService = emailService;
+            _templateProvider = templateProvider;
+            _graphService = graphService;
+            _configuration = configuration;
+        }
 
         // GET con filtros, orden y paginación
         public override async Task<ActionResult<IEnumerable<WalletSaldoResponse>>> GetAll(
@@ -203,6 +215,31 @@ namespace ReconocerApp.API.Controllers
             walletSaldo.SaldoActual = totalSaldo;
             _context.WalletSaldos.Update(walletSaldo);
             await _context.SaveChangesAsync();
+
+            // --- Notificación por correo al colaborador ---
+            try
+            {
+                var userInfo = await _graphService.GetUserInfoAsync(request.ColaboradorId);
+                var toEmail = userInfo?.Email;
+                var colaboradorNombre = userInfo?.DisplayName ?? request.ColaboradorId;
+                var fromAddress = _configuration["Email:FromAddress"] ?? "no-reply@reconoser.com";
+                if (!string.IsNullOrEmpty(toEmail))
+                {
+                    var templateModel = new
+                    {
+                        ColaboradorNombre = colaboradorNombre,
+                        Monto = request.Monto,
+                        Fecha = DateTime.UtcNow.ToString("dd/MM/yyyy HH:mm")
+                    };
+                    var emailContent = await _templateProvider.GetProcessedTemplateAsync("WalletBonoOtorgado", templateModel);
+                    await _emailService.SendEmailAsync(fromAddress, toEmail, "¡Has recibido un bono en tu billetera!", emailContent);
+                }
+            }
+            catch
+            {
+                // Loguear pero no interrumpir la recarga
+            }
+            // --- Fin notificación ---
 
             var response = _mapper.Map<WalletSaldoResponse>(walletSaldo);
             return Ok(response);

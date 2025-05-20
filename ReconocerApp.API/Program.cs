@@ -12,6 +12,8 @@ using ReconocerApp.API.Services.Graph;
 using ReconocerApp.API.Services.Filtering;
 using ReconocerApp.API.Services.Reconocimientos;
 using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 // Habilitar logs de consola
@@ -107,7 +109,7 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Autenticación OpenID Connect con Azure AD",
         Name = "Authorization",
         In = ParameterLocation.Header,
-        Scheme = "Bearer"
+        Scheme = "Bearer",
     });
 
     options.AddSecurityRequirement(new OpenApiSecurityRequirement

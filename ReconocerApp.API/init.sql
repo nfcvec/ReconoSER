@@ -4,7 +4,7 @@ INSERT INTO "Organizaciones" ("Nombre", "DominioEmail", "Descripcion", "ColorPri
 ('ECCE', 'ecce.com.ec', 'ECCE', '#8b2738', true),
 ('Academikus', 'academikus.com', 'Academikus', '#8b2738', true),
 ('ULatina', 'ulatina.cr', 'Universidad Latina de Costa Rica', '#97d700', true),
-('UAM', 'uam.cr', 'Universidad Latina de Costa Rica', '#8b2738', true);
+('UAM', 'uam.cr', 'Universidad Latina de Costa Rica', '#cb2027', true);
 
 -- Insertar datos en comportamientos para todas las organizaciones
 INSERT INTO "Comportamientos" ("OrganizacionId", "Nombre", "Descripcion", "WalletOtorgados") 
