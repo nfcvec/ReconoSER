@@ -25,6 +25,7 @@ import { getColaboradoresFromBatchIds } from "../../../utils/services/colaborado
 import { useLoading } from "../../../contexts/LoadingContext";
 import { useMsal } from "@azure/msal-react";
 import { useAlert } from "../../../contexts/AlertContext";
+import EditIcon from '@mui/icons-material/Edit';
 
 const CRUDMarketplaceCompras = () => {
   const [compras, setCompras] = useState([]);
@@ -43,7 +44,6 @@ const CRUDMarketplaceCompras = () => {
     showLoading(`Revisando compra...`);
     try {
       await revisarPremioCompra({
-        id: selectedCompra.compraId, // ID de la compra seleccionada
         payload: {
           aprobar: action === "aprobado",
           comentarioRevision: comentarioRevision,
@@ -73,7 +73,7 @@ const CRUDMarketplaceCompras = () => {
         filters: [{
           field: "Estado",
           operator: "eq",
-          value: "pendiente",
+          value: "Pendiente",
         }],
         orderBy: "fechaCompra",
         orderDirection: "desc",
@@ -123,7 +123,18 @@ const CRUDMarketplaceCompras = () => {
       width: 250,
       valueGetter: (params) => params.nombre,
     },
-    { field: "fechaCompra", headerName: "Fecha de Compra", width: 200 }
+    { field: "fechaCompra", headerName: "Fecha de Compra", width: 200 },
+    {
+      field: 'editar',
+      headerName: '',
+      width: 60,
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+      renderCell: () => (
+        <EditIcon sx={{ cursor: 'pointer' }} color="primary" />
+      ),
+    },
   ];
 
   return (
@@ -156,9 +167,6 @@ const CRUDMarketplaceCompras = () => {
         <DialogContent>
           {selectedCompra && (
             <>
-              <Typography variant="body1" sx={{ my: 1 }}>
-                <strong>ID de compra:</strong> {selectedCompra.compraId}
-              </Typography>
               <Typography variant="body1" sx={{ my: 1 }}>
                 <strong>Solicitante:</strong>{" "}
                 {colaboradores.find((col) => col.id === selectedCompra.tokenColaborador)?.displayName || selectedCompra.tokenColaborador}

@@ -79,7 +79,7 @@ export default function PrizeDetail() {
         tokenColaborador: walletData.tokenColaborador,
         premioId: prize.premioId,
         fechaCompra: new Date().toISOString(),
-        estado: "pendiente",
+        estado: "Pendiente",
         comentarioRevision: "",
       };
       await createPremioCompra(payload);

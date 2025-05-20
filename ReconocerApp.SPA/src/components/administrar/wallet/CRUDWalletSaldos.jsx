@@ -5,6 +5,7 @@ import { getWalletBalance, updateWallet, otorgarBono } from "../../../utils/serv
 import { getColaboradoresFromBatchIds } from "../../../utils/services/colaboradores";
 import { useAlert } from "../../../contexts/AlertContext";
 import { useLoading } from "../../../contexts/LoadingContext";
+import EditIcon from '@mui/icons-material/Edit';
 
 const CRUDWalletSaldos = () => {
     const [walletSaldos, setWalletSaldos] = useState([]);
@@ -93,9 +94,15 @@ const CRUDWalletSaldos = () => {
         },
         { field: "saldoActual", headerName: "Saldo Actual", width: 150 },
         {
-            field: "organizacionId",
-            headerName: "Organización ID",
-            width: 150
+            field: 'editar',
+            headerName: '',
+            width: 60,
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+            renderCell: () => (
+                <EditIcon sx={{ cursor: 'pointer' }} color="primary" />
+            ),
         },
     ];
 

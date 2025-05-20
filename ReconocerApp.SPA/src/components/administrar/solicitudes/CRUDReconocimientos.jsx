@@ -32,6 +32,7 @@ import { getColaboradoresFromBatchIds } from "../../../utils/services/colaborado
 import { useMsal } from "@azure/msal-react";
 import { useLoading } from "../../../contexts/LoadingContext";
 import { useAlert } from "../../../contexts/AlertContext";
+import EditIcon from '@mui/icons-material/Edit';
 
 const CRUDReconocimientos = () => {
   const [reconocimientos, setReconocimientos] = useState([]);
@@ -53,7 +54,7 @@ const CRUDReconocimientos = () => {
             {
               field: "Estado",
               operator: "eq",
-              value: "pendiente",
+              value: "Pendiente",
             }
           ],
           page: 1,
@@ -131,6 +132,17 @@ const CRUDReconocimientos = () => {
     },
     { field: "justificacion", headerName: "Justificación", width: 250 },
     { field: "estado", headerName: "Estado", width: 150 },
+    {
+      field: 'editar',
+      headerName: '',
+      width: 60,
+      sortable: false,
+      filterable: false,
+      disableColumnMenu: true,
+      renderCell: () => (
+        <EditIcon sx={{ cursor: 'pointer' }} color="primary" />
+      ),
+    },
   ];
 
   return (

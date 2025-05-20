@@ -13,6 +13,8 @@ import {
   Paper,
   Autocomplete,
 } from "@mui/material";
+  import Snackbar from "@mui/material/Snackbar";
+import MuiAlert from "@mui/material/Alert";
 import { getUserOrganizacion } from "../../utils/services/organizaciones";
 import { getComportamientos } from "../../utils/services/comportamientos";
 import { getColaboradores } from "../../utils/services/colaboradores";
@@ -32,6 +34,7 @@ export default function Reconocimiento() {
   const [Texto, setCertificateText] = useState("");
   const [step, setStep] = useState("form"); // "form" | "confirm"
   const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const { organizacion } = useOrganizacion();
   const {instance} = useMsal();
   const showAlert = useAlert();
@@ -110,7 +113,7 @@ export default function Reconocimiento() {
     if (checked) {
       // Verificar si ya se alcanzó el límite de 3 comportamientos
       if (Comportamientos.length >= 3) {
-        alert("Solo puedes seleccionar un máximo de 3 comportamientos.");
+        setSnackbarOpen(true);
         return;
       }
 
@@ -200,35 +203,48 @@ export default function Reconocimiento() {
                     </Typography>
                     <Paper variant="outlined" sx={{ p: 2 }}>
                       {comportamientos.length > 0 ? (
-                        comportamientos.map((value, index) => (
-                          <Box
-                            key={value.comportamientoId || index}
-                            sx={{
-                              display: "flex",
-                              flexDirection: "column",
-                              gap: 1,
-                              py: 1,
-                              borderBottom: index !== comportamientos.length - 1 ? "1px solid #e0e0e0" : "none",
-                            }}
-                          >
-                            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                              <FormControlLabel
-                                control={
-                                  <Checkbox
-                                    checked={Comportamientos.some((item) => item.comportamientoId === value.comportamientoId)}
-                                    onChange={(e) => handleValueChange(e, value)}
-                                  />
-                                }
-                                label={value.descripcion || "Sin descripción disponible"}
-                              />
+                        comportamientos.map((value, index) => {
+                          const isSelected = Comportamientos.some((item) => item.comportamientoId === value.comportamientoId);
+                          return (
+                            <Box
+                              key={value.comportamientoId || index}
+                              sx={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: 1,
+                                py: 1,
+                                borderBottom: index !== comportamientos.length - 1 ? "1px solid #e0e0e0" : "none",
+                                backgroundColor: isSelected ? "#e3f2fd" : "inherit",
+                                borderRadius: 2,
+                                cursor: "pointer",
+                                transition: "background 0.2s",
+                              }}
+                              onClick={() => {
+                                // Simula el click del checkbox
+                                const fakeEvent = { target: { checked: !isSelected } };
+                                handleValueChange(fakeEvent, value);
+                              }}
+                            >
+                              <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <FormControlLabel
+                                  control={
+                                    <Checkbox
+                                      checked={isSelected}
+                                      onChange={(e) => handleValueChange(e, value)}
+                                      onClick={(e) => e.stopPropagation()} // Evita doble toggle al hacer click en el checkbox
+                                    />
+                                  }
+                                  label={value.descripcion || "Sin descripción disponible"}
+                                />
+                              </Box>
+                              <Box sx={{ textAlign: "right", mt: 1 }}>
+                                <Typography variant="caption" color="text.secondary">
+                                  {value.nombre} - {value.organizacion.nombre}
+                                </Typography>
+                              </Box>
                             </Box>
-                            <Box sx={{ textAlign: "right", mt: 1 }}>
-                              <Typography variant="caption" color="text.secondary">
-                                {value.nombre} - {value.organizacion.nombre}
-                              </Typography>
-                            </Box>
-                          </Box>
-                        ))
+                          );
+                        })
                       ) : (
                         <Typography variant="body2" color="text.secondary">
                           {Reconocido == null
@@ -287,6 +303,17 @@ export default function Reconocimiento() {
           onBack={handleBack}
         />
       )}
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <MuiAlert onClose={() => setSnackbarOpen(false)} severity="warning" sx={{ width: '100%' }}>
+          Solo puedes seleccionar un máximo de 3 comportamientos.
+        </MuiAlert>
+      </Snackbar>
     </>
   );
 }

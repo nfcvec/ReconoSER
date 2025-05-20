@@ -16,7 +16,7 @@ export default function ConfirmacionReconocimiento({ data, onConfirm, onBack }) 
       reconocidoId: Reconocido.id, // OID del colaborador seleccionado
       justificacion: Justificacion,
       texto: Texto,
-      estado: "pendiente",
+      estado: "Pendiente",
       comportamientos: Comportamientos
     };
 

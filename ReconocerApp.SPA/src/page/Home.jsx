@@ -92,6 +92,14 @@ export default function Home() {
       buttonText: "Ir a categorías",
       menu: "admin",
     },
+    {
+      title: "Administrar Comportamientos",
+      description: "Gestiona los comportamientos de la organización",
+      icon: <RecognitionIcon sx={{ fontSize: 64, color: "primary.main" }} />,
+      link: "/administrar/comportamientos",
+      buttonText: "Ir a comportamientos",
+      menu: "admin",
+    },
   ];
 
   // Menú principal (visible para todos)
