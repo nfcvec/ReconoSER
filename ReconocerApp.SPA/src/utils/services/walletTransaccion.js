@@ -1,9 +1,13 @@
 import api from "../api";
 
-// Función para obtener el balance de la billetera
-export const getWalletTransaction = async () => {
+// Función para obtener el balance de la billetera con filtros
+export const getWalletTransaction = async (filters = null) => {
     try {
-        const response = await api.get("/WalletTransacciones");
+        let url = "/WalletTransacciones";
+        if (filters) {
+            url += `?filters=${encodeURIComponent(JSON.stringify(filters))}`;
+        }
+        const response = await api.get(url);
         return response.data; // Devuelve los datos de la respuesta
     } catch (error) {
         console.error("Error al obtener el balance de la billetera:", error.message);
@@ -23,16 +27,5 @@ export const createWalletTransaction = async (data) => {
     } catch (error) {
         console.error("Error al crear la transacción de la billetera:", error.message);
         throw error;
-    }
-}
-
-// Función para obtener las transacciones de la billetera por walletId
-export const getWalletTransactionByWalletId = async (walletId) => {
-    try {
-        const response = await api.get(`/WalletTransacciones/by-saldo/${walletId}`);
-        return response.data; // Devuelve los datos de la respuesta
-    } catch (error) {
-        console.error("Error al obtener las transacciones de la billetera:", error.message);
-        throw error; // Lanza el error para manejarlo en el componente
     }
 }

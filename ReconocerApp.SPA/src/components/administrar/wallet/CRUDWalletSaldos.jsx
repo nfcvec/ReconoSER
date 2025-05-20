@@ -3,7 +3,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import { Box, Container, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Autocomplete } from "@mui/material";
 import { getWalletBalance, updateWallet, otorgarBono } from "../../../utils/services/walletBalance";
 import { getColaboradoresFromBatchIds } from "../../../utils/services/colaboradores";
-import { getWalletTransactionByWalletId } from '../../../utils/services/walletTransaccion';
+import { getWalletTransaction } from '../../../utils/services/walletTransaccion';
 import { getCategorias } from '../../../utils/services/categorias';
 import { useAlert } from "../../../contexts/AlertContext";
 import { useLoading } from "../../../contexts/LoadingContext";
@@ -69,14 +69,10 @@ const CRUDWalletSaldos = () => {
             if (colaboradorSeleccionado) {
                 setLoading(true);
                 try {
-                    // Buscar el walletSaldoId correspondiente al colaborador seleccionado
-                    const saldo = walletSaldos.find(s => s.tokenColaborador === colaboradorSeleccionado.id);
-                    if (saldo) {
-                        const transacciones = await getWalletTransactionByWalletId(saldo.walletSaldoId);
-                        setWalletTransacciones(transacciones);
-                    } else {
-                        setWalletTransacciones([]);
-                    }
+                    // Filtrar por TokenColaborador
+                    const filters = [{ field: "TokenColaborador", operator: "eq", value: colaboradorSeleccionado.id }];
+                    const transacciones = await getWalletTransaction(filters);
+                    setWalletTransacciones(transacciones);
                 } catch (error) {
                     showAlert('Error al obtener transacciones', 'error');
                     setWalletTransacciones([]);
