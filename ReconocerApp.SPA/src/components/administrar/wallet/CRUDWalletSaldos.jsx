@@ -4,6 +4,7 @@ import { Box, Container, Typography, Dialog, DialogTitle, DialogContent, DialogA
 import { getWalletBalance, updateWallet, otorgarBono } from "../../../utils/services/walletBalance";
 import { getColaboradoresFromBatchIds } from "../../../utils/services/colaboradores";
 import { getWalletTransactionByWalletId } from '../../../utils/services/walletTransaccion';
+import { getCategorias } from '../../../utils/services/categorias';
 import { useAlert } from "../../../contexts/AlertContext";
 import { useLoading } from "../../../contexts/LoadingContext";
 import EditIcon from '@mui/icons-material/Edit';
@@ -11,6 +12,7 @@ import EditIcon from '@mui/icons-material/Edit';
 const CRUDWalletSaldos = () => {
     const [walletSaldos, setWalletSaldos] = useState([]);
     const [colaboradores, setColaboradores] = useState([]);
+    const [categorias, setCategorias] = useState([]);
     const [loading, setLoading] = useState(false);
     const [selectedSaldo, setSelectedSaldo] = useState(null);
     const [bonoMonto, setBonoMonto] = useState(0);
@@ -47,6 +49,19 @@ const CRUDWalletSaldos = () => {
             console.error("Error al obtener colaboradores:", error);
         }
     }, [walletSaldos, showAlert]);
+
+    // Obtener categorías al montar el componente
+    useEffect(() => {
+        const fetchCategorias = async () => {
+            try {
+                const data = await getCategorias();
+                setCategorias(data);
+            } catch (error) {
+                showAlert('Error al obtener categorías', 'error');
+            }
+        };
+        fetchCategorias();
+    }, [showAlert]);
 
     // Cuando se selecciona un colaborador, obtener las transacciones de su wallet
     useEffect(() => {
@@ -141,7 +156,15 @@ const CRUDWalletSaldos = () => {
         { field: 'cantidad', headerName: 'Cantidad', width: 120 },
         { field: 'descripcion', headerName: 'Descripción', width: 200 },
         { field: 'fecha', headerName: 'Fecha', width: 180 },
-        { field: 'categoriaId', headerName: 'Categoría', width: 120 },
+        {
+            field: 'categoriaId',
+            headerName: 'Categoría',
+            width: 120,
+            renderCell: (params) => {
+                const cat = categorias.find(c => c.categoriaId === params.value);
+                return cat ? cat.nombre : params.value;
+            }
+        },
     ];
 
     const filteredWalletSaldos = colaboradorSeleccionado
