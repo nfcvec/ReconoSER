@@ -14,8 +14,10 @@ import {
     Container,
     Snackbar,
     Alert,
+    MenuItem,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
     getComportamientos,
     createComportamiento,
@@ -24,22 +26,19 @@ import {
 } from "../../../utils/services/comportamientos";
 import { getOrganizaciones } from "../../../utils/services/organizaciones";
 
+const defaultForm = { nombre: "", descripcion: "", walletOtorgados: 0, organizacionId: 1 };
+
 const CRUDComportamientos = () => {
     const [comportamientos, setComportamientos] = useState([]);
     const [organizaciones, setOrganizaciones] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedComportamiento, setSelectedComportamiento] = useState(null);
-    const [formValues, setFormValues] = useState({
-        nombre: "",
-        descripcion: "",
-        walletOtorgados: 0,
-        organizacionId: 1, // Ajustar según contexto real
-    });
+    const [formValues, setFormValues] = useState(defaultForm);
     const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
     // Cargar comportamientos y organizaciones al montar el componente
     useEffect(() => {
-        const fetchData = async () => {
+        (async () => {
             try {
                 const [comps, orgs] = await Promise.all([
                     getComportamientos({}),
@@ -50,21 +49,13 @@ const CRUDComportamientos = () => {
             } catch (error) {
                 console.error("Error al cargar los datos:", error);
             }
-        };
-        fetchData();
+        })();
     }, []);
 
     // Manejar apertura del diálogo
     const handleOpenDialog = (comportamiento = null) => {
         setSelectedComportamiento(comportamiento);
-        setFormValues(
-            comportamiento || {
-                nombre: "",
-                descripcion: "",
-                walletOtorgados: 0,
-                organizacionId: 1, // Ajustar según contexto real
-            }
-        );
+        setFormValues(comportamiento || defaultForm);
         setOpenDialog(true);
     };
 
@@ -89,8 +80,7 @@ const CRUDComportamientos = () => {
             } else {
                 await createComportamiento(payload);
             }
-            const data = await getComportamientos({});
-            setComportamientos(data);
+            setComportamientos(await getComportamientos({}));
             setSnackbar({ open: true, message: "Comportamiento guardado correctamente", severity: "success" });
             handleCloseDialog();
         } catch (error) {
@@ -100,17 +90,16 @@ const CRUDComportamientos = () => {
     };
 
     // Eliminar comportamiento
-    const handleDelete = useCallback(
-        async (id) => {
-            try {
-                await deleteComportamiento(id);
-                setComportamientos((prev) => prev.filter((c) => c.comportamientoId !== id));
-            } catch (error) {
-                console.error("Error al eliminar el comportamiento:", error);
-            }
-        },
-        []
-    );
+    const handleDelete = useCallback(async (id) => {
+        try {
+            await deleteComportamiento(id);
+            setComportamientos((prev) => prev.filter((c) => c.comportamientoId !== id));
+            setSnackbar({ open: true, message: "Comportamiento eliminado correctamente", severity: "success" });
+        } catch (error) {
+            setSnackbar({ open: true, message: "Error al eliminar el comportamiento", severity: "error" });
+            console.error("Error al eliminar el comportamiento:", error);
+        }
+    }, []);
 
     // Columnas de la tabla
     const columns = [
@@ -122,28 +111,19 @@ const CRUDComportamientos = () => {
             field: "organizacionId",
             headerName: "Organización",
             width: 200,
-            renderCell: (params) => {
-                const org = organizaciones.find(o => o.organizacionId === params.value);
-                return org ? org.nombre : params.value;
-            },
+            renderCell: ({ value }) => organizaciones.find(o => o.organizacionId === value)?.nombre || value,
         },
         {
             field: "actions",
             headerName: "Acciones",
             type: "actions",
-            width: 80,
-            getActions: (params) => [
-                <GridActionsCellItem
-                    icon={<EditIcon />}
-                    label="Editar"
-                    onClick={() => handleOpenDialog(params.row)}
-                    showInMenu={false}
-                />,
+            width: 120,
+            getActions: ({ row }) => [
+                <GridActionsCellItem icon={<EditIcon />} label="Editar" onClick={() => handleOpenDialog(row)} />,
+                <GridActionsCellItem icon={<DeleteIcon />} label="Eliminar" onClick={() => handleDelete(row.comportamientoId)} />,
             ],
         },
     ];
-
-    console.log("comportamientos en render:", comportamientos);
 
     return (
         <Container>
@@ -158,59 +138,27 @@ const CRUDComportamientos = () => {
                 columns={columns}
                 pageSize={5}
                 rowsPerPageOptions={[5]}
-                getRowId={(row) => row.comportamientoId}
-                sx={{
-                    '& .MuiDataGrid-columnHeaderTitle': {
-                      fontWeight: 'bold',
-                    },
-                  }}
-                onRowClick={(params) => handleOpenDialog(params.row)}
+                getRowId={row => row.comportamientoId}
+                sx={{ '& .MuiDataGrid-columnHeaderTitle': { fontWeight: 'bold' } }}
+                onRowClick={({ row }) => handleOpenDialog(row)}
             />
             <Dialog open={openDialog} onClose={handleCloseDialog}>
                 <DialogTitle>
                     {selectedComportamiento ? "Editar Comportamiento" : "Añadir Comportamiento"}
                 </DialogTitle>
                 <DialogContent>
-                    <TextField
-                        margin="dense"
-                        label="Nombre"
-                        name="nombre"
-                        fullWidth
-                        value={formValues.nombre}
-                        onChange={handleChange}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Descripción"
-                        name="descripcion"
-                        fullWidth
-                        value={formValues.descripcion}
-                        onChange={handleChange}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="ULIs otorgados"
-                        name="walletOtorgados"
-                        type="number"
-                        fullWidth
-                        value={formValues.walletOtorgados}
-                        onChange={handleChange}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Organización ID"
-                        name="organizacionId"
-                        type="number"
-                        fullWidth
-                        value={formValues.organizacionId}
-                        onChange={handleChange}
-                    />
+                    <TextField margin="dense" label="Nombre" name="nombre" fullWidth value={formValues.nombre} onChange={handleChange} />
+                    <TextField margin="dense" label="Descripción" name="descripcion" fullWidth value={formValues.descripcion} onChange={handleChange} />
+                    <TextField margin="dense" label="ULIs otorgados" name="walletOtorgados" type="number" fullWidth value={formValues.walletOtorgados} onChange={handleChange} />
+                    <TextField margin="dense" label="Organización" name="organizacionId" select fullWidth value={formValues.organizacionId} onChange={handleChange}>
+                        {organizaciones.map(org => (
+                            <MenuItem key={org.organizacionId} value={org.organizacionId}>{org.nombre}</MenuItem>
+                        ))}
+                    </TextField>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDialog}>Cancelar</Button>
-                    <Button onClick={handleSave} variant="contained">
-                        Guardar
-                    </Button>
+                    <Button onClick={handleSave} variant="contained">Guardar</Button>
                 </DialogActions>
             </Dialog>
             <Snackbar open={snackbar.open} autoHideDuration={4000} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>

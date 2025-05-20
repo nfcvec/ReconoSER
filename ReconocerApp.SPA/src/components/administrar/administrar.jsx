@@ -6,6 +6,7 @@ import CRUDReconocimientos from "./solicitudes/CRUDReconocimientos";
 import CRUDMarketplaceCompras from "./solicitudes/CRUDMarketplaceCompras";
 import CrudPremios from "./premios/CrudPremios";
 import CRUDCategorias from "./categorias/CRUDCategorias";
+import CRUDOrganizaciones from "./organizaciones/CRUDOrganizaciones"; // Asegúrate de que esta ruta sea correcta
 
 const Administrar = () => {
   const [activeSection, setActiveSection] = useState(null);
@@ -23,6 +24,8 @@ const Administrar = () => {
         return <CrudPremios />;
       case "categorias":
         return <CRUDCategorias />;
+      case "organizaciones":
+        return <CRUDOrganizaciones />;
       default:
         return <p>Seleccione una sección para administrar.</p>;
     }
@@ -61,6 +64,12 @@ const Administrar = () => {
           onClick={() => setActiveSection("categorias")}
         >
           Administrar Categorías
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() => setActiveSection("organizaciones")}
+        >
+          Administrar Organizaciones
         </Button>
       </Box>
       <Box

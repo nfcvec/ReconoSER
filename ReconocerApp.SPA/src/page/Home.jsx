@@ -100,6 +100,14 @@ export default function Home() {
       buttonText: "Ir a comportamientos",
       menu: "admin",
     },
+    {
+      title: "Administrar Organizaciones",
+      description: "Gestiona las organizaciones del sistema",
+      icon: <AdminIcon sx={{ fontSize: 64, color: "primary.main" }} />,
+      link: "/administrar/organizaciones",
+      buttonText: "Ir a organizaciones",
+      menu: "admin",
+    },
   ];
 
   // Menú principal (visible para todos)

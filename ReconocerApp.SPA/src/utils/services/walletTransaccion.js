@@ -3,9 +3,9 @@ import api from "../api";
 // Función para obtener el balance de la billetera con filtros
 export const getWalletTransaction = async (filters = null) => {
     try {
-        let url = "/WalletTransacciones";
+        let url = "/WalletTransacciones?page=1&pageSize=100";
         if (filters) {
-            url += `?filters=${encodeURIComponent(JSON.stringify(filters))}`;
+            url += `&filters=${encodeURIComponent(JSON.stringify(filters))}`;
         }
         const response = await api.get(url);
         return response.data; // Devuelve los datos de la respuesta

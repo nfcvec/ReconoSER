@@ -44,7 +44,7 @@ public class WalletTransaccionesController : BaseCrudController<WalletTransaccio
 
             // Apply filters specifically for Colaborador and WalletCategoria
             baseQuery = _filterService.ApplyFilters(baseQuery, parsedFilters.Where(f => 
-                f.Field == "Colaborador" || f.Field == "WalletCategoria").ToList());
+                f.Field == "Colaborador" || f.Field == "WalletCategoria" || f.Field == "TokenColaborador").ToList());
         }
 
         if (!string.IsNullOrEmpty(orderBy))
