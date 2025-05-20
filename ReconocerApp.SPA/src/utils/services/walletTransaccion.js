@@ -25,3 +25,14 @@ export const createWalletTransaction = async (data) => {
         throw error;
     }
 }
+
+// Función para obtener las transacciones de la billetera por walletId
+export const getWalletTransactionByWalletId = async (walletId) => {
+    try {
+        const response = await api.get(`/WalletTransacciones/by-saldo/${walletId}`);
+        return response.data; // Devuelve los datos de la respuesta
+    } catch (error) {
+        console.error("Error al obtener las transacciones de la billetera:", error.message);
+        throw error; // Lanza el error para manejarlo en el componente
+    }
+}

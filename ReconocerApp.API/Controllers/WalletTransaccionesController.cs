@@ -71,4 +71,19 @@ public class WalletTransaccionesController : BaseCrudController<WalletTransaccio
         if (item == null) return NotFound();
         return Ok(_mapper.Map<WalletTransaccionResponse>(item));
     }
+
+    // GET: api/WalletTransacciones/by-saldo/{walletSaldoId}
+    [HttpGet("by-saldo/{walletSaldoId}")]
+    public async Task<ActionResult<IEnumerable<WalletTransaccionResponse>>> GetByWalletSaldoId(int walletSaldoId)
+    {
+        var transacciones = await _context.WalletTransacciones
+            .Include(t => t.Categoria)
+            .Where(t => t.WalletSaldoId == walletSaldoId)
+            .ToListAsync();
+
+        if (transacciones == null || !transacciones.Any())
+            return NotFound();
+
+        return Ok(_mapper.Map<List<WalletTransaccionResponse>>(transacciones));
+    }
 }

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { DataGrid } from "@mui/x-data-grid";
-import { Box, Container, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from "@mui/material";
+import { Box, Container, Typography, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Autocomplete } from "@mui/material";
 import { getWalletBalance, updateWallet, otorgarBono } from "../../../utils/services/walletBalance";
 import { getColaboradoresFromBatchIds } from "../../../utils/services/colaboradores";
+import { getWalletTransactionByWalletId } from '../../../utils/services/walletTransaccion';
 import { useAlert } from "../../../contexts/AlertContext";
 import { useLoading } from "../../../contexts/LoadingContext";
 import EditIcon from '@mui/icons-material/Edit';
@@ -14,6 +15,8 @@ const CRUDWalletSaldos = () => {
     const [selectedSaldo, setSelectedSaldo] = useState(null);
     const [bonoMonto, setBonoMonto] = useState(0);
     const [editOpen, setEditOpen] = useState(false);
+    const [colaboradorSeleccionado, setColaboradorSeleccionado] = useState(null);
+    const [walletTransacciones, setWalletTransacciones] = useState([]);
 
     const showAlert = useAlert();
     const { showLoading, hideLoading } = useLoading();
@@ -45,6 +48,33 @@ const CRUDWalletSaldos = () => {
         }
     }, [walletSaldos, showAlert]);
 
+    // Cuando se selecciona un colaborador, obtener las transacciones de su wallet
+    useEffect(() => {
+        const fetchTransacciones = async () => {
+            if (colaboradorSeleccionado) {
+                setLoading(true);
+                try {
+                    // Buscar el walletSaldoId correspondiente al colaborador seleccionado
+                    const saldo = walletSaldos.find(s => s.tokenColaborador === colaboradorSeleccionado.id);
+                    if (saldo) {
+                        const transacciones = await getWalletTransactionByWalletId(saldo.walletSaldoId);
+                        setWalletTransacciones(transacciones);
+                    } else {
+                        setWalletTransacciones([]);
+                    }
+                } catch (error) {
+                    showAlert('Error al obtener transacciones', 'error');
+                    setWalletTransacciones([]);
+                } finally {
+                    setLoading(false);
+                }
+            } else {
+                setWalletTransacciones([]);
+            }
+        };
+        fetchTransacciones();
+    }, [colaboradorSeleccionado, walletSaldos, showAlert]);
+
     useEffect(() => {
         fetchData();
     }, [fetchData]);
@@ -70,8 +100,8 @@ const CRUDWalletSaldos = () => {
     const handleBonoSave = async () => {
         showLoading("Otorgando bono...");
         try {
-            // Llamar al endpoint de recarga de bono
-            await otorgarBono(selectedSaldo.tokenColaborador, bonoMonto);
+            // Usar el colaborador seleccionado para otorgar el bono
+            await otorgarBono(colaboradorSeleccionado.tokenColaborador || colaboradorSeleccionado.id, bonoMonto);
             await fetchData(); // Refrescar la tabla
             showAlert("Bono otorgado correctamente", "success");
         } catch (error) {
@@ -80,7 +110,6 @@ const CRUDWalletSaldos = () => {
         } finally {
             hideLoading();
             setEditOpen(false);
-            setSelectedSaldo(null);
         }
     };
 
@@ -106,31 +135,66 @@ const CRUDWalletSaldos = () => {
         },
     ];
 
+    // Columnas para transacciones
+    const transaccionesColumns = [
+        { field: 'transaccionId', headerName: 'ID', width: 100 },
+        { field: 'cantidad', headerName: 'Cantidad', width: 120 },
+        { field: 'descripcion', headerName: 'Descripción', width: 200 },
+        { field: 'fecha', headerName: 'Fecha', width: 180 },
+        { field: 'categoriaId', headerName: 'Categoría', width: 120 },
+    ];
+
+    const filteredWalletSaldos = colaboradorSeleccionado
+    ? walletSaldos.filter((item) => item.tokenColaborador === colaboradorSeleccionado.id)
+    : [];
+
     return (
         <Container>
             <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
                 <Typography variant="h4">Administrar ULIs</Typography>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => setEditOpen(true)}
+                    disabled={!colaboradorSeleccionado}
+                >
+                    Dar Bono
+                </Button>
+            </Box>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+                Selecciona un colaborador para visualizar sus transacciones y otorgar un bono
+            </Typography>
+            <Box sx={{ mb: 2, maxWidth: 400 }}>
+                <Autocomplete
+                    options={colaboradores}
+                    getOptionLabel={(option) => option.displayName || option.id}
+                    value={colaboradorSeleccionado}
+                    onChange={(_, value) => setColaboradorSeleccionado(value)}
+                    renderInput={(params) => (
+                        <TextField {...params} label="Selecciona un colaborador" variant="outlined" />
+                    )}
+                    isOptionEqualToValue={(option, value) => option.id === value.id}
+                />
             </Box>
             <DataGrid
-                rows={walletSaldos}
-                columns={columns}
+                rows={walletTransacciones}
+                columns={transaccionesColumns}
                 pageSize={5}
                 rowsPerPageOptions={[5]}
-                getRowId={(row) => row.walletSaldoId}
+                getRowId={(row) => row.transaccionId}
                 loading={loading}
                 sx={{
                     '& .MuiDataGrid-columnHeaderTitle': {
                       fontWeight: 'bold',
                     },
                   }}
-                onRowClick={handleRowClick}
             />
             <Dialog open={editOpen} onClose={handleEditClose}>
                 <DialogTitle>Otorgar Bono</DialogTitle>
                 <DialogContent>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-                        <Typography>ID: {selectedSaldo?.walletSaldoId}</Typography>
-                        <Typography>Colaborador: {colaboradores.find((col) => col.id === selectedSaldo?.tokenColaborador)?.displayName || selectedSaldo?.tokenColaborador}</Typography>
+                        <Typography>ID: {colaboradorSeleccionado?.walletSaldoId || colaboradorSeleccionado?.id}</Typography>
+                        <Typography>Colaborador: {colaboradorSeleccionado?.displayName || colaboradorSeleccionado?.id}</Typography>
                         <TextField
                             label="Monto del Bono"
                             type="number"
@@ -142,7 +206,7 @@ const CRUDWalletSaldos = () => {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleEditClose}>Cancelar</Button>
-                    <Button onClick={handleBonoSave} variant="contained" color="primary" disabled={bonoMonto <= 0}>Otorgar Bono</Button>
+                    <Button onClick={handleBonoSave} variant="contained" color="primary" disabled={bonoMonto <= 0 || !colaboradorSeleccionado}>Otorgar Bono</Button>
                 </DialogActions>
             </Dialog>
         </Container>
