@@ -23,7 +23,7 @@ jobs:
       run: docker compose push
 
   deploy:
-    runs-on: udla-dev
+    runs-on: Dev
     needs: build-and-push
     steps:
     - uses: actions/checkout@v4
