@@ -8,10 +8,8 @@ on:
 
 jobs:
 
-  build:
-
+  build-and-push:
     runs-on: Dev
-
     steps:
     - uses: actions/checkout@v4
     - name: Build the Docker Compose
@@ -23,6 +21,17 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
     - name: Push the Docker Compose
       run: docker compose push
+
+  deploy:
+    runs-on: Dev
+    needs: build-and-push
+    steps:
+    - uses: actions/checkout@v4
+    - uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
     - name: Get the Docker Compose
       run: docker compose pull
     - name: Stop the Docker Compose
