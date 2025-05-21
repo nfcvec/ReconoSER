@@ -1,23 +1,27 @@
 import React, { useState, useEffect } from "react";
-import { Container, Typography, Grid, Box, Slider, CircularProgress } from "@mui/material";
+import { Container, Typography, Grid, Box, Slider, CircularProgress, IconButton } from "@mui/material";
 import { useMsal } from "@azure/msal-react";
 import { getPremios } from "../../utils/services/premios";
 import PremiosComponent from "./premiosComponent";
 import { useWallet } from "../../contexts/WalletContext";
 import { useOrganizacion } from "../../contexts/OrganizacionContext";
 import { useLoading } from "../../contexts/LoadingContext";
+import AddIcon from "@mui/icons-material/Add";
+import RemoveIcon from "@mui/icons-material/Remove";
 
 export default function Marketplace() {
   const { instance } = useMsal();
   const [prizes, setPrizes] = useState([]);
   const [filteredPrizes, setFilteredPrizes] = useState([]);
-  const [priceRange, setPriceRange] = useState([0, 1000]);
   const [maxPrice, setMaxPrice] = useState(1000); // Estado para el precio máximo
   const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
   const { wallet, loading: walletLoading, refreshWallet } = useWallet();
   const userBalance = wallet?.saldoActual ?? null;
-  const {organizacion} = useOrganizacion();
+  const { organizacion } = useOrganizacion();
   const { showLoading, hideLoading } = useLoading(); // Usar el contexto de carga
+
+  // Elimina la lógica de sessionStorage y getInitialRange
+  const [priceRange, setPriceRange] = useState([0, 1000]);
 
   useEffect(() => {
     if (refreshWallet) {
@@ -78,12 +82,33 @@ export default function Marketplace() {
     setFilteredPrizes(filtered);
   }, [priceRange, prizes, searchTerm]);
 
+  // Cuando cambia el maxPrice, ajusta el rango si es necesario
+  useEffect(() => {
+    if (priceRange[1] > maxPrice) {
+      setPriceRange([priceRange[0], maxPrice]);
+    }
+    // eslint-disable-next-line
+  }, [maxPrice]);
+
   const handleSliderChange = (event, newValue) => {
     setPriceRange(newValue);
   };
 
   const handleSearchChange = (event) => {
     setSearchTerm(event.target.value);
+  };
+
+  const handleDecrease = () => {
+    setPriceRange(([min, max]) => [
+      Math.max(0, min - 5),
+      Math.max(min, max - 5)
+    ]);
+  };
+  const handleIncrease = () => {
+    setPriceRange(([min, max]) => [
+      min,
+      Math.min(maxPrice, max + 5)
+    ]);
   };
 
   const currentPrizes = filteredPrizes; // Mostrar todos los premios sin paginación
@@ -141,13 +166,22 @@ export default function Marketplace() {
 
       <Box>
         <Typography gutterBottom>Filtrar por rango de ULIs:</Typography>
-        <Slider
-          value={priceRange}
-          onChange={handleSliderChange}
-          valueLabelDisplay="auto"
-          min={0}
-          max={maxPrice} // Usar el precio máximo dinámico
-        />
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <IconButton onClick={handleDecrease} aria-label="Disminuir rango" size="small">
+            <RemoveIcon sx={{ color: organizacion?.colorPrincipal || 'primary.main' }} />
+          </IconButton>
+          <Slider
+            value={priceRange}
+            onChange={handleSliderChange}
+            valueLabelDisplay="auto"
+            min={0}
+            max={maxPrice}
+            sx={{ flex: 1 }}
+          />
+          <IconButton onClick={handleIncrease} aria-label="Aumentar rango" size="small">
+            <AddIcon sx={{ color: organizacion?.colorPrincipal || 'primary.main' }} />
+          </IconButton>
+        </Box>
         <Typography>
           Rango seleccionado: {priceRange[0]} - {priceRange[1]} ULIs
         </Typography>

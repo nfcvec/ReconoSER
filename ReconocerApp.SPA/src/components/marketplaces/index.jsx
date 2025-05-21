@@ -112,15 +112,15 @@ export default function PrizeDetail() {
             Puntos requeridos: {prize.costoWallet}
           </Typography>
           {imagenes && Array.isArray(imagenes) && imagenes.length > 0 && (
-            <Box sx={{ my: 2 }}>
-              <ImageList sx={{ width: 500, height: 250 }} cols={3} rowHeight={120}>
+            <Box sx={{ my: 2, display: 'flex', justifyContent: 'center' }}>
+              <ImageList sx={{ width: 600, height: 320 }} cols={1} rowHeight={300}>
                 {imagenes.map((img, idx) => (
-                  <ImageListItem key={idx}>
+                  <ImageListItem key={idx} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                     <img
                       src={`data:image/jpeg;base64,${img.content}`}
                       alt={`Premio imagen ${idx + 1}`}
                       loading="lazy"
-                      style={{ objectFit: "contain", width: "100%", height: "100%", cursor: "pointer" }}
+                      style={{ objectFit: "contain", width: "100%", height: 300, cursor: "pointer", display: 'block', margin: '0 auto' }}
                       onClick={() => {
                         setSelectedImg(`data:image/jpeg;base64,${img.content}`);
                         setDialogOpen(true);
@@ -134,7 +134,7 @@ export default function PrizeDetail() {
           <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md">
             <Box sx={{ p: 2, display: "flex", justifyContent: "center", alignItems: "center", bgcolor: "background.paper" }}>
               {selectedImg && (
-                <img src={selectedImg} alt="Imagen grande" style={{ maxWidth: "80vw", maxHeight: "80vh" }} />
+                <img src={selectedImg} alt="Imagen grande" style={{ maxWidth: "90vw", maxHeight: "80vh", display: 'block', margin: '0 auto' }} />
               )}
             </Box>
           </Dialog>

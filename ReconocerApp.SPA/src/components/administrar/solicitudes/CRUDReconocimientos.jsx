@@ -132,6 +132,7 @@ const CRUDReconocimientos = () => {
     },
     { field: "justificacion", headerName: "Justificación", width: 250 },
     { field: "estado", headerName: "Estado", width: 150 },
+    { field: "fechaCreacion", headerName: "Fecha de creación", width: 200 },
     {
       field: 'editar',
       headerName: '',
