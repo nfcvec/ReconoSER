@@ -1,7 +1,8 @@
 import { AuthenticatedTemplate, UnauthenticatedTemplate } from "@azure/msal-react";
 import Typography from "@mui/material/Typography";
 import Home from "./Home.jsx";
-import { Container, Box, Button } from "@mui/material";
+import { Container, Box } from "@mui/material";
+import SignInSignOutButton from "./../ui-components/SignInSignOutButton.jsx";
 
 export function Login() {
   return (
@@ -15,24 +16,62 @@ export function Login() {
       </AuthenticatedTemplate>
 
       <UnauthenticatedTemplate>
-        <Container maxWidth="sm" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, alignItems: 'center', mt: 4, width: '100%', justifyContent: 'center' }}>
+        <Container maxWidth="md" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Box sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: 'center',
+            mt: 4,
+            width: '100%',
+            justifyContent: 'center',
+          }}>
             {/* Imagen rectangular */}
-            <Box sx={{ flex: 1, minWidth: 1020, height: 720, bgcolor: '#e3f2fd', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 2 }}>
-              {/* Puedes reemplazar la imagen por una real si tienes una */}
-              <img src="https://sites-www.udla.edu.ec/sites/default/files/styles/scale_webp_960x540/public/media/high_res_image/2024/09/hero-bgew.png.webp?itok=LKKzFiPk" alt="Bienvenida" style={{ width: '100%', height: '100%'}} />
+            <Box sx={{
+              width: { xs: '100%', md: 700 },
+              aspectRatio: { xs: '16/9', md: '16/11' },
+              bgcolor: '#e3f2fd',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: 2,
+              borderRadius: 2,
+              mb: { xs: 2, md: 0 },
+              mr: { xs: 0, md: 2 },
+              overflow: 'hidden',
+              position: 'relative',
+              minWidth: { xs: '100%', md: 700 },
+              maxWidth: { xs: '100%', md: 1500 },
+              height: 'auto',
+              maxHeight: { xs: 10000, md: 900 },
+            }}>
+              <img 
+                src="https://sites-www.udla.edu.ec/sites/default/files/styles/scale_webp_960x540/public/media/high_res_image/2024/09/hero-bgew.png.webp?itok=LKKzFiPk" 
+                alt="Bienvenida" 
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectPosition: 'center',
+                  display: 'block',
+                }} 
+              />
             </Box>
             {/* Rectángulo vertical con botón de inicio de sesión */}
-            <Box sx={{ width: 920, height: 720, bgcolor: '#fff', boxShadow: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <Typography variant="h4" sx={{ mb: 2, fontWeight: 700, padding: 15, textAlign: 'center' }}>
-                Bienvenidos <br />
-                   a  <br />
-                Reconocer
+            <Box sx={{
+              width: { xs: '100%', md: 400 },
+              minHeight: { xs: 180, md: 720 },
+              bgcolor: '#fff',
+              boxShadow: 2,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: 2,
+              p: 3,
+            }}>
+              <Typography variant="h4" sx={{ mb: 2, fontWeight: 700, padding: 2, textAlign: 'center' }}>
+                Bienvenidos <br /> a <br /> Reconocer
               </Typography>
-              {/* Botón de inicio de sesión, puedes reemplazarlo por el método real de login */}
-              <Button variant="contained" color="primary" size="large" onClick={() => window.location.reload()}>
-                Iniciar sesión
-              </Button>
+              <SignInSignOutButton variant="contained" color="primary" size="large" fullWidth sx={{ mt: 2 }} />
             </Box>
           </Box>
         </Container>

@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ReconocerApp.API.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -139,7 +139,8 @@ namespace ReconocerApp.API.Migrations
                     OrganizacionId = table.Column<int>(type: "integer", nullable: false),
                     Nombre = table.Column<string>(type: "text", nullable: false),
                     Descripcion = table.Column<string>(type: "text", nullable: false),
-                    WalletOtorgados = table.Column<int>(type: "integer", nullable: false)
+                    WalletOtorgados = table.Column<int>(type: "integer", nullable: false),
+                    IconSvg = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -196,7 +197,7 @@ namespace ReconocerApp.API.Migrations
                     CategoriaId = table.Column<int>(type: "integer", nullable: false),
                     Cantidad = table.Column<int>(type: "integer", nullable: false),
                     Descripcion = table.Column<string>(type: "text", nullable: false),
-                    Fecha = table.Column<string>(type: "text", nullable: false)
+                    Fecha = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {

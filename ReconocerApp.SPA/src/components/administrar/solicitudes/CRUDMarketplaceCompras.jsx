@@ -43,7 +43,9 @@ const CRUDMarketplaceCompras = () => {
   const handleReview = async (action) => {
     showLoading(`Revisando compra...`);
     try {
+      console.log('selectedCompra:', selectedCompra); // <-- LOG para depuración
       await revisarPremioCompra({
+        id: selectedCompra?.compraId, // <-- Aseguramos que se pase el ID correcto y con el nombre esperado
         payload: {
           aprobar: action === "aprobado",
           comentarioRevision: comentarioRevision,
@@ -190,6 +192,12 @@ const CRUDMarketplaceCompras = () => {
               <Typography variant="body1" sx={{ my: 1 }}>
                 <strong>Estado:</strong> {selectedCompra.estado}
               </Typography>
+              {/* Campo de Stock debajo de la imagen */}
+              {selectedCompra?.premio?.cantidadActual !== undefined && (
+                <Typography variant="body1" sx={{ my: 1 }}>
+                  <strong>Stock Dispnible:</strong> {selectedCompra.premio.cantidadActual}
+                </Typography>
+              )}
               {/* Mostrar galería de imágenes si hay imágenes */}
               {imagenes && Array.isArray(imagenes) && imagenes.length > 0 && (
                 <Box sx={{ my: 2 }}>

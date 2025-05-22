@@ -203,7 +203,7 @@ namespace ReconocerApp.API.Controllers
                 CategoriaId = categoria.CategoriaId,
                 Cantidad = request.Monto,
                 Descripcion = $"Recarga de bono por {request.Monto}",
-                Fecha = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
+                Fecha = DateTime.UtcNow, // Ahora es DateTime
             };
             _context.WalletTransacciones.Add(transaccion);
             await _context.SaveChangesAsync();

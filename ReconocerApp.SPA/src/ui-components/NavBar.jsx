@@ -12,8 +12,9 @@ import { useTheme } from '../contexts/ThemeContext';
 const NavBar = () => {
   const { instance } = useMsal();
   const user = instance.getActiveAccount();
-  const oid = user?.idTokenClaims?.oid; // Calculamos el OID aquí
-  const { darkMode, toggleTheme } = useTheme(); // Acceder al contexto de tema
+  const oid = user?.idTokenClaims?.oid;
+  const { darkMode, toggleTheme } = useTheme();
+  const isAuthenticated = !!user;
 
   return (
     <Box style={{ flexGrow: 1, margin: 0, padding: 0 }}>
@@ -47,7 +48,8 @@ const NavBar = () => {
             <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
               <WelcomeName />
             </Box>
-            <SignInSignOutButton />
+            {/* Solo mostrar el botón si está autenticado */}
+            {isAuthenticated && <SignInSignOutButton />}
             {/* Theme toggle button */}
             <IconButton 
               color="inherit"

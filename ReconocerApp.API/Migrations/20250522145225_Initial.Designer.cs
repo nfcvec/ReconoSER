@@ -12,8 +12,8 @@ using ReconocerApp.API.Data;
 namespace ReconocerApp.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250521220012_initial")]
-    partial class initial
+    [Migration("20250522145225_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -114,6 +114,9 @@ namespace ReconocerApp.API.Migrations
 
                     b.Property<string>("Descripcion")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("IconSvg")
                         .HasColumnType("text");
 
                     b.Property<string>("Nombre")
@@ -413,9 +416,8 @@ namespace ReconocerApp.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Fecha")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("TokenColaborador")
                         .IsRequired()

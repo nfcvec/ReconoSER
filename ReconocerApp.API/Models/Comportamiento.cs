@@ -10,6 +10,7 @@ public class Comportamiento
     public string Nombre { get; set; } = string.Empty;
     public string Descripcion { get; set; } = string.Empty;
     public int WalletOtorgados { get; set; }
+    public string? IconSvg { get; set; } // Nuevo campo para el SVG del ícono
 
     public virtual Organizacion? Organizacion { get; set; }
     public virtual ICollection<ReconocimientoComportamiento>? ReconocimientoComportamientos { get; set; }

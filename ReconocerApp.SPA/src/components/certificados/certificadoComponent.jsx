@@ -79,11 +79,20 @@ const CertificadoComponent = forwardRef(({
           <Grid container spacing={2} justifyContent="center" mt={2}>
             {(Certificado?.comportamientos || []).map((item, index) => (
               <Grid item xs={4} key={index} textAlign="center">
-                {item?.icono && (
-                  <img
-                    src={item.icono}
-                    alt={item?.nombre}
-                    style={{ maxWidth: "80px", maxHeight: "80px" }}
+                {item?.iconSvg && (
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      width: 60,
+                      height: 60,
+                      background: '#fff',
+                      borderRadius: 8,
+                      border: '1px solid #eee',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                      marginBottom: 8,
+                      overflow: 'hidden',
+                    }}
+                    dangerouslySetInnerHTML={{ __html: (item.iconSvg || '').replace('<svg', '<svg width="100%" height="100%" preserveAspectRatio="xMidYMid meet"') }}
                   />
                 )}
                 <Typography variant="body2" sx={{ mt: 1, ...textShadowStyle }}>

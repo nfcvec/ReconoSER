@@ -14,7 +14,11 @@ namespace ReconocerApp.API.Mapping
                         ? new List<Comportamiento>() 
                         : src.ReconocimientoComportamientos.Select(rc => rc.Comportamiento).Where(c => c != null)));
             
-            CreateMap<Comportamiento, ComportamientoResponse>();
+            CreateMap<Comportamiento, ComportamientoResponse>()
+                .ForMember(dest => dest.IconSvg, opt => opt.MapFrom(src => src.IconSvg));
+
+            CreateMap<WalletTransaccion, WalletTransaccionResponse>()
+                .ForMember(dest => dest.Fecha, opt => opt.MapFrom(src => src.Fecha));
         }
     }
 }

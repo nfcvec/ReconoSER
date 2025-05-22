@@ -8,5 +8,5 @@ public class WalletTransaccionResponse
     public int CategoriaId { get; set; }
     public int Cantidad { get; set; }
     public string Descripcion { get; set; } = string.Empty;
-    public string Fecha { get; set; } = string.Empty;
+    public DateTime Fecha { get; set; } // Cambiado de string a DateTime
 }

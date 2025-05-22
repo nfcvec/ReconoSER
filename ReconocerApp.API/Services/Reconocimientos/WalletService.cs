@@ -80,7 +80,7 @@ public class WalletService : IWalletService
             CategoriaId = categoria.CategoriaId,
             Cantidad = cantidadULIs,
             Descripcion = descripcion,
-            Fecha = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
+            Fecha = DateTime.UtcNow, // Ahora es DateTime
         };
 
         _context.WalletTransacciones.Add(transaccion);
@@ -147,7 +147,7 @@ public class WalletService : IWalletService
             CategoriaId = categoria.CategoriaId,
             Cantidad = -costo, // Descontar
             Descripcion = descripcion,
-            Fecha = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
+            Fecha = DateTime.UtcNow, // Ahora es DateTime
         };
         _context.WalletTransacciones.Add(transaccion);
         // Calcular saldo total
@@ -181,7 +181,7 @@ public class WalletService : IWalletService
             CategoriaId = categoria.CategoriaId,
             Cantidad = costo, // Reponer
             Descripcion = descripcion,
-            Fecha = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss")
+            Fecha = DateTime.UtcNow, // Ahora es DateTime
         };
         _context.WalletTransacciones.Add(transaccion);
         // Calcular saldo total

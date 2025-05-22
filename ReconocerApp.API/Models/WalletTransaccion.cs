@@ -12,7 +12,7 @@ public class WalletTransaccion
     public int CategoriaId { get; set; } = 0;
     public int Cantidad { get; set; }
     public string Descripcion { get; set; } = string.Empty;
-    public string Fecha { get; set; } = string.Empty;
+    public DateTime Fecha { get; set; } // Cambiado de string a DateTime
 
     [ForeignKey("WalletSaldoId")]
     public virtual WalletSaldo WalletSaldo { get; set; } = default!;
