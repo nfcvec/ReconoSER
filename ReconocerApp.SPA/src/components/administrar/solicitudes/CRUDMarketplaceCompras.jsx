@@ -26,6 +26,7 @@ import { useLoading } from "../../../contexts/LoadingContext";
 import { useMsal } from "@azure/msal-react";
 import { useAlert } from "../../../contexts/AlertContext";
 import EditIcon from '@mui/icons-material/Edit';
+import { useWallet } from "../../../contexts/WalletContext";
 
 const CRUDMarketplaceCompras = () => {
   const [compras, setCompras] = useState([]);
@@ -39,6 +40,7 @@ const CRUDMarketplaceCompras = () => {
   const { showLoading, hideLoading } = useLoading();
   const { instance } = useMsal();
   const showAlert = useAlert();
+  const { refreshWallet } = useWallet();
 
   const handleReview = async (action) => {
     showLoading(`Revisando compra...`);
@@ -53,6 +55,7 @@ const CRUDMarketplaceCompras = () => {
         }
       });
 
+      await refreshWallet(); // Refresca el saldo después de aprobar o rechazar
       showAlert(`Compra ${action === "aprobado" ? "aprobada" : "rechazada"} correctamente.`, "success");
 
       // Actualiza la lista de compras eliminando la compra revisada

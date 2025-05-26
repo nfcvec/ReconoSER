@@ -6,12 +6,14 @@ import { getWalletBalanceByUserId } from "../../utils/services/walletBalance";
 import { createPremioCompra } from "../../utils/services/premiosCompra";
 import { useMsal } from "@azure/msal-react";
 import { useLoading } from "../../contexts/LoadingContext"; // Importar el LoadingContext
+import { useWallet } from "../../contexts/WalletContext";
 
 export default function PrizeDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
   const { instance } = useMsal();
   const { showLoading, hideLoading } = useLoading(); // Usar el contexto de carga
+  const { refreshWallet } = useWallet();
 
   const [prize, setPrize] = useState(null);
   const [walletData, setWalletData] = useState(null);
@@ -83,6 +85,7 @@ export default function PrizeDetail() {
         comentarioRevision: "",
       };
       await createPremioCompra(payload);
+      await refreshWallet(); // Refresca el saldo después de la compra
       hideLoading();
       navigate("/canjeExito");
     } catch (error) {

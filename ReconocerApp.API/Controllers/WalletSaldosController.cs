@@ -244,5 +244,61 @@ namespace ReconocerApp.API.Controllers
             var response = _mapper.Map<WalletSaldoResponse>(walletSaldo);
             return Ok(response);
         }
+
+        public class CorregirUlisRequest
+        {
+            public string ColaboradorId { get; set; } = string.Empty;
+            public int Monto { get; set; }
+            public int CategoriaId { get; set; } // <-- Agregado para recibir la categoría
+        }
+
+        [HttpPost("corregir-ulis")]
+        public async Task<ActionResult<WalletSaldoResponse>> CorregirUlis([FromBody] CorregirUlisRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.ColaboradorId) || request.Monto == 0)
+            {
+                return BadRequest("Datos inválidos para corrección de ULIs.");
+            }
+
+            // Buscar la categoría por ID enviada
+            var categoria = await _context.WalletCategorias.FirstOrDefaultAsync(c => c.CategoriaId == request.CategoriaId);
+            if (categoria == null)
+            {
+                return BadRequest("Categoría de ajuste no encontrada.");
+            }
+
+            // Buscar o crear el saldo
+            var walletSaldo = await _context.WalletSaldos.FirstOrDefaultAsync(ws => ws.TokenColaborador == request.ColaboradorId);
+            if (walletSaldo == null)
+            {
+                walletSaldo = new WalletSaldo { TokenColaborador = request.ColaboradorId, SaldoActual = 0 };
+                _context.WalletSaldos.Add(walletSaldo);
+                await _context.SaveChangesAsync();
+            }
+
+            // Siempre reducir (monto negativo)
+            var transaccion = new WalletTransaccion
+            {
+                WalletSaldoId = walletSaldo.WalletSaldoId,
+                TokenColaborador = request.ColaboradorId,
+                CategoriaId = categoria.CategoriaId,
+                Cantidad = -Math.Abs(request.Monto), // Siempre negativo
+                Descripcion = $"Ajuste negativo de ULIs por {request.Monto}",
+                Fecha = DateTime.UtcNow,
+            };
+            _context.WalletTransacciones.Add(transaccion);
+            await _context.SaveChangesAsync();
+
+            // Sumar todas las transacciones para actualizar el saldo
+            var totalSaldo = await _context.WalletTransacciones
+                .Where(wt => wt.TokenColaborador == request.ColaboradorId)
+                .SumAsync(wt => wt.Cantidad);
+            walletSaldo.SaldoActual = totalSaldo;
+            _context.WalletSaldos.Update(walletSaldo);
+            await _context.SaveChangesAsync();
+
+            var response = _mapper.Map<WalletSaldoResponse>(walletSaldo);
+            return Ok(response);
+        }
     }
 }

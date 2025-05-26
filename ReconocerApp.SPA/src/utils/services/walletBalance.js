@@ -78,3 +78,18 @@ export const otorgarBono = async (colaboradorId, monto) => {
         throw error;
     }
 };
+
+// Función para corregir el saldo de la billetera
+export const corregirSaldo = async (colaboradorId, monto, categoriaId) => {
+    try {
+        const response = await api.post("/WalletSaldos/corregir-ulis", {
+            colaboradorId,
+            monto,
+            categoriaId
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error al corregir el saldo de la billetera:", error.message);
+        throw error;
+    }
+};

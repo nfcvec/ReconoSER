@@ -33,6 +33,7 @@ import { useMsal } from "@azure/msal-react";
 import { useLoading } from "../../../contexts/LoadingContext";
 import { useAlert } from "../../../contexts/AlertContext";
 import EditIcon from '@mui/icons-material/Edit';
+import { useWallet } from "../../../contexts/WalletContext";
 
 const CRUDReconocimientos = () => {
   const [reconocimientos, setReconocimientos] = useState([]);
@@ -45,6 +46,7 @@ const CRUDReconocimientos = () => {
   const { instance } = useMsal();
   const { showLoading, hideLoading } = useLoading();
   const showAlert = useAlert();
+  const { refreshWallet } = useWallet();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -103,6 +105,7 @@ const CRUDReconocimientos = () => {
         generarULIs: generaULIS
       }
       await reviewReconocimiento(selectedReconocimiento.reconocimientoId, payload);
+      await refreshWallet(); // Refresca el saldo después de aprobar o rechazar
       showAlert(`Reconocimiento ${action === "aprobado" ? "aprobado" : "rechazado"} correctamente.`, "success");
       setReconocimientos((prev) =>
         prev.filter((rec) => rec.reconocimientoId !== selectedReconocimiento.reconocimientoId)
