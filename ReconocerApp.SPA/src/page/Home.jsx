@@ -27,6 +27,11 @@ export default function Home() {
   const user = instance.getActiveAccount();
   const { organizacion } = useOrganizacion();
 
+  // Obtener roles del usuario
+  const roles = user?.idTokenClaims?.roles || [];
+  const isAdmin = roles.some(r => r.toLowerCase() === "admin" || r.toLowerCase() === "administrador");
+  const isApprover = roles.some(r => r.toLowerCase() === "aprobador");
+
   const cardItems = [
     {
       title: "Mis Certificados",
@@ -110,12 +115,11 @@ export default function Home() {
     },
   ];
 
-  // Menú principal (visible para todos)
-  const mainMenuItems = cardItems.filter((item) => item.menu === "main");
-  // Menú de aprobadores (solo para aprobadores)
-  const approverMenuItems = cardItems.filter((item) => item.menu === "approver");
-  // Menú de administración (solo para administradores)
-  const adminMenuItems = cardItems.filter((item) => item.menu === "admin");
+  const menuMap = [
+    { visible: true, items: cardItems.filter(i => i.menu === "main") },
+    { visible: isAdmin || isApprover, label: "Menú de aprobadores", items: cardItems.filter(i => i.menu === "approver") },
+    { visible: isAdmin, label: "Menú de administración", items: cardItems.filter(i => i.menu === "admin") },
+  ];
 
   return (
     <Box
@@ -144,180 +148,65 @@ export default function Home() {
       >
         Reconoce lo extraordinario, gana ULIs y cámbialos por premios que te sorprenderán.
       </Typography>
-      <Grid
-        container
-        spacing={4}
-        justifyContent="center"
-        alignItems="stretch"
-      >
-        {mainMenuItems.map((item) => (
-          <Grid item key={item.link} xs={12} sm={6} md={4} lg={3}>
-            <Card
-              sx={{
-                maxWidth: 250,
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                transition: "transform 0.3s, box-shadow 0.3s",
-                "&:hover": {
-                  transform: "translateY(-5px)",
-                  boxShadow: 6,
-                },
-              }}
-              elevation={2}
-            >
-              <CardContent sx={{ textAlign: "center", flexGrow: 1 }}>
-                <Typography variant="h5" component="h2" gutterBottom>
-                  {item.title}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mb: 2 }}
+     <pre>{JSON.stringify(user.idTokenClaims.roles)}</pre> 
+      {/* <pre>{JSON.stringify(user, null, 2)}</pre> */}
+
+      {menuMap.map((menu, idx) => menu.visible && (
+        <Box key={idx} sx={{ width: '100%' }}>
+          {menu.label && <>
+            <Divider sx={{ width: '100%' }} />
+            <Typography variant="h6" sx={{ mb: 2 }}>{menu.label}</Typography>
+          </>}
+          <Grid container spacing={4} justifyContent="center" alignItems="stretch" sx={menu.label ? { mb: 4 } : {}}>
+            {menu.items.map((item) => (
+              <Grid item key={item.link} xs={12} sm={6} md={4} lg={3}>
+                <Card
+                  sx={{
+                    maxWidth: 250,
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    transition: "transform 0.3s, box-shadow 0.3s",
+                    "&:hover": {
+                      transform: "translateY(-5px)",
+                      boxShadow: 6,
+                    },
+                  }}
+                  elevation={2}
                 >
-                  {item.description}
-                </Typography>
-                <Box sx={{ py: 2, display: "flex", justifyContent: "center" }}>
-                  {item.icon}
-                </Box>
-              </CardContent>
-              <CardActions sx={{ p: 2, justifyContent: "center" }}>
-                <Link
-                  to={item.link}
-                  style={{ textDecoration: "none", width: "100%" }}
-                >
-                  <Button variant="contained" fullWidth>
-                    {item.buttonText}
-                  </Button>
-                </Link>
-              </CardActions>
-            </Card>
+                  <CardContent sx={{ textAlign: "center", flexGrow: 1 }}>
+                    <Typography variant="h5" component="h2" gutterBottom>
+                      {item.title}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      color="text.secondary"
+                      sx={{ mb: 2 }}
+                    >
+                      {item.description}
+                    </Typography>
+                    <Box sx={{ py: 2, display: "flex", justifyContent: "center" }}>
+                      {item.icon}
+                    </Box>
+                  </CardContent>
+                  <CardActions sx={{ p: 2, justifyContent: "center" }}>
+                    <Link
+                      to={item.link}
+                      style={{ textDecoration: "none", width: "100%" }}
+                    >
+                      <Button variant="contained" fullWidth>
+                        {item.buttonText}
+                      </Button>
+                    </Link>
+                  </CardActions>
+                </Card>
+              </Grid>
+            ))}
           </Grid>
-        ))}
-      </Grid>
-
-      <Divider sx={{ width: '100%' }} />
-
-      {/* Menú de aprobadores */}
-      <Typography variant="h6" sx={{ mb: 2 }}>
-        Menú de aprobadores
-      </Typography>
-      <Grid
-        container
-        spacing={4}
-        justifyContent="center"
-        alignItems="stretch"
-        sx={{ mb: 4 }}
-      >
-        {approverMenuItems.map((item) => (
-          <Grid item key={item.link} xs={12} sm={6} md={4} lg={3}>
-            <Card
-              sx={{
-                maxWidth: 250,
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                transition: "transform 0.3s, box-shadow 0.3s",
-                "&:hover": {
-                  transform: "translateY(-5px)",
-                  boxShadow: 6,
-                },
-              }}
-              elevation={2}
-            >
-              <CardContent sx={{ textAlign: "center", flexGrow: 1 }}>
-                <Typography variant="h5" component="h2" gutterBottom>
-                  {item.title}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mb: 2 }}
-                >
-                  {item.description}
-                </Typography>
-                <Box sx={{ py: 2, display: "flex", justifyContent: "center" }}>
-                  {item.icon}
-                </Box>
-              </CardContent>
-              <CardActions sx={{ p: 2, justifyContent: "center" }}>
-                <Link
-                  to={item.link}
-                  style={{ textDecoration: "none", width: "100%" }}
-                >
-                  <Button variant="contained" fullWidth>
-                    {item.buttonText}
-                  </Button>
-                </Link>
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
-
-      <Divider sx={{ width: '100%' }} />
-
-      {/* Menú de administración */}
-      <Typography variant="h6" sx={{ mb: 2 }}>
-        Menú de administración
-      </Typography>
-      <Grid
-        container
-        spacing={4}
-        justifyContent="center"
-        alignItems="stretch"
-      >
-        {adminMenuItems.map((item) => (
-          <Grid item key={item.link} xs={12} sm={6} md={4} lg={3}>
-            <Card
-              sx={{
-                maxWidth: 250,
-                width: "100%",
-                height: "100%",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between",
-                transition: "transform 0.3s, box-shadow 0.3s",
-                "&:hover": {
-                  transform: "translateY(-5px)",
-                  boxShadow: 6,
-                },
-              }}
-              elevation={2}
-            >
-              <CardContent sx={{ textAlign: "center", flexGrow: 1 }}>
-                <Typography variant="h5" component="h2" gutterBottom>
-                  {item.title}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{ mb: 2 }}
-                >
-                  {item.description}
-                </Typography>
-                <Box sx={{ py: 2, display: "flex", justifyContent: "center" }}>
-                  {item.icon}
-                </Box>
-              </CardContent>
-              <CardActions sx={{ p: 2, justifyContent: "center" }}>
-                <Link
-                  to={item.link}
-                  style={{ textDecoration: "none", width: "100%" }}
-                >
-                  <Button variant="contained" fullWidth>
-                    {item.buttonText}
-                  </Button>
-                </Link>
-              </CardActions>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+        </Box>
+      ))}
     </Box>
   );
 }
