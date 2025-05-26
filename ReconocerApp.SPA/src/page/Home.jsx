@@ -148,7 +148,7 @@ export default function Home() {
       >
         Reconoce lo extraordinario, gana ULIs y cámbialos por premios que te sorprenderán.
       </Typography>
-     <pre>{JSON.stringify(user.idTokenClaims.roles)}</pre> 
+     {/* <pre>{JSON.stringify(user.idTokenClaims.roles)}</pre>  */}
       {/* <pre>{JSON.stringify(user, null, 2)}</pre> */}
 
       {menuMap.map((menu, idx) => menu.visible && (
