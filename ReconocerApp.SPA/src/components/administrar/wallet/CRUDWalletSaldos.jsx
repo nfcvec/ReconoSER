@@ -8,12 +8,11 @@ import {
 } from "../../../utils/services/walletBalance";
 import { getColaboradoresFromBatchIds } from "../../../utils/services/colaboradores";
 import { getWalletTransaction } from '../../../utils/services/walletTransaccion';
-import { getCategorias } from '../../../utils/services/categorias';
 import { getWalletCategorias } from '../../../utils/services/walletCategorias';
 import { useAlert } from "../../../contexts/AlertContext";
 import { useLoading } from "../../../contexts/LoadingContext";
-import EditIcon from '@mui/icons-material/Edit';
 import { useWallet } from "../../../contexts/WalletContext";
+import FechaFormateada from '../../../ui-components/FechaFormateada';
 
 const CRUDWalletSaldos = () => {
   const [walletSaldos, setWalletSaldos] = useState([]);
@@ -124,7 +123,12 @@ const CRUDWalletSaldos = () => {
     { field: 'transaccionId', headerName: 'ID', width: 100 },
     { field: 'cantidad', headerName: 'Cantidad', width: 120 },
     { field: 'descripcion', headerName: 'Descripción', width: 200 },
-    { field: 'fecha', headerName: 'Fecha', width: 180 },
+    {
+      field: 'fecha',
+      headerName: 'Fecha',
+      width: 180,
+      renderCell: (params) => <FechaFormateada value={params.value} />
+    },
     {
       field: 'categoriaId',
       headerName: 'Categoría',

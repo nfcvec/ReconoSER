@@ -34,6 +34,7 @@ import { useLoading } from "../../../contexts/LoadingContext";
 import { useAlert } from "../../../contexts/AlertContext";
 import EditIcon from '@mui/icons-material/Edit';
 import { useWallet } from "../../../contexts/WalletContext";
+import FechaFormateada from '../../../ui-components/FechaFormateada';
 
 const CRUDReconocimientos = () => {
   const [reconocimientos, setReconocimientos] = useState([]);
@@ -135,7 +136,7 @@ const CRUDReconocimientos = () => {
     },
     { field: "justificacion", headerName: "Justificación", width: 250 },
     { field: "estado", headerName: "Estado", width: 150 },
-    { field: "fechaCreacion", headerName: "Fecha de creación", width: 200 },
+    { field: "fechaCreacion", headerName: "Fecha de creación", width: 200, renderCell: (params) => <FechaFormateada value={params.value} /> },
     {
       field: 'editar',
       headerName: '',
@@ -154,6 +155,9 @@ const CRUDReconocimientos = () => {
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography variant="h4" gutterBottom>
           Revisar reconocimientos
+        </Typography>
+        <Typography variant="h5" color="textSecondary">
+          Tienes {reconocimientos.length} solicitudes pendientes
         </Typography>
       </Box>
       <DataGrid
@@ -200,6 +204,9 @@ const CRUDReconocimientos = () => {
               </Typography>
               <Typography variant="body1" sx={{ my: 1 }}>
                 <strong>Estado:</strong> {selectedReconocimiento.estado}
+              </Typography>
+              <Typography variant="body1" sx={{ my: 1 }}>
+                <strong>Fecha de creación:</strong> <FechaFormateada value={selectedReconocimiento.fechaCreacion} />
               </Typography>
 
               {selectedReconocimiento.comportamientos && selectedReconocimiento.comportamientos.length > 0 && (

@@ -27,6 +27,7 @@ import { useMsal } from "@azure/msal-react";
 import { useAlert } from "../../../contexts/AlertContext";
 import EditIcon from '@mui/icons-material/Edit';
 import { useWallet } from "../../../contexts/WalletContext";
+import FechaFormateada from '../../../ui-components/FechaFormateada';
 
 const CRUDMarketplaceCompras = () => {
   const [compras, setCompras] = useState([]);
@@ -128,7 +129,12 @@ const CRUDMarketplaceCompras = () => {
       width: 250,
       valueGetter: (params) => params.nombre,
     },
-    { field: "fechaCompra", headerName: "Fecha de Compra", width: 200 },
+    {
+      field: "fechaCompra",
+      headerName: "Fecha de Compra",
+      width: 200,
+      renderCell: (params) => <FechaFormateada value={params.value} />
+    },
     {
       field: 'editar',
       headerName: '',
@@ -187,10 +193,7 @@ const CRUDMarketplaceCompras = () => {
               </Typography>
               <Typography variant="body1" sx={{ my: 1 }}>
                 <strong>Fecha de compra:</strong>{" "}
-                {new Date(selectedCompra.fechaCompra).toLocaleString("es-EC", {
-                  dateStyle: "short",
-                  timeStyle: "short",
-                })}
+                <FechaFormateada value={selectedCompra.fechaCompra} />
               </Typography>
               <Typography variant="body1" sx={{ my: 1 }}>
                 <strong>Estado:</strong> {selectedCompra.estado}
