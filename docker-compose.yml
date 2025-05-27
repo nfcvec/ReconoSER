@@ -23,7 +23,7 @@ services:
     environment:
       ConnectionStrings__DefaultConnection: "Host=192.168.10.40;Port=5432;Username=postgres;Password=Artes@nas240;Database=reconoser"
       DatabaseProvider: "PostgreSQL"
-      Minio__Endpoint: "minio:9000"
+      Minio__Endpoint: "192.168.10.56:9000"
       Minio__AccessKey: "minioadmin" # Usuario de acceso
       Minio__SecretKey: "Artes@nas240" # Contraseña de acceso
       Minio__BucketName: "reconoser" # Nombre del bucket
@@ -37,22 +37,6 @@ services:
       AzureAd__TenantId: "2af6ae87-3287-4e29-a50a-680f5d852aa3"
       AzureAd__ClientSecret: "osD8Q~9c-aoRpC.5PMy_u5vdYYhii6p00jVaIcyw"
       FrontendUrl: "https://reconoser.lerolero.com.ec"
-    depends_on:
-      - minio
-
-  minio:
-    image: minio/minio:latest
-    container_name: minio
-    ports:
-      - "9000:9000" # Puerto para el servicio de MinIO
-      - "9001:9001" # Puerto para la consola de MinIO
-    environment:
-      MINIO_ROOT_USER: minioadmin # Usuario de acceso
-      MINIO_ROOT_PASSWORD: minioadmin # Contraseña de acceso
-    volumes:
-      - minio_data:/data # Volumen para persistir datos
-    command: server /data --console-address ":9001"
-    restart: always
 
   cloudflared:
     image: cloudflare/cloudflared:latest
