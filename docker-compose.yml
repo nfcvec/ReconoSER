@@ -25,7 +25,7 @@ services:
       DatabaseProvider: "PostgreSQL"
       Minio__Endpoint: "minio:9000"
       Minio__AccessKey: "minioadmin" # Usuario de acceso
-      Minio__SecretKey: "minioadmin" # Contraseña de acceso
+      Minio__SecretKey: "Artes@nas240" # Contraseña de acceso
       Minio__BucketName: "reconoser" # Nombre del bucket
       Email__SmtpServer: "mail.upsecuador.com"
       Email__Port: "465"
