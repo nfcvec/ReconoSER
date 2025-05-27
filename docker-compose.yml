@@ -51,5 +51,10 @@ services:
     command: server /data --console-address ":9001"
     restart: always
 
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run --token eyJhIjoiY2VjODk5MGQ1YWM2ODk5NzlkOWU1ZGE2MWZkNzQ4YzEiLCJ0IjoiODg1NmU2NWYtYWUxOC00NDZmLWI5ZTItY2UzOWVhN2E0ODI2IiwicyI6Ik1tVmxNR05sTTJVdE1XWmhZUzAwTXpCbUxXRTRaVGt0TmpVNU5HUmlOemRoWVRkbCJ9
+    restart: unless-stopped
+
 volumes:
   minio_data:
