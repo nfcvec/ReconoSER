@@ -27,6 +27,11 @@ export default function Home() {
   const user = instance.getActiveAccount();
   const { organizacion } = useOrganizacion();
 
+  // Obtener roles del usuario
+  const roles = user?.idTokenClaims?.roles || [];
+  const isAdmin = roles.some(r => r.toLowerCase() === "admin" || r.toLowerCase() === "administrador");
+  const isApprover = roles.some(r => r.toLowerCase() === "aprobador");
+
   const cardItems = [
     {
       title: "Mis Certificados",
@@ -137,8 +142,8 @@ export default function Home() {
       >
         Reconoce lo extraordinario, gana ULIs y cámbialos por premios que te sorprenderán.
       </Typography>
-     {/* <pre>{JSON.stringify(user.idTokenClaims.roles)}</pre>  */}
-     {/*<pre>{JSON.stringify(user, null, 2)}</pre>*/}
+      {/* <pre>{JSON.stringify(user.idTokenClaims.roles)}</pre>  */}
+      {/*<pre>{JSON.stringify(user, null, 2)}</pre>*/}
 
       {/* Menú principal */}
       <Box sx={{ width: '100%' }}>
@@ -193,7 +198,8 @@ export default function Home() {
       </Box>
 
       {/* Menú de aprobadores */}
-      <Box sx={{ width: '100%' }}>
+      {(isApprover || isAdmin) && (
+        <Box sx={{ width: '100%' }}>
           <Divider sx={{ width: '100%' }} />
           <Typography variant="h6" sx={{ mb: 2 }}>Menú de aprobadores</Typography>
           <Grid container spacing={4} justifyContent="center" alignItems="stretch" sx={{ mb: 4 }}>
@@ -245,8 +251,11 @@ export default function Home() {
             ))}
           </Grid>
         </Box>
+      )}
+
       {/* Menú de administración */}
-      <Box sx={{ width: '100%' }}>
+      {isAdmin && (
+        <Box sx={{ width: '100%' }}>
           <Divider sx={{ width: '100%' }} />
           <Typography variant="h6" sx={{ mb: 2 }}>Menú de administración</Typography>
           <Grid container spacing={4} justifyContent="center" alignItems="stretch" sx={{ mb: 4 }}>
@@ -298,6 +307,7 @@ export default function Home() {
             ))}
           </Grid>
         </Box>
+      )}
     </Box>
   );
 }

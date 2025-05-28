@@ -42,6 +42,8 @@ export const WalletProvider = ({ children }) => {
 
     useEffect(() => {
         fetchWallet();
+        const interval = setInterval(fetchWallet, 15000); // Actualiza cada 15 segundos
+        return () => clearInterval(interval);
     }, [accounts, instance]);
 
     return (
