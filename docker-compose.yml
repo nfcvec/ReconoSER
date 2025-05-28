@@ -33,8 +33,8 @@ services:
       Email__Password: "ekinotificaciones"
       Email__EnableSsl: "true"
       Email__FromAddress: "notificaciones@upsecuador.com"
-      AzureAd__ClientId: "2462d3ca-37eb-4778-98e6-a322b99f5cce"
-      AzureAd__TenantId: "2af6ae87-3287-4e29-a50a-680f5d852aa3"
+      AzureAd__ClientId: "3c1288d3-314b-4ab3-9669-11ab1909e1ab"
+      AzureAd__TenantId: "05b4b405-3325-479b-88fd-f6c25ea40a8c"
       AzureAd__ClientSecret: "osD8Q~9c-aoRpC.5PMy_u5vdYYhii6p00jVaIcyw"
       FrontendUrl: "https://reconoser.lerolero.com.ec"
     depends_on:
