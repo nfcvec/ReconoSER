@@ -1,6 +1,6 @@
 import React, { forwardRef } from "react";
 import { Paper, Box, Typography, Divider, Grid } from "@mui/material";
-import udlaparkImage from "../../assets/udlapark_entradaprincipal_interior.jpg"; // Importa la imagen
+import certificadoBg from "../../assets/RECONOCER.jpg";
 import { useOrganizacion } from "../../contexts/OrganizacionContext";
 
 const CertificadoComponent = forwardRef(({
@@ -24,58 +24,40 @@ const CertificadoComponent = forwardRef(({
       ref={ref}
       elevation={3}
       sx={{
-        p: 2,
-        width: "720px",
-        minWidth: "720px",
-        minHeight: "720px",
-        backgroundColor: "primary.main",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
+        p: 0, // Sin padding para que el contenido ocupe todo el fondo
+        width: 'auto',
+        minWidth: 'unset',
+        minHeight: 'unset',
+        aspectRatio: '1365/2048', // Relación de aspecto de la imagen proporcionada
+        backgroundImage: `url(${certificadoBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        position: 'relative',
       }}
     >
-      <Box textAlign="center" mb={2}>
-        <Typography
-          variant="h3"
-          fontWeight="bold"
-          gutterBottom
-          sx={textShadowStyle}
-        >
-          ReconoSER
-        </Typography>
-        <Typography
-          variant="h5"
-          fontWeight="bold"
-          sx={textShadowStyle}
-        >
-          {organizacion.descripcion}
-        </Typography>
-      </Box>
-
       <Box
         sx={{
-          backgroundColor: "rgba(0, 0, 0, 0.4)",
+          backgroundColor: "#e82020",
           borderRadius: 2,
           padding: 2,
           boxShadow: 1,
+          // Asegúrate de que el fondo sea opaco y no el texto
         }}
       >
-        <Box textAlign="center" mb={2}>
-          <Typography variant="h6" sx={textShadowStyle}>
-            De <strong>{Reconocedor?.displayName || "Reconocedor no encontrado"}</strong>
+        <Box textAlign="left" mb={2}>
+          <Typography variant="h4" sx={textShadowStyle}>
+            ¡Felicitaciones!
           </Typography>
-        </Box>
-
-        <Box textAlign="center" mb={2}>
-          <Typography variant="h5" sx={textShadowStyle}>
-            Para <strong>{Reconocido?.displayName || "Colaborador no encontrado"}</strong>
-          </Typography>
-        </Box>
-
-        <Box textAlign="center" mb={2}>
-          <Typography variant="body1" gutterBottom sx={textShadowStyle}>
+          <Typography variant="body1" sx={textShadowStyle}>
             Talentos como tú nos enorgullecen y destacamos en ti:
           </Typography>
+        </Box>
+        <Box textAlign="center" mb={2}>
           <Grid container spacing={2} justifyContent="center" mt={2}>
             {(Certificado?.comportamientos || []).map((item, index) => (
               <Grid item xs={4} key={index} textAlign="center">
@@ -102,7 +84,14 @@ const CertificadoComponent = forwardRef(({
             ))}
           </Grid>
         </Box>
-
+        <Box display="flex" justifyContent="center" alignItems="center" mb={2} sx={{ background: 'rgba(0,0,0,0.5)', borderRadius: 2, p: 1 }}>
+          <Typography variant="h6" sx={{ ...textShadowStyle, mr: 2 }}>
+            De <strong>{Reconocedor?.displayName || "Reconocedor no encontrado"}</strong>
+          </Typography>
+          <Typography variant="h6" sx={{ ...textShadowStyle, ml: 2 }}>
+            Para <strong>{Reconocido?.displayName || "Colaborador no encontrado"}</strong>
+          </Typography>
+        </Box>
         <Box textAlign="center" mt={2}>
           <Typography
             variant="body2"
