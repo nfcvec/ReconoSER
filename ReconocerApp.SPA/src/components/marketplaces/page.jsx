@@ -3,7 +3,6 @@ import { Container, Typography, Grid, Box, Slider, CircularProgress, IconButton 
 import { useMsal } from "@azure/msal-react";
 import { getPremios } from "../../utils/services/premios";
 import PremiosComponent from "./premiosComponent";
-import { useWallet } from "../../contexts/WalletContext";
 import { useOrganizacion } from "../../contexts/OrganizacionContext";
 import { useLoading } from "../../contexts/LoadingContext";
 import AddIcon from "@mui/icons-material/Add";
@@ -13,29 +12,12 @@ export default function Marketplace() {
   const { instance } = useMsal();
   const [prizes, setPrizes] = useState([]);
   const [filteredPrizes, setFilteredPrizes] = useState([]);
-  const [maxPrice, setMaxPrice] = useState(1000); // Estado para el precio máximo
-  const [searchTerm, setSearchTerm] = useState(""); // Estado para el término de búsqueda
-  const { wallet, loading: walletLoading, refreshWallet } = useWallet();
-  const userBalance = wallet?.saldoActual ?? null;
+  const [maxPrice, setMaxPrice] = useState(1000);
+  const [searchTerm, setSearchTerm] = useState("");
   const { organizacion } = useOrganizacion();
-  const { showLoading, hideLoading } = useLoading(); // Usar el contexto de carga
-
-  // Elimina la lógica de sessionStorage y getInitialRange
+  const { showLoading, hideLoading } = useLoading();
   const [priceRange, setPriceRange] = useState([0, 1000]);
 
-  // Elimina el refresh automático de wallet
-  // useEffect(() => {
-  //   if (refreshWallet) {
-  //     refreshWallet();
-  //   }
-  // }, []);
-
-  // Handler para actualizar el saldo manualmente
-  const handleBalanceClick = () => {
-    if (refreshWallet) refreshWallet();
-  };
-
-  // useEffect de premios y organización (sin intervalos)
   useEffect(() => {
     if (!organizacion) return;
     const fetchData = async () => {
@@ -67,23 +49,20 @@ export default function Marketplace() {
   }, [organizacion]);
 
   useEffect(() => {
-    console.log('[Marketplace] useEffect filtro ejecutado', { prizes, priceRange, searchTerm });
     const filtered = prizes
       .filter((premio) =>
-        premio.nombre.toLowerCase().includes(searchTerm.toLowerCase()) // Filtrar por nombre
+        premio.nombre.toLowerCase().includes(searchTerm.toLowerCase())
       )
       .filter((premio) =>
-        premio.costoWallet >= priceRange[0] && premio.costoWallet <= priceRange[1] // Filtrar por rango de precios
-      )
+        premio.costoWallet >= priceRange[0] && premio.costoWallet <= priceRange[1]
+      );
     setFilteredPrizes(filtered);
   }, [priceRange, prizes, searchTerm]);
 
-  // Cuando cambia el maxPrice, ajusta el rango si es necesario
   useEffect(() => {
     if (priceRange[1] > maxPrice) {
       setPriceRange([priceRange[0], maxPrice]);
     }
-    // eslint-disable-next-line
   }, [maxPrice]);
 
   const handleSliderChange = (event, newValue) => {
@@ -107,18 +86,9 @@ export default function Marketplace() {
     ]);
   };
 
-  const currentPrizes = filteredPrizes; // Mostrar todos los premios sin paginación
+  const currentPrizes = filteredPrizes;
 
-  if (walletLoading || userBalance === null) {
-    return (
-      <Container maxWidth="lg" sx={{ py: 4, textAlign: 'center' }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-        <CircularProgress />
-      </Box>
-      </Container>
-    );
-  }
-
+  // Renderizar premios y layout normalmente, sin wallet
   return (
     <Box
       sx={{
@@ -136,14 +106,9 @@ export default function Marketplace() {
       <Typography variant="body1">
         Canjea tus ULIs por premios exclusivos.
       </Typography>
-
-      <Typography variant="subtitle1" sx={{ mt: 2, mb: 1, cursor: 'pointer', userSelect: 'none' }} color="primary" onClick={handleBalanceClick}>
-        Tu saldo actual: <strong>{userBalance} ULIs</strong>
-      </Typography>
       <Typography variant="body2" sx={{ mb: 2 }} color="text.secondary">
         Solo los premios con el botón <strong>Canjear</strong> activado pueden ser canjeados con tu saldo actual.
       </Typography>
-
       <Box sx={{ width: "100%", maxWidth: 600, mb: 2 }}>
         <input
           type="text"
@@ -159,7 +124,6 @@ export default function Marketplace() {
           }}
         />
       </Box>
-
       <Box>
         <Typography gutterBottom>Filtrar por rango de ULIs:</Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
@@ -182,13 +146,11 @@ export default function Marketplace() {
           Rango seleccionado: {priceRange[0]} - {priceRange[1]} ULIs
         </Typography>
       </Box>
-
       {currentPrizes.length === 0 && (
         <Box sx={{ textAlign: "center", py: 6 }}>
           <Typography color="text.secondary">No se encontraron premios disponibles.</Typography>
         </Box>
       )}
-
       <Grid container spacing={4} justifyContent="center">
         {currentPrizes.map((premio) => (
           <Grid key={premio.premioId}>
