@@ -22,134 +22,77 @@ export default function Certificados() {
   const [colaboradores, setColaboradores] = useState([]);
   const certificadoRef = useRef(null);
 
-  const handleRowClick = (params) => {
-    setSelectedCertificado(params.row);
+  const handleRowClick = ({ row }) => {
+    setSelectedCertificado(row);
     setOpen(true);
   };
 
   const handleClose = () => setOpen(false);
 
+  // Utilidades
   const isWebShareSupported = typeof navigator !== 'undefined' && !!navigator.canShare && !!navigator.share;
 
+  // Descargar y compartir
   const handleDownload = async () => {
-    if (certificadoRef.current) {
-      try {
-        const canvas = await html2canvas(certificadoRef.current, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: "#ffffff"
-        });
-        canvas.toBlob((blob) => {
-          if (blob) {
-            const link = document.createElement('a');
-            link.download = `certificado-${selectedCertificado.reconocimientoId}.png`;
-            link.href = URL.createObjectURL(blob);
-            link.click();
-            URL.revokeObjectURL(link.href);
-          }
-        }, 'image/png');
-      } catch (error) {
-        console.error("Error al exportar el certificado:", error);
-      }
-    }
+    if (!certificadoRef.current) return;
+    try {
+      const canvas = await html2canvas(certificadoRef.current, { scale: 2, useCORS: true, logging: false, backgroundColor: '#fff' });
+      canvas.toBlob((blob) => {
+        if (!blob) return;
+        const link = document.createElement('a');
+        link.download = `certificado-${selectedCertificado.reconocimientoId}.png`;
+        link.href = URL.createObjectURL(blob);
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }, 'image/png');
+    } catch (error) { console.error('Error al exportar el certificado:', error); }
   };
 
   const handleShare = async () => {
-    if (certificadoRef.current && isWebShareSupported) {
-      try {
-        const canvas = await html2canvas(certificadoRef.current, {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          backgroundColor: "#ffffff"
-        });
-        canvas.toBlob(async (blob) => {
-          if (blob && navigator.canShare({ files: [new File([blob], `certificado-${selectedCertificado.reconocimientoId}.png`, { type: 'image/png' })] })) {
-            const file = new File([blob], `certificado-${selectedCertificado.reconocimientoId}.png`, { type: 'image/png' });
-            try {
-              await navigator.share({
-                files: [file],
-                title: 'Certificado de Reconocimiento',
-                text: '¡Mira mi certificado de reconocimiento!'
-              });
-            } catch (err) {
-              // Si el usuario cancela o hay error, no hacer nada
-            }
-          }
-        }, 'image/png');
-      } catch (error) {
-        console.error("Error al compartir el certificado:", error);
-      }
-    }
+    if (!certificadoRef.current || !isWebShareSupported) return;
+    try {
+      const canvas = await html2canvas(certificadoRef.current, { scale: 2, useCORS: true, logging: false, backgroundColor: '#fff' });
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const file = new File([blob], `certificado-${selectedCertificado.reconocimientoId}.png`, { type: 'image/png' });
+        if (navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ files: [file], title: 'Certificado de Reconocimiento', text: '¡Mira mi certificado de reconocimiento!' });
+          } catch {}
+        }
+      }, 'image/png');
+    } catch (error) { console.error('Error al compartir el certificado:', error); }
   };
 
+  // Fetch certificados y colaboradores
   useEffect(() => {
-    const fetchCertificados = async () => {
-      if (!oid) return;
-      try {
-        const allCertificates = await getCertificados({
-          filters: [
-            {
-              field: "ReconocidoId",
-              operator: "eq",
-              value: oid,
-            },
-            {
-              field: "Estado",
-              operator: "eq",
-              value: "aprobado",
-            },
-          ]
-        });
-        setCertificados(allCertificates);
-      } catch (error) {
-        console.error("Error al obtener los certificados:", error);
-      }
-    };
-
-    fetchCertificados();
+    if (!oid) return;
+    getCertificados({
+      filters: [
+        { field: 'ReconocidoId', operator: 'eq', value: oid },
+        { field: 'Estado', operator: 'eq', value: 'aprobado' },
+      ]
+    })
+      .then(setCertificados)
+      .catch(e => console.error('Error al obtener los certificados:', e));
   }, [oid]);
 
-  const fetchColaboradores = async () => {
-    let ids = [];
-    if (certificates.length > 0) {
-      const reconocedores = certificates.map((cert) => cert.reconocedorId);
-      const reconocidos = certificates.map((cert) => cert.reconocidoId);
-      ids = [...new Set([...reconocedores, ...reconocidos])];
-    }
-    const uniqueIds = [...new Set(ids)];
-    try {
-      const users = await getColaboradoresFromBatchIds(uniqueIds);
-      setColaboradores(users);
-    }
-    catch (error) {
-      console.error("Error al obtener los colaboradores:", error);
-    }
-  }
-
   useEffect(() => {
-    if (certificates.length > 0) {
-      fetchColaboradores();
-    }
+    if (!certificates.length) return;
+    const ids = [...new Set(certificates.flatMap(cert => [cert.reconocedorId, cert.reconocidoId]))];
+    getColaboradoresFromBatchIds(ids)
+      .then(setColaboradores)
+      .catch(e => console.error('Error al obtener los colaboradores:', e));
   }, [certificates]);
 
   const columns = [
-    { 
-      field: "reconocimientoId", 
-      headerName: "ID", 
-    },
+    { field: 'reconocimientoId', headerName: 'ID' },
     {
-      field: "reconocedorId",
-      headerName: "Reconocedor",
-      renderCell: (params) => {
-        return colaboradores.find((col) => col.id === params.value)?.displayName || "Cargando...";
-      },
+      field: 'reconocedorId',
+      headerName: 'Reconocedor',
+      renderCell: ({ value }) => colaboradores.find(col => col.id === value)?.displayName || 'Cargando...'
     },
-    { 
-      field: "texto", 
-      headerName: "Mensaje del Solicitante"
-    },
+    { field: 'texto', headerName: 'Mensaje del Solicitante' },
   ];
 
   return (
@@ -191,7 +134,7 @@ export default function Certificados() {
         {selectedCertificado && (
           <>
             <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pr: 1 }}>
-              Certificado de Reconocimiento
+              <strong>Certificado de Reconocimiento</strong>
               <IconButton aria-label="close" onClick={handleClose} size="large">
                 <CloseIcon />
               </IconButton>

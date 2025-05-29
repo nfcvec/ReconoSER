@@ -23,52 +23,48 @@ export default function Marketplace() {
   // Elimina la lógica de sessionStorage y getInitialRange
   const [priceRange, setPriceRange] = useState([0, 1000]);
 
-  useEffect(() => {
-    if (refreshWallet) {
-      refreshWallet();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Elimina el refresh automático de wallet
+  // useEffect(() => {
+  //   if (refreshWallet) {
+  //     refreshWallet();
+  //   }
+  // }, []);
 
+  // Handler para actualizar el saldo manualmente
+  const handleBalanceClick = () => {
+    if (refreshWallet) refreshWallet();
+  };
+
+  // useEffect de premios y organización (sin intervalos)
   useEffect(() => {
-    console.log('[Marketplace] useEffect premios ejecutado', { organizacion, instance });
-    if (!organizacion) return; // Espera a que organización esté disponible
+    if (!organizacion) return;
     const fetchData = async () => {
       showLoading("Cargando premios...");
       try {
         const premios = await getPremios({
           filters: [
-            {
-              field: "OrganizacionId",
-              operator: "eq",
-              value: `${organizacion.organizacionId}`
-            }
+            { field: "OrganizacionId", operator: "eq", value: `${organizacion.organizacionId}` }
           ],
           orderBy: "CostoWallet",
           orderDirection: "asc",
         });
-        console.log('[Marketplace] premios obtenidos', premios);
         if (!Array.isArray(premios)) {
           console.error("Los premios no son un array válido.");
           return;
         }
-
         setPrizes(premios);
         setFilteredPrizes(premios);
-
-        // Calcular el precio máximo dinámicamente
         const maxCosto = Math.max(...premios.map((premio) => premio.costoWallet));
         setMaxPrice(maxCosto);
-        setPriceRange([0, maxCosto]); // Ajustar el rango inicial
+        setPriceRange([0, maxCosto]);
       } catch (error) {
         console.error("Error al obtener datos:", error.message);
       } finally {
         hideLoading();
       }
     };
-
     fetchData();
-  }, [instance]);
+  }, [organizacion]);
 
   useEffect(() => {
     console.log('[Marketplace] useEffect filtro ejecutado', { prizes, priceRange, searchTerm });
@@ -141,7 +137,7 @@ export default function Marketplace() {
         Canjea tus ULIs por premios exclusivos.
       </Typography>
 
-      <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }} color="primary">
+      <Typography variant="subtitle1" sx={{ mt: 2, mb: 1, cursor: 'pointer', userSelect: 'none' }} color="primary" onClick={handleBalanceClick}>
         Tu saldo actual: <strong>{userBalance} ULIs</strong>
       </Typography>
       <Typography variant="body2" sx={{ mb: 2 }} color="text.secondary">
