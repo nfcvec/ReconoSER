@@ -154,20 +154,33 @@ const PremioForm = ({ open, onClose, premio = null }) => {
       <DialogTitle>{premio?.premioId ? "Editar Premio" : "Crear Premio"}</DialogTitle>
       <DialogContent>
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          {["nombre", "descripcion", "costoWallet", "cantidadActual"].map((field) => (
-            <TextField
-              key={field}
-              label={field.charAt(0).toUpperCase() + field.slice(1)}
-              name={field}
-              value={formData[field]}
-              onChange={handleChange}
-              fullWidth
-              required
-              multiline={field === "descripcion"}
-              rows={field === "descripcion" ? 3 : 1}
-              type={field.includes("Wallet") || field.includes("Actual") ? "number" : "text"}
-            />
-          ))}
+          <TextField
+            label="Nombre"
+            name="nombre"
+            value={formData.nombre}
+            onChange={handleChange}
+            fullWidth
+            required
+          />
+          <TextField
+            label="Descripción"
+            name="descripcion"
+            value={formData.descripcion}
+            onChange={handleChange}
+            fullWidth
+            required
+            multiline
+            rows={3}
+          />
+          <TextField
+            label="ULIs"
+            name="costoWallet"
+            value={formData.costoWallet}
+            onChange={handleChange}
+            fullWidth
+            required
+            type="number"
+          />
           <TextField
             label="Categoría"
             name="categoriaId"

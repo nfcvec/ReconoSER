@@ -202,12 +202,6 @@ const CRUDMarketplaceCompras = () => {
               <Typography variant="body1" sx={{ my: 1 }}>
                 <strong>Estado:</strong> {selectedCompra.estado}
               </Typography>
-              {/* Campo de Stock debajo de la imagen */}
-              {selectedCompra?.premio?.cantidadActual !== undefined && (
-                <Typography variant="body1" sx={{ my: 1 }}>
-                  <strong>Stock Dispnible:</strong> {selectedCompra.premio.cantidadActual}
-                </Typography>
-              )}
               {/* Mostrar galería de imágenes si hay imágenes */}
               {imagenes && Array.isArray(imagenes) && imagenes.length > 0 && (
                 <Box sx={{ my: 2 }}>

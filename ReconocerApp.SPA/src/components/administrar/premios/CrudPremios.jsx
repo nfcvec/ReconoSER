@@ -67,7 +67,6 @@ const CrudPremios = () => {
     { field: "nombre", headerName: "Nombre", width: 200 },
     { field: "descripcion", headerName: "Descripción", width: 300 },
     { field: "costoWallet", headerName: "Precio", width: 150 },
-    { field: "cantidadActual", headerName: "Stock", width: 150 },
     {
       field: "categoriaNombre",
       headerName: "Categoría",
