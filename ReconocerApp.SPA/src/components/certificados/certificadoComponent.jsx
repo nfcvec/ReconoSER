@@ -1,101 +1,124 @@
 import React, { forwardRef } from "react";
-import { Paper, Box, Typography, Grid } from "@mui/material";
-import certificadoBg from "../../assets/RECONOCER.jpg";
+import { Paper, Box, Typography, Divider, Grid, SvgIcon } from "@mui/material";
+//import udlaparkImage from "../../assets/udlapark_entradaprincipal_interior.jpg"; // Importa la imagen
 import { useOrganizacion } from "../../contexts/OrganizacionContext";
 
-const redBgStyle = {
-  width: '100%',
-  backgroundColor: 'rgba(232,32,32,0.7)',
-  borderRadius: 2,
-  boxShadow: 1,
-};
-const textShadowStyle = {
-  textShadow: "2px 2px 4px rgba(0, 0, 0, 0.7)",
-  color: "#fff"
-};
-const iconStyle = {
-  display: 'inline-block',
-  width: 60,
-  height: 60,
-  background: '#fff',
-  borderRadius: 8,
-  border: '1px solid #eee',
-  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-  marginBottom: 8,
-  overflow: 'hidden',
-};
-
 const CertificadoComponent = forwardRef(({
-  Certificado = {},
-  Reconocedor = {},
-  Reconocido = {},
+  Certificado,
+  Reconocedor,
+  Reconocido,
 }, ref) => {
-  useOrganizacion();
-  const texto = Certificado.texto || "Texto no disponible";
-  const comportamientos = Certificado.comportamientos || [];
+
+  const { organizacion } = useOrganizacion();
+  // Filtra los iconos seleccionados
+  const texto = Certificado?.texto || "Texto no disponible";
+
+  // Common text shadow style to apply to all typography elements
+  const textShadowStyle = {
+    textShadow: "2px 2px 4px rgba(0, 0, 0, 0.7)",
+    color: "#fff"
+  };
 
   return (
     <Paper
       ref={ref}
       elevation={3}
       sx={{
-        p: 0,
-        width: '90%', // Reducido para que sea más pequeño
-        height: 'auto',
-        maxWidth: '400px', // Más pequeño para que se vea todo el certificado
-        aspectRatio: '1365/2048',
-        backgroundImage: `url(${certificadoBg})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative',
-        margin: '0 auto',
+        p: 2,
+        width: "720px",
+        minWidth: "720px",
+        minHeight: "720px",
+        backgroundColor: "primary.main",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
       }}
     >
-      <Box sx={{ ...redBgStyle, py: 0.5, px: { xs: 1, md: 2 } }}>
-        <Typography variant="h4" sx={{ ...textShadowStyle, fontSize: '1.1rem' }}>
-          ¡Felicitaciones!
-        </Typography>
-        <Typography variant="body1" sx={{ ...textShadowStyle, fontSize: '0.9rem' }}>
-          Talentos como tú nos enorgullecen y destacamos en ti:
-        </Typography>
-      </Box>
-      <Box textAlign="center" sx={{ ...redBgStyle, py: 0.5, px: { xs: 1, md: 2 } }}>
-        <Grid container spacing={2} justifyContent="center" mt={2}>
-          {comportamientos.map(({ iconSvg, nombre }, idx) => (
-            <Grid item xs={4} key={idx} textAlign="center">
-              {iconSvg && (
-                <span
-                  style={iconStyle}
-                  dangerouslySetInnerHTML={{ __html: iconSvg.replace('<svg', '<svg width="100%" height="100%" preserveAspectRatio="xMidYMid meet"') }}
-                />
-              )}
-              <Typography variant="body2" sx={{ mt: 1, ...textShadowStyle, fontSize: '0.8rem' }}>
-                {nombre}  
-              </Typography>
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
-      <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ width: '100%', background: 'rgba(0,0,0,0.7)', borderRadius: 2, p: 0.5 }}>
-        <Typography variant="h6" sx={{ ...textShadowStyle, fontSize: '0.95rem' }}>
-          De: {Reconocedor.displayName || "Reconocedor no encontrado"}
-        </Typography>
-        <Typography variant="h6" sx={{ ...textShadowStyle, fontSize: '0.95rem' }}>
-          Para: {Reconocido.displayName || "Colaborador no encontrado"}
-        </Typography>
-      </Box>
-      <Box textAlign="center" sx={{ ...redBgStyle, py: 0.5, px: { xs: 1, md: 1 } }}>
+      <Box textAlign="center" mb={2}>
         <Typography
-          variant="body2"
-          sx={{ fontStyle: "italic", fontWeight: "medium", ...textShadowStyle, fontSize: '0.8rem' }}
+          variant="h3"
+          fontWeight="bold"
+          gutterBottom
+          sx={textShadowStyle}
         >
-          "{texto}"
+          ReconoSER
         </Typography>
+        <Typography
+          variant="h5"
+          fontWeight="bold"
+          sx={textShadowStyle}
+        >
+          {organizacion.descripcion}
+        </Typography>
+      </Box>
+
+      <Box
+        sx={{
+          backgroundColor: "rgba(0, 0, 0, 0.4)",
+          borderRadius: 2,
+          padding: 2,
+          boxShadow: 1,
+        }}
+      >
+        <Box textAlign="center" mb={2}>
+          <Typography variant="h6" sx={textShadowStyle}>
+            De <strong>{Reconocedor?.displayName || "Reconocedor no encontrado"}</strong>
+          </Typography>
+        </Box>
+
+        <Box textAlign="center" mb={2}>
+          <Typography variant="h5" sx={textShadowStyle}>
+            Para <strong>{Reconocido?.displayName || "Colaborador no encontrado"}</strong>
+          </Typography>
+        </Box>
+
+        <Box textAlign="center" mb={2}>
+          <Typography variant="body1" gutterBottom sx={textShadowStyle}>
+            Talentos como tú nos enorgullecen y destacamos en ti:
+          </Typography>
+          <Grid container spacing={3} justifyContent="center" mt={2}>
+            {Certificado?.comportamientos.map(({ iconSvg, nombre }, idx) => (
+              <Grid item xs={3} key={idx} textAlign="center" display="flex" flexDirection="column" alignItems="center">
+                {iconSvg && (
+                  <Box component={Paper}
+                    sx={{
+                      width: "80px",
+                      height: "80px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      backgroundColor: "white",
+                      borderRadius: 1,
+                      boxShadow: 1,
+                      margin: "0 auto",
+                    }}
+                  >
+                    <span
+                      style={{ width: "80px", height: "80px" }}
+                      dangerouslySetInnerHTML={{ __html: iconSvg.replace('<svg', '<svg width="80px" height="80px" color="#ffffff" preserveAspectRatio="xMidYMid meet"') }}
+                    />
+                  </Box>
+                )}
+                <Typography variant="body1" sx={{ mt: 1, ...textShadowStyle, fontSize: '1.1rem' }}>
+                  {nombre}
+                </Typography>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+
+        <Box textAlign="center" mt={2}>
+          <Typography
+            variant="body2"
+            sx={{
+              fontStyle: "italic",
+              fontWeight: "medium",
+              ...textShadowStyle,
+            }}
+          >
+            "{texto}"
+          </Typography>
+        </Box>
       </Box>
     </Paper>
   );
