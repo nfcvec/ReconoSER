@@ -180,7 +180,7 @@ const CRUDMarketplaceCompras = () => {
             <>
               <Typography variant="body1" sx={{ my: 1 }}>
                 <strong>Solicitante:</strong>{" "}
-                {`${colaboradores.find((col) => col.id === selectedCompra.tokenColaborador)?.displayName} - ${colaboradores.find((col) => col.id === selectedCompra.tokenColaborador)?.email}` || selectedCompra.tokenColaborador}
+                {`${colaboradores.find((col) => col.id === selectedCompra.tokenColaborador)?.displayName} - ${colaboradores.find((col) => col.id === selectedCompra.tokenColaborador)?.mail}` || selectedCompra.tokenColaborador}
               </Typography>
               <Typography variant="body1" sx={{ my: 1 }}>
                 <strong>Premio:</strong> {selectedCompra.premio?.nombre}
