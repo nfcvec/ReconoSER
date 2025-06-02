@@ -190,10 +190,10 @@ const CRUDReconocimientos = () => {
           {selectedReconocimiento && (
             <>
               <Typography variant="body1" sx={{ my: 1 }}>
-                <strong>Solicitante:</strong> {colaboradores.find((colaborador) => colaborador.id === selectedReconocimiento.reconocedorId)?.displayName || selectedReconocimiento.reconocedorId}
+                <strong>Solicitante:</strong> {`${colaboradores.find((colaborador) => colaborador.id === selectedReconocimiento.reconocedorId)?.displayName} - ${colaboradores.find((colaborador) => colaborador.id === selectedReconocimiento.reconocedorId)?.email}` || selectedReconocimiento.reconocedorId}
               </Typography>
               <Typography variant="body1" sx={{ my: 1 }}>
-                <strong>Reconocido:</strong> {colaboradores.find((colaborador) => colaborador.id === selectedReconocimiento.reconocidoId)?.displayName || selectedReconocimiento.reconocidoId}
+                <strong>Reconocido:</strong> {`${colaboradores.find((colaborador) => colaborador.id === selectedReconocimiento.reconocidoId)?.displayName} - ${colaboradores.find((colaborador) => colaborador.id === selectedReconocimiento.reconocidoId)?.email}` || selectedReconocimiento.reconocidoId}
               </Typography>
               <Divider sx={{ my: 1.5 }} />
               <Typography variant="body1" sx={{ my: 1 }}>

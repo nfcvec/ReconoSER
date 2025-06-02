@@ -180,7 +180,7 @@ const CRUDMarketplaceCompras = () => {
             <>
               <Typography variant="body1" sx={{ my: 1 }}>
                 <strong>Solicitante:</strong>{" "}
-                {colaboradores.find((col) => col.id === selectedCompra.tokenColaborador)?.displayName || selectedCompra.tokenColaborador}
+                {`${colaboradores.find((col) => col.id === selectedCompra.tokenColaborador)?.displayName} - ${colaboradores.find((col) => col.id === selectedCompra.tokenColaborador)?.email}` || selectedCompra.tokenColaborador}
               </Typography>
               <Typography variant="body1" sx={{ my: 1 }}>
                 <strong>Premio:</strong> {selectedCompra.premio?.nombre}
@@ -194,6 +194,10 @@ const CRUDMarketplaceCompras = () => {
               <Typography variant="body1" sx={{ my: 1 }}>
                 <strong>Fecha de compra:</strong>{" "}
                 <FechaFormateada value={selectedCompra.fechaCompra} />
+              </Typography>
+              <Typography variant="body1" sx={{ my: 1 }}>
+                <strong>Comentario:</strong>{" "}
+                {selectedCompra?.comentario || "No hay comentario"}
               </Typography>
               <Typography variant="body1" sx={{ my: 1 }}>
                 <strong>Estado:</strong> {selectedCompra.estado}
