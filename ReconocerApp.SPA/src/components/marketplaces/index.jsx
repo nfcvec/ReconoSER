@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Card, CardContent, Typography, Container, Box, CardMedia, ImageList, ImageListItem, Dialog } from "@mui/material";
+import { Button, Card, CardContent, Typography, Container, Box, CardMedia, ImageList, ImageListItem, Dialog, TextField } from "@mui/material";
 import { getPremioById, getPremioImages } from "../../utils/services/premios";
 import { getWalletBalanceByUserId } from "../../utils/services/walletBalance";
 import { createPremioCompra } from "../../utils/services/premiosCompra";
@@ -16,6 +16,7 @@ export default function PrizeDetail() {
   const { refreshWallet } = useWallet();
 
   const [prize, setPrize] = useState(null);
+  const [comentario, setComentario] = useState("");
   const [walletData, setWalletData] = useState(null);
   const [imagenes, setImagenes] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -82,7 +83,7 @@ export default function PrizeDetail() {
         premioId: prize.premioId,
         fechaCompra: new Date().toISOString(),
         estado: "Pendiente",
-        comentarioRevision: "",
+        comentario: comentario,
       };
       await createPremioCompra(payload);
       await refreshWallet(); // Refresca el saldo después de la compra
@@ -112,7 +113,7 @@ export default function PrizeDetail() {
             {prize.descripcion}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Puntos requeridos: {prize.costoWallet}
+            ULIs: {prize.costoWallet}
           </Typography>
           {imagenes && Array.isArray(imagenes) && imagenes.length > 0 && (
             <Box sx={{ my: 2, display: 'flex', justifyContent: 'center' }}>
@@ -134,6 +135,16 @@ export default function PrizeDetail() {
               </ImageList>
             </Box>
           )}
+          <TextField 
+            label="Comentario"
+            variant="outlined"
+            fullWidth
+            multiline
+            rows={4}
+            value={comentario}
+            onChange={(e) => setComentario(e.target.value)}
+            sx={{ mt: 2 }}
+          />
           <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md">
             <Box sx={{ p: 2, display: "flex", justifyContent: "center", alignItems: "center", bgcolor: "background.paper" }}>
               {selectedImg && (
