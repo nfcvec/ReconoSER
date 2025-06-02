@@ -21,7 +21,7 @@ services:
       context: ./ReconocerApp.API
       dockerfile: Dockerfile
     environment:
-      ConnectionStrings__DefaultConnection: "Host=192.168.10.17;Port=5432;Username=postgres;Password=Artes@nas240;Database=reconoser"
+      ConnectionStrings__DefaultConnection: "Host=192.168.10.40;Port=5432;Username=postgres;Password=Artes@nas240;Database=reconoser"
       DatabaseProvider: "PostgreSQL"
       Minio__Endpoint: "192.168.10.56:9000"
       Minio__AccessKey: "minioadmin" # Usuario de acceso
