@@ -115,7 +115,7 @@ public class ReconocimientoNotificationService : IReconocimientoNotificationServ
                     await _emailService.SendEmailAsync(
                         fromAddress,
                         reconocedorEmail,
-                        "Reconocimiento Aprobado",
+                        "Solicitud Aprobada - ReconoSER",
                         reconocedorEmailContent
                     );
 

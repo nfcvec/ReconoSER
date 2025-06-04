@@ -8,8 +8,8 @@ import { getColaboradoresFromBatchIds } from "../../utils/services/colaboradores
 import html2canvas from 'html2canvas';
 import { useMsal } from "@azure/msal-react";
 import CloseIcon from '@mui/icons-material/Close';
-import DownloadIcon from '@mui/icons-material/Download';
 import ShareIcon from '@mui/icons-material/Share';
+import PdfDownloadButton from "./PdfDownloadButton";
 
 export default function Certificados() {
   const {instance} = useMsal();
@@ -32,22 +32,7 @@ export default function Certificados() {
   // Utilidades
   const isWebShareSupported = typeof navigator !== 'undefined' && !!navigator.canShare && !!navigator.share;
 
-  // Descargar y compartir
-  const handleDownload = async () => {
-    if (!certificadoRef.current) return;
-    try {
-      const canvas = await html2canvas(certificadoRef.current, { scale: 2, useCORS: true, logging: false, backgroundColor: '#fff' });
-      canvas.toBlob((blob) => {
-        if (!blob) return;
-        const link = document.createElement('a');
-        link.download = `certificado-${selectedCertificado.reconocimientoId}.png`;
-        link.href = URL.createObjectURL(blob);
-        link.click();
-        URL.revokeObjectURL(link.href);
-      }, 'image/png');
-    } catch (error) { console.error('Error al exportar el certificado:', error); }
-  };
-
+  // Compartir
   const handleShare = async () => {
     if (!certificadoRef.current || !isWebShareSupported) return;
     try {
@@ -168,9 +153,11 @@ export default function Certificados() {
               </Box>
             </DialogContent>
             <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
-              <IconButton color="primary" onClick={handleDownload} aria-label="descargar">
-                <DownloadIcon />
-              </IconButton>
+              <PdfDownloadButton
+                targetRef={certificadoRef}
+                fileName={`certificado-${selectedCertificado.reconocimientoId}`}
+                ariaLabel="descargar-pdf"
+              />
               {isWebShareSupported && (
                 <IconButton color="success" onClick={handleShare} aria-label="compartir">
                   <ShareIcon />
