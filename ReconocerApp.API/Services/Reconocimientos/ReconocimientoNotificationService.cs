@@ -152,7 +152,7 @@ public class ReconocimientoNotificationService : IReconocimientoNotificationServ
                     await _emailService.SendEmailAsync(
                         fromAddress,
                         reconocidoEmail,
-                        "¡Has recibido un reconocimiento!",
+                        "¡Has recibido un nuevo reconocimiento!",
                         reconocidoEmailContent
                     );
 
