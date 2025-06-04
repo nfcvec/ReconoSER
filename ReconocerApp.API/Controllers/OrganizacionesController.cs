@@ -100,7 +100,8 @@ public class OrganizacionesController : BaseCrudController<Organizacion, Organiz
                 Descripcion = string.Empty,
                 DominioEmail = string.Empty,
                 ColorPrincipal = string.Empty,
-                Activa = false
+                Activa = false,
+                IconSvg = null
             };
             return Ok(emptyResponse);
         }

@@ -127,9 +127,16 @@ export default function Home() {
         textAlign: "center",
       }}
     >
+      {organizacion?.iconSvg && (
+        <span
+          style={{ display: "inline-block", verticalAlign: "middle", width: 96, height: 96 }}
+          dangerouslySetInnerHTML={{ __html: organizacion.iconSvg }}
+        />
+      )}
+      
       {/* Título principal */}
       <Typography variant="h4">
-        <strong>ReconoSER</strong>
+
         <Typography component="span" variant="h6" sx={{ ml: 1 }}>
           x {organizacion?.nombre || "..."}
         </Typography>

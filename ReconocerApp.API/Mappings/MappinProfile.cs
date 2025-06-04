@@ -9,7 +9,8 @@ public class MappingProfile : Profile
     public MappingProfile()
     {
         // Organizaciones
-        CreateMap<Organizacion, OrganizacionResponse>();
+        CreateMap<Organizacion, OrganizacionResponse>()
+            .ForMember(dest => dest.IconSvg, opt => opt.MapFrom(src => src.IconSvg));
 
         // Colaboradores
         CreateMap<Colaborador, ColaboradorResponse>()

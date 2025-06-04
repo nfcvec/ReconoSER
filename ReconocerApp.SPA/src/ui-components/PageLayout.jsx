@@ -4,17 +4,19 @@ import { Container, Box } from "@mui/material";
 import CssBaseline from '@mui/material/CssBaseline';
 import { useOrganizacion } from '../contexts/OrganizacionContext';
 import { Paper, Button } from '@mui/material';
+import { useLocation } from "react-router-dom";
 
 export const PageLayout = (props) => {
     const { organizacion, dominio, instance, loading, error } = useOrganizacion();
-    // Solo mostrar el mensaje de error si el usuario está logueado (hay una cuenta activa)
     const isLoggedIn = !!instance?.getActiveAccount?.();
+    // Mostrar NavBar solo si el usuario está logueado
+    const showNavBar = isLoggedIn;
 
     // Mostrar loading mientras se obtiene la organización
     if (loading) {
         return (
             <>
-                <NavBar />
+                {showNavBar && <NavBar />}
             </>
         );
     }
@@ -23,7 +25,7 @@ export const PageLayout = (props) => {
     if (error) {
         return (
             <>
-                <NavBar />
+                {showNavBar && <NavBar />}
                 <Box sx={{
                     marginTop: '64px',
                     paddingTop: 3,
@@ -47,7 +49,7 @@ export const PageLayout = (props) => {
     if (isLoggedIn && organizacion === null && !loading && !error) {
         return (
             <>
-                <NavBar />
+                {showNavBar && <NavBar />}
                 <Box sx={{
                     marginTop: '64px',
                     paddingTop: 3,
@@ -92,10 +94,10 @@ export const PageLayout = (props) => {
     return (
         <>
             <CssBaseline /> {/* Normaliza los estilos y aplica el color de fondo del tema */}
-            <NavBar />
+            {showNavBar && <NavBar />}
             <Box sx={{
-                marginTop: '64px', // Altura estándar de AppBar en Material UI
-                paddingTop: 3      // Añadir algo de padding adicional
+                marginTop: showNavBar ? '64px' : 0, // Altura estándar de AppBar en Material UI
+                paddingTop: showNavBar ? 3 : 0      // Añadir algo de padding adicional
             }}>
                 <Container>
                     {props.children}

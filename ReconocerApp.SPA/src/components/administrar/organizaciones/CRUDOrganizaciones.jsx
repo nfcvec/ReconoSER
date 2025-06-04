@@ -25,7 +25,7 @@ import {
     deleteOrganizacion,
 } from "../../../utils/services/organizaciones";
 
-const defaultForm = { nombre: "", descripcion: "", dominioEmail: "", colorPrincipal: "#1976d2", activa: true };
+const defaultForm = { nombre: "", descripcion: "", dominioEmail: "", colorPrincipal: "#1976d2", activa: true, iconSvg: "" };
 
 const CRUDOrganizaciones = () => {
     const [organizaciones, setOrganizaciones] = useState([]);
@@ -130,6 +130,40 @@ const CRUDOrganizaciones = () => {
                     <Box sx={{ mt: 2, mb: 2 }}>
                         <label style={{ fontWeight: 500, marginBottom: 4, display: 'block' }}>Color principal</label>
                         <input type="color" value={formValues.colorPrincipal} onChange={e => handleColorChange(e.target.value)} style={{ width: 40, height: 40, border: 'none', background: 'none', cursor: 'pointer' }} />
+                    </Box>
+                    {/* Seleccionar Icono SVG */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                        <input
+                            accept=".svg"
+                            style={{ display: 'none' }}
+                            id="icon-svg-upload-org"
+                            type="file"
+                            onChange={e => {
+                                const file = e.target.files[0];
+                                if (file && file.type === "image/svg+xml") {
+                                    const reader = new FileReader();
+                                    reader.onload = (ev) => {
+                                        setFormValues(prev => ({ ...prev, iconSvg: ev.target.result }));
+                                    };
+                                    reader.readAsText(file);
+                                } else {
+                                    setSnackbar({ open: true, message: "Solo se permiten archivos SVG.", severity: "warning" });
+                                }
+                            }}
+                        />
+                        <label htmlFor="icon-svg-upload-org">
+                            <Button variant="outlined" component="span" startIcon={<EditIcon />}>Seleccionar Icono</Button>
+                        </label>
+                        {/* Vista previa SVG */}
+                        {formValues.iconSvg ? (
+                            <span
+                                title="SVG"
+                                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 48, height: 48, background: '#f5f5f5', borderRadius: 4, border: '1px solid #eee', overflow: 'hidden' }}
+                                dangerouslySetInnerHTML={{ __html: formValues.iconSvg.replace('<svg', '<svg width="40" height="40" style="display:block;margin:auto;"') }}
+                            />
+                        ) : (
+                            <span style={{ color: '#aaa' }}>Sin icono</span>
+                        )}
                     </Box>
                     <TextField
                         margin="dense"

@@ -11,6 +11,7 @@ public class Organizacion
     public string DominioEmail { get; set; } = string.Empty;
     public string ColorPrincipal { get; set; } = string.Empty;
     public bool Activa { get; set; }
+    public string? IconSvg { get; set; }
 
     public virtual ICollection<Colaborador>? Colaboradores { get; set; }
     public virtual ICollection<MarketplacePremio>? Premios { get; set; }

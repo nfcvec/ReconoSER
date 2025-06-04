@@ -150,10 +150,13 @@ const CRUDMarketplaceCompras = () => {
 
   return (
     <Container>
-      <Typography variant="h4">Revisar solicitudes de compra</Typography>
-      <Typography variant="h5" sx={{ mt: 2 }} padding={2}>
-        Tienes {compras.length} solicitud/es de compra pendientes, da click en ellas para revisar.
-      </Typography>
+      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+        <Typography variant="h4">Revisar solicitudes de compra</Typography>
+        <Typography variant="h5" color="textSecondary">
+          Tienes {compras.length} solicitud/es de compra pendientes.
+        </Typography>
+      </Box>
+
       <DataGrid
         rows={compras}
         columns={columns}

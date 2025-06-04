@@ -1,7 +1,9 @@
 import React, { forwardRef } from "react";
 import { Paper, Box, Typography, Divider, Grid, SvgIcon } from "@mui/material";
-//import udlaparkImage from "../../assets/udlapark_entradaprincipal_interior.jpg"; // Importa la imagen
 import { useOrganizacion } from "../../contexts/OrganizacionContext";
+import logo from '../../assets/logo.png';
+import logo1 from '../../assets/Aplicativo.svg';
+
 
 const CertificadoComponent = forwardRef(({
   Certificado,
@@ -35,14 +37,11 @@ const CertificadoComponent = forwardRef(({
       }}
     >
       <Box textAlign="center" mb={2}>
-        <Typography
-          variant="h3"
-          fontWeight="bold"
-          gutterBottom
-          sx={textShadowStyle}
-        >
-          ReconoSER
-        </Typography>
+        <img
+          src={logo1}
+          alt="ReconoSER Logo"
+          style={{ width: '320px', maxWidth: '100%', height: 'auto', display: 'block', margin: '0 auto', filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.7))' }}
+        />
         <Typography
           variant="h5"
           fontWeight="bold"

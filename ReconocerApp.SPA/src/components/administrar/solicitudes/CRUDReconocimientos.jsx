@@ -231,8 +231,8 @@ const CRUDReconocimientos = () => {
                     <Table size="small">
                       <TableHead>
                         <TableRow>
+                          <TableCell><strong>Valor</strong></TableCell>
                           <TableCell><strong>Comportamiento</strong></TableCell>
-                          <TableCell><strong>Descripción</strong></TableCell>
                           {generaULIS && (
                             <TableCell align="center"><strong>ULIs</strong></TableCell>
                           )}

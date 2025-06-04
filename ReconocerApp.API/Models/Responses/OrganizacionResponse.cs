@@ -8,4 +8,5 @@ public class OrganizacionResponse
     public string DominioEmail { get; set; } = string.Empty;
     public string ColorPrincipal { get; set; } = string.Empty;
     public bool Activa { get; set; }
+    public string? IconSvg { get; set; }
 }

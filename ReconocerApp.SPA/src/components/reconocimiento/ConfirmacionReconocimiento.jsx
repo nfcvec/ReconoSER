@@ -1,4 +1,4 @@
-import { Button, Card, CardContent, CardActions, Typography, Container, Box, List, ListItem, ListItemText } from "@mui/material";
+import { Button, Card, CardContent, CardActions, Typography, Container, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
 import { solicitarReconocimiento } from "../../utils/services/certificado";
 import { useMsal } from "@azure/msal-react";
 import { useLoading } from "../../contexts/LoadingContext";
@@ -43,31 +43,39 @@ export default function ConfirmacionReconocimiento({ data, onConfirm, onBack }) 
       <Card>
         <CardContent sx={{ textAlign: "center", py: 4 }}>
           <Typography variant="h5" component="h1" gutterBottom>
-            Confirmación de Reconocimiento
+            <strong>Confirmación de Reconocimiento</strong>
           </Typography>
           <Box sx={{ my: 3, textAlign: "left" }}>
             <Typography variant="h6" gutterBottom>
-              Colaborador Seleccionado:
+              <strong>Colaborador Reconocido:</strong>
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              {Reconocido.displayName}
+              <strong>{Reconocido.displayName}</strong>
             </Typography>
           </Box>
           <Box sx={{ my: 3, textAlign: "left" }}>
-            <Typography variant="h6" gutterBottom>
-              Comportamientos:
-            </Typography>
-            <List>
-              {Comportamientos.map((item) => (
-                <ListItem key={item.comportamientoId}>
-                  <ListItemText primary={item.descripcion} />
-                </ListItem>
-              ))}
-            </List>
+            <TableContainer component={Paper} sx={{ mt: 1, maxWidth: 1200 }}>
+              <Table size="small">
+                <TableHead>
+                  <TableRow>
+                    <TableCell><strong>Valor</strong></TableCell>
+                    <TableCell><strong>Comportamiento</strong></TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {Comportamientos.map((item) => (
+                    <TableRow key={item.comportamientoId}>
+                      <TableCell>{item.nombre}</TableCell>
+                      <TableCell>{item.descripcion}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </Box>
           <Box sx={{ my: 3, textAlign: "left" }}>
             <Typography variant="h6" gutterBottom>
-              Justificación:
+              <strong>Justificación:</strong>
             </Typography>
             <Typography variant="body1" color="text.secondary">
               {Justificacion}
@@ -75,7 +83,7 @@ export default function ConfirmacionReconocimiento({ data, onConfirm, onBack }) 
           </Box>
           <Box sx={{ my: 3, textAlign: "left" }}>
             <Typography variant="h6" gutterBottom>
-              Texto del Certificado:
+              <strong>Texto para el Certificado:</strong>
             </Typography>
             <Typography variant="body1" color="text.secondary">
               {Texto}
@@ -84,10 +92,10 @@ export default function ConfirmacionReconocimiento({ data, onConfirm, onBack }) 
         </CardContent>
         <CardActions sx={{ justifyContent: "space-between", px: 3, py: 2 }}>
           <Button variant="outlined" onClick={onBack}>
-            Regresar
+            <strong>Regresar</strong>
           </Button>
           <Button variant="contained" onClick={handleConfirm}>
-            Confirmar
+            <strong>Confirmar</strong>
           </Button>
         </CardActions>
       </Card>

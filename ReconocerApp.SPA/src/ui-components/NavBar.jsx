@@ -28,7 +28,7 @@ const NavBar = () => {
             aria-label="Inicio"
             sx={{ mr: 1 }}
           >
-            <HomeIcon />
+            <HomeIcon sx={{ fontSize: 40 }} />
           </IconButton>
           
           {/* Wallet Balance (siempre visible a la izquierda) */}
