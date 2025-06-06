@@ -195,7 +195,18 @@ const CRUDComportamientos = () => {
                         <label htmlFor="icon-svg-upload">
                             <Button variant="outlined" component="span" startIcon={<UploadFileIcon />}>Seleccionar SVG</Button>
                         </label>
-                        <SvgPreview svg={formValues.iconSvg} size={100} emptyText="" />
+                        <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+                          <SvgPreview svg={formValues.iconSvg} size={100} emptyText="" />
+                          {formValues.iconSvg && (
+                            <Button
+                              size="small"
+                              sx={{ position: 'absolute', top: 0, right: 0, minWidth: 0, padding: '4px', background: 'rgba(255,255,255,0.7)' }}
+                              onClick={() => setFormValues(prev => ({ ...prev, iconSvg: '' }))}
+                            >
+                              <DeleteIcon fontSize="small" color="error" />
+                            </Button>
+                          )}
+                        </Box>
                     </Box>
                 </DialogContent>
                 <DialogActions>

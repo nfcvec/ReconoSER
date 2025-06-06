@@ -1,7 +1,6 @@
 import React, { forwardRef } from "react";
 import { Paper, Box, Typography, Divider, Grid, SvgIcon } from "@mui/material";
 import { useOrganizacion } from "../../contexts/OrganizacionContext";
-import logo from '../../assets/logo.png';
 import logo1 from '../../assets/Aplicativo.svg';
 
 

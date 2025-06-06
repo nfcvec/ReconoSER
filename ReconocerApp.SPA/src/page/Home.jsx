@@ -18,6 +18,7 @@ import {
   CardGiftcard as PremiosIcon,
   ShoppingCart as ComprasIcon,
   AdminPanelSettings as AdminIcon,
+  GroupAdd as GroupAddIcon, // Agregado para Referidos
 } from "@mui/icons-material";
 import { useMsal } from "@azure/msal-react";
 import { useOrganizacion } from "../contexts/OrganizacionContext";
@@ -53,6 +54,14 @@ export default function Home() {
       title: "Marketplace",
       description: "Canjea tus ULIs por premios exclusivos",
       icon: <MarketplaceIcon sx={{ fontSize: 64, color: "primary.main" }} />,
+      link: "/marketplace",
+      buttonText: "Ir a canjear",
+      menu: "main",
+    },
+    {
+      title: "Referidos",
+      description: "Canjea tus ULIs por premios exclusivos",
+      icon: <GroupAddIcon sx={{ fontSize: 64, color: "primary.main" }} />, // Cambiado el icono
       link: "/marketplace",
       buttonText: "Ir a canjear",
       menu: "main",
@@ -128,12 +137,22 @@ export default function Home() {
       }}
     >
       {organizacion?.iconSvg && (
-        <span
-          style={{ display: "inline-block", verticalAlign: "middle", width: 96, height: 96 }}
+        <Box
+          sx={{
+            display: "inline-block",
+            verticalAlign: "middle",
+            width: 200,
+            height: 200,
+            '& svg': {
+              width: '100%',
+              height: '100%',
+              display: 'block',
+            },
+          }}
           dangerouslySetInnerHTML={{ __html: organizacion.iconSvg }}
         />
       )}
-      
+
       {/* Título principal */}
       <Typography variant="h4">
 

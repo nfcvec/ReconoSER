@@ -57,7 +57,7 @@ const NavBar = () => {
               sx={{ ml: 1 }}
               aria-label={darkMode ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
             >
-              {darkMode ? <LightModeIcon /> : <DarkModeIcon />}
+              {darkMode ? <LightModeIcon sx={{ fontSize: 40 }} /> : <DarkModeIcon sx={{ fontSize: 40 }} />}
             </IconButton>
           </Box>
         </Toolbar>

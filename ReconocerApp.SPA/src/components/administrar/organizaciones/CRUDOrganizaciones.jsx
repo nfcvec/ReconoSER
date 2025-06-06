@@ -155,15 +155,26 @@ const CRUDOrganizaciones = () => {
                             <Button variant="outlined" component="span" startIcon={<EditIcon />}>Seleccionar Icono</Button>
                         </label>
                         {/* Vista previa SVG */}
-                        {formValues.iconSvg ? (
-                            <span
+                        <Box sx={{ position: 'relative', display: 'inline-flex' }}>
+                          {formValues.iconSvg ? (
+                            <>
+                              <span
                                 title="SVG"
                                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 48, height: 48, background: '#f5f5f5', borderRadius: 4, border: '1px solid #eee', overflow: 'hidden' }}
                                 dangerouslySetInnerHTML={{ __html: formValues.iconSvg.replace('<svg', '<svg width="40" height="40" style="display:block;margin:auto;"') }}
-                            />
-                        ) : (
+                              />
+                              <Button
+                                size="small"
+                                sx={{ position: 'absolute', top: 0, right: 0, minWidth: 0, padding: '4px', background: 'rgba(255,255,255,0.7)' }}
+                                onClick={() => setFormValues(prev => ({ ...prev, iconSvg: '' }))}
+                              >
+                                <DeleteIcon fontSize="small" color="error" />
+                              </Button>
+                            </>
+                          ) : (
                             <span style={{ color: '#aaa' }}>Sin icono</span>
-                        )}
+                          )}
+                        </Box>
                     </Box>
                     <TextField
                         margin="dense"
