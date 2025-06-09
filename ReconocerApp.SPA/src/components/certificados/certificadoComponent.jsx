@@ -135,6 +135,8 @@ const CertificadoComponent = forwardRef(({
             fontWeight: 'medium',
             ...textShadowStyle,
             fontSize: { xs: '1rem', sm: '1.15rem' },
+            textAlign: 'justify',
+            display: 'block',
           }}
         >
           "{texto}"
