@@ -61,11 +61,12 @@ export default function Home() {
     },
     {
       title: "Referidos",
-      description: "Canjea tus ULIs por premios exclusivos",
+      description: "Une a más personas a nuestra comunidad UDLA",
       icon: <GroupAddIcon sx={{ fontSize: 64, color: "primary.main" }} />, // Cambiado el icono
-      link: "/marketplace",
-      buttonText: "Ir a canjear",
+      link: "https://forms.office.com/r/0daEb4i12D",
+      buttonText: "Referir",
       menu: "main",
+      external: true,
     },
     {
       title: "ULIs",
@@ -217,14 +218,27 @@ export default function Home() {
                   </Box>
                 </CardContent>
                 <CardActions sx={{ p: 2, justifyContent: "center" }}>
-                  <Link
-                    to={item.link}
-                    style={{ textDecoration: "none", width: "100%" }}
-                  >
-                    <Button variant="contained" fullWidth>
+                  {item.external ? (
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      component="a"
+                      href={item.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
                       {item.buttonText}
                     </Button>
-                  </Link>
+                  ) : (
+                    <Link
+                      to={item.link}
+                      style={{ textDecoration: "none", width: "100%" }}
+                    >
+                      <Button variant="contained" fullWidth>
+                        {item.buttonText}
+                      </Button>
+                    </Link>
+                  )}
                 </CardActions>
               </Card>
             </Grid>
