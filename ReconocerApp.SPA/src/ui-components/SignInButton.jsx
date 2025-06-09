@@ -4,7 +4,7 @@ import Button from "@mui/material/Button";
 import Menu from '@mui/material/Menu';
 import { loginRequest } from "../authConfig";
 
-export const SignInButton = () => {
+export const SignInButton = ({ iconSize = 40 }) => {
     const { instance } = useMsal();
 
     const [anchorEl, setAnchorEl] = useState(null);
@@ -37,7 +37,7 @@ export const SignInButton = () => {
                 sx={{ bgcolor: '#0847fc', color: '#fff', '&:hover': { bgcolor: '#063bb3' }, display: 'flex', alignItems: 'center', gap: 1, textTransform: 'none' }}
             >
                 <strong>Iniciar sesión con Microsoft</strong>
-                <svg width="30" height="30" viewBox="0 0 24 24"><rect fill="#F35325" x="2" y="2" width="9" height="9" /><rect fill="#81BC06" x="13" y="2" width="9" height="9" /><rect fill="#05A6F0" x="2" y="13" width="9" height="9" /><rect fill="#FFBA08" x="13" y="13" width="9" height="9" /></svg>
+                <svg width={iconSize === 26 ? "20" : iconSize === 28 ? "22" : "30"} height={iconSize === 26 ? "20" : iconSize === 28 ? "22" : "30"} viewBox="0 0 24 24"><rect fill="#F35325" x="2" y="2" width="9" height="9" /><rect fill="#81BC06" x="13" y="2" width="9" height="9" /><rect fill="#05A6F0" x="2" y="13" width="9" height="9" /><rect fill="#FFBA08" x="13" y="13" width="9" height="9" /></svg>
             </Button>
             <Menu
                 id="menu-appbar"

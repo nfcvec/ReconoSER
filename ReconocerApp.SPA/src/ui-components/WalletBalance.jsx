@@ -10,7 +10,7 @@ const WalletBalance = () => {
 
   return (
     <Box sx={{ p: 2, display: 'flex', alignItems: 'center' }}>
-      <AccountBalanceWalletIcon sx={{ fontSize: 40, mr: 2 }} />
+      <AccountBalanceWalletIcon sx={{ fontSize: 26, mr: 2 }} />
       {error ? null : loading ? (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <CircularProgress size={32} />

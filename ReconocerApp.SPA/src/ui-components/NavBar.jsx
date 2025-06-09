@@ -28,11 +28,10 @@ const NavBar = () => {
             aria-label="Inicio"
             sx={{ mr: 1 }}
           >
-            <HomeIcon sx={{ fontSize: 40 }} />
+            <HomeIcon sx={{ fontSize: 26 }} />
           </IconButton>
-          
           {/* Wallet Balance (siempre visible a la izquierda) */}
-          <WalletBalance id={oid} sx={{ mr: 2 }} />
+          <WalletBalance id={oid} sx={{ mr: 2, '& .MuiSvgIcon-root': { fontSize: 26 } }} />
 
           {/* Espaciador para empujar los elementos a la derecha */}
           <Box sx={{ flexGrow: 1 }} />
@@ -49,7 +48,7 @@ const NavBar = () => {
               <WelcomeName />
             </Box>
             {/* Solo mostrar el botón si está autenticado */}
-            {isAuthenticated && <SignInSignOutButton />}
+            {isAuthenticated && <SignInSignOutButton iconSize={26} />}
             {/* Theme toggle button */}
             <IconButton 
               color="inherit"
@@ -57,7 +56,7 @@ const NavBar = () => {
               sx={{ ml: 1 }}
               aria-label={darkMode ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
             >
-              {darkMode ? <LightModeIcon sx={{ fontSize: 40 }} /> : <DarkModeIcon sx={{ fontSize: 40 }} />}
+              {darkMode ? <LightModeIcon sx={{ fontSize: 26 }} /> : <DarkModeIcon sx={{ fontSize: 26 }} />}
             </IconButton>
           </Box>
         </Toolbar>

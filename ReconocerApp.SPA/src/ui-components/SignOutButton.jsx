@@ -6,19 +6,28 @@ import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Typography from '@mui/material/Typography';
 import { Box, Avatar, Divider } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
-export const SignOutButton = () => {
+export const SignOutButton = ({ iconSize = 40 }) => {
     const { instance } = useMsal();
     const [anchorEl, setAnchorEl] = useState(null);
     const open = Boolean(anchorEl);
+    const navigate = useNavigate();
 
     const handleLogout = (logoutType) => {
         setAnchorEl(null);
 
+        const afterLogout = () => {
+            navigate('/', { replace: true });
+        };
+
         if (logoutType === "popup") {
-            instance.logoutPopup();
+            instance.logoutPopup().then(afterLogout);
         } else if (logoutType === "redirect") {
-            instance.logoutRedirect();
+            instance.logoutRedirect({ onRedirectNavigate: () => {
+                afterLogout();
+                return false;
+            }});
         }
     }
 
@@ -28,7 +37,7 @@ export const SignOutButton = () => {
                 onClick={(event) => setAnchorEl(event.currentTarget)}
                 color="inherit"
             >
-                <AccountCircle sx={{ fontSize: 40 }} />
+                <AccountCircle sx={{ fontSize: iconSize }} />
             </IconButton>
 
             <Menu
@@ -48,8 +57,8 @@ export const SignOutButton = () => {
             >
                 {instance.getActiveAccount() && (
                     <Box display="flex" flexDirection="column" alignItems="center" px={3} py={2}>
-                        <Avatar sx={{ bgcolor: 'primary.main', mb: 1 }}>
-                            {instance.getActiveAccount().name ? instance.getActiveAccount().name.charAt(0).toUpperCase() : <AccountCircle />}
+                        <Avatar sx={{ bgcolor: 'primary.main', mb: 1, width: 32, height: 32, fontSize: 18 }}>
+                            {instance.getActiveAccount().name ? instance.getActiveAccount().name.charAt(0).toUpperCase() : <AccountCircle sx={{ fontSize: 18 }} />}
                         </Avatar>
                         <Typography variant="subtitle1" fontWeight={600} align="center">
                             {instance.getActiveAccount().name}
