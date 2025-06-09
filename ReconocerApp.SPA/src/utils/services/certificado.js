@@ -25,6 +25,16 @@ export const getCertificados = async ({
     }
 };
 
+export const getCertificadoById = async (id) => {
+    try {
+        const response = await api.get(`/Reconocimientos/${id}`);
+        return response.data; // Devuelve los datos del certificado
+    } catch (error) {
+        console.error("Error al obtener el certificado:", error.message);
+        throw error; // Lanza el error para manejarlo en el componente
+    }
+}
+
 // Funcion para crear un certificado 
 export const solicitarReconocimiento = async (certificado) => {
     try {

@@ -23,6 +23,7 @@ import { ProfileUseMsalAuthenticationHook } from "./page/ProfileUseMsalAuthentic
 // Class-based equivalents of "Profile" component
 import Reconocimiento from "./components/reconocimiento/index.jsx";
 import Certificados from "./components/certificados/page.jsx";
+import CertificadoView from "./components/certificados/CertificadoView.jsx";
 import Marketplace from "./components/marketplaces/page.jsx";
 import PrizeDetail from "./components/marketplaces/index.jsx";
 import CanjeExito from "./components/marketplaces/canjeExito";
@@ -86,6 +87,7 @@ function Pages() {
       <Route path="/reconocimiento" element={<Reconocimiento />} />
       <Route path="/reconocimientoExito" element={<ReconocimientoExito />} />
       <Route path="/certificados" element={<Certificados />} />
+      <Route path="/certificados/:id" element={<CertificadoView />} />
       <Route path="/marketplace" element={<Marketplace />} />
       <Route path="/marketplace/:id" element={<PrizeDetail />} />
       <Route path="/canjeExito" element={<CanjeExito />} />

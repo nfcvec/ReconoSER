@@ -1,0 +1,85 @@
+services:
+  spa:
+    image: registry.udla.edu.ec/reconoser/spa:latest
+    build:
+      context: ./ReconocerApp.SPA
+      dockerfile: Dockerfile
+      args:
+        - SKIP_PREFLIGHT_CHECK=SKIP_PREFLIGHT_CHECK=true
+        - BROWSER=BROWSER=none
+        # - VITE_CLIENT_ID=6885bc59-dbd5-4d8b-a3b2-b753ca53d2c4
+        # - VITE_AUTHORITY=https://login.microsoftonline.com/abcce23f-bc94-47e2-834f-01fd1e3d7f7b
+        - VITE_CLIENT_ID=3c1288d3-314b-4ab3-9669-11ab1909e1ab
+        - VITE_AUTHORITY=https://login.microsoftonline.com/05b4b405-3325-479b-88fd-f6c25ea40a8c
+        - VITE_POPUP_REDIRECT_URI=/redirect
+        - VITE_TITLE=ReconoSER
+        - VITE_API_URL=https://pruebasreconoser.academikus.com/backend/api
+    networks:
+      - reconoser-network
+
+  api:
+    image: registry.udla.edu.ec/reconoser/api:latest
+    build:
+      context: ./ReconocerApp.API
+      dockerfile: Dockerfile
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Username=postgres;Password=postgres;Database=reconoser"
+      DatabaseProvider: "PostgreSQL"
+      Minio__Endpoint: "minio:9000"
+      Minio__AccessKey: "minioadmin" # Usuario de acceso
+      Minio__SecretKey: "minioadmin" # Contraseña de acceso
+      Minio__BucketName: "reconoser" # Nombre del bucket
+      Email__SmtpServer: "mail.upsecuador.com"
+      Email__Port: "465"
+      Email__Username: "notificaciones@upsecuador.com"
+      Email__Password: "ekinotificaciones"
+      Email__EnableSsl: "true"
+      Email__FromAddress: "notificaciones@upsecuador.com"
+      AzureAd__ClientId: "3c1288d3-314b-4ab3-9669-11ab1909e1ab"
+      AzureAd__TenantId: "05b4b405-3325-479b-88fd-f6c25ea40a8c"
+      AzureAd__ClientSecret: "4dQ8Q~i-K~.biFHAyxERbzj3_G7f62K7KdbDfduR"
+      FrontendUrl: "https://pruebasreconoser.academikus.com"
+    networks:
+      - reconoser-network
+  db:
+    image: postgres:latest
+    ports:
+      - "5432:5432" # Puerto para la base de datos PostgreSQL
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: reconoser
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - reconoser-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    environment:
+      MINIO_ROOT_USER: minioadmin # Usuario de acceso
+      MINIO_ROOT_PASSWORD: minioadmin # Contraseña de acceso
+    ports:
+      - "9000:9000" # Puerto para el servicio de MinIO
+      - "9001:9001" # Puerto para la consola de MinIO
+    volumes:
+      - minio_data:/data # Volumen para persistir datos
+    command: server /data --console-address ":9001"
+    networks:
+      - reconoser-network
+    restart: always
+networks:
+  reconoser-network:
+    external: true
+
+volumes:
+  minio_data:
+    driver: local
+  postgres_data:
+    driver: local
+    name: postgres_data
+    driver_opts:
+      type: none
+      device: /var/lib/postgresql/data
+      o: bind

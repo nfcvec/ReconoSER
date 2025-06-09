@@ -8,6 +8,7 @@ import {
   CardActions,
   Button,
   Divider,
+  Paper,
 } from "@mui/material";
 import {
   FileCopy as CertificateIcon,
@@ -137,29 +138,37 @@ export default function Home() {
       }}
     >
       {organizacion?.iconSvg && (
-        <Box
+        <Paper
+          elevation={3}
           sx={{
-            display: "inline-block",
-            verticalAlign: "middle",
-            width: 200,
-            height: 200,
+            backgroundColor: 'primary.main',
+            p: 2,
+            // mb: 2,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: { xs: '75vw', sm: '75vw', md: '400px' },
+            maxWidth: '400px',
+            minWidth: 0,
+            mx: 'auto',
+            color: '#fff',
             '& svg': {
               width: '100%',
-              height: '100%',
+              height: 'auto',
               display: 'block',
+              maxWidth: '400px',
+              margin: '0 auto',
             },
           }}
-          dangerouslySetInnerHTML={{ __html: organizacion.iconSvg }}
-        />
+        >
+          <Box
+            sx={{ width: '100%' }}
+            dangerouslySetInnerHTML={{
+              __html: organizacion.iconSvg
+            }}
+          />
+        </Paper>
       )}
-
-      {/* Título principal */}
-      <Typography variant="h4">
-
-        <Typography component="span" variant="h6" sx={{ ml: 1 }}>
-          x {organizacion?.nombre || "..."}
-        </Typography>
-      </Typography>
 
       <Typography
         variant="body1"

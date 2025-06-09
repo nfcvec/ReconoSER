@@ -16,8 +16,8 @@ const WalletBalance = () => {
           <CircularProgress size={32} />
         </Box>
       ) : (
-        <Typography variant="h5" onClick={refreshWallet} sx={{ cursor: 'pointer' }}>
-          {balance !== undefined ? ` ${balance.toFixed(2)} ULis` : ''}
+        <Typography variant="h6" onClick={refreshWallet} sx={{ cursor: 'pointer' }}>
+          {balance !== undefined ? `U${balance.toFixed(2)}` : ''}
         </Typography>
       )}
     </Box>

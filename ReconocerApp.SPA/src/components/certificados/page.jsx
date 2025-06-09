@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import { Button, Box, Typography, Dialog, DialogTitle, DialogContent, DialogActions, IconButton } from "@mui/material";
+import { Button, Box, Typography, IconButton } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import CertificadoComponent from "./certificadoComponent";
 import { getCertificados } from "../../utils/services/certificado";
@@ -23,11 +23,9 @@ export default function Certificados() {
   const certificadoRef = useRef(null);
 
   const handleRowClick = ({ row }) => {
-    setSelectedCertificado(row);
-    setOpen(true);
+    // Navegar a la pantalla de detalle del certificado
+    window.location.href = `/certificados/${row.reconocimientoId}`;
   };
-
-  const handleClose = () => setOpen(false);
 
   // Utilidades
   const isWebShareSupported = typeof navigator !== 'undefined' && !!navigator.canShare && !!navigator.share;
@@ -110,63 +108,7 @@ export default function Certificados() {
         </Box>
       )}
 
-      <Dialog 
-        open={open} 
-        onClose={handleClose}
-        maxWidth="md"
-        fullWidth
-      >
-        {selectedCertificado && (
-          <>
-            <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', pr: 1 }}>
-              <strong>Certificado de Reconocimiento</strong>
-              <IconButton aria-label="close" onClick={handleClose} size="large">
-                <CloseIcon />
-              </IconButton>
-            </DialogTitle>
-            <DialogContent sx={{ 
-              overflow: 'auto',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              p: 2,
-              '&::-webkit-scrollbar': {
-                width: '8px',
-                height: '8px',
-              },
-              '&::-webkit-scrollbar-thumb': {
-                backgroundColor: 'rgba(0,0,0,0.2)',
-                borderRadius: '4px',
-              }
-            }}>
-              <Box sx={{ 
-                minWidth: '720px',
-                minHeight: '720px',
-                display: 'flex',
-              }}>
-                <CertificadoComponent
-                  Certificado={selectedCertificado}
-                  Reconocedor={colaboradores.find((col) => col.id === selectedCertificado.reconocedorId)}
-                  Reconocido={colaboradores.find((col) => col.id === selectedCertificado.reconocidoId)}
-                  ref={certificadoRef}
-                />
-              </Box>
-            </DialogContent>
-            <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
-              <PdfDownloadButton
-                targetRef={certificadoRef}
-                fileName={`certificado-${selectedCertificado.reconocimientoId}`}
-                ariaLabel="descargar-pdf"
-              />
-              {isWebShareSupported && (
-                <IconButton color="success" onClick={handleShare} aria-label="compartir">
-                  <ShareIcon />
-                </IconButton>
-              )}
-            </DialogActions>
-          </>
-        )}
-      </Dialog>
+      {/* El diálogo ya no se usa para mostrar el certificado */}
     </Box>
   );
 }

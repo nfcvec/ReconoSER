@@ -35,20 +35,38 @@ const CertificadoComponent = forwardRef(({
         justifyContent: "center",
       }}
     >
-      <Box textAlign="center" mb={2}>
-        <img
-          src={logo1}
-          alt="ReconoSER Logo"
-          style={{ width: '320px', maxWidth: '100%', height: 'auto', display: 'block', margin: '0 auto', filter: 'drop-shadow(2px 2px 4px rgba(0,0,0,0.7))' }}
-        />
-        <Typography
-          variant="h5"
-          fontWeight="bold"
-          sx={textShadowStyle}
+      {organizacion?.iconSvg && (
+        <Paper
+          elevation={3}
+          sx={{
+            backgroundColor: 'primary.main',
+            p: 2,
+            // mb: 2,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            width: { xs: '75vw', sm: '75vw', md: '400px' },
+            maxWidth: '400px',
+            minWidth: 0,
+            mx: 'auto',
+            color: '#fff',
+            '& svg': {
+              width: '100%',
+              height: 'auto',
+              display: 'block',
+              maxWidth: '400px',
+              margin: '0 auto',
+            },
+          }}
         >
-          {organizacion.descripcion}
-        </Typography>
-      </Box>
+          <Box
+            sx={{ width: '100%' }}
+            dangerouslySetInnerHTML={{
+              __html: organizacion.iconSvg
+            }}
+          />
+        </Paper>
+      )}
 
       <Box
         sx={{
