@@ -9,7 +9,7 @@ export function Login() {
   return (
     <>
       <UnauthenticatedTemplate>
-        <body style={{ background: 'linear-gradient(135deg, #6a7282 0%,rgb(37, 49, 83) 50%, #1e2939 100%)', minHeight: '100vh', width: '100vw', margin: 0, padding: 0 }}>
+        <body style={{ background: 'linear-gradient(135deg, #101828 0%, #6a7282 50%, #1e2939 100%)', minHeight: '100vh', width: '100vw', margin: 0, padding: 0 }}>
           <Box
             sx={{ minHeight: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'none', m: 0, p: 0 }}
           >
