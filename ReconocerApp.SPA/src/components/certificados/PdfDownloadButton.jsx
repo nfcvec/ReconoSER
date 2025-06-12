@@ -18,7 +18,11 @@ const PdfDownloadButton = ({ targetRef, fileName, ariaLabel = "descargar-pdf" })
       const canvas = await html2canvas(targetRef.current, { scale: 2, useCORS: true, backgroundColor: "#fff" });
       const imgData = canvas.toDataURL("image/png");
       // Medidas A4 en puntos (jsPDF por defecto usa pt): 595.28 x 841.89
-      const pdf = new jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "pt",
+        format: [1024, 1024]
+      });
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       // Calcular tamaño de la imagen para que encaje en A4 manteniendo proporción
