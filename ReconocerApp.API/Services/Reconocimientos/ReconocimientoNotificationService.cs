@@ -88,8 +88,7 @@ public class ReconocimientoNotificationService : IReconocimientoNotificationServ
             }
 
             bool tieneComentario = !string.IsNullOrWhiteSpace(reviewRequest.ComentarioAprobacion);
-            string templateAprobado = tieneComentario ? "ReconocimientoAprobadoConComentario" : "ReconocimientoAprobadoSinComentario";
-
+            string templateAprobado = "ReconocimientoAprobado";
             // Correo al reconocedor
             if (!string.IsNullOrEmpty(reconocedorEmail))
             {
@@ -126,7 +125,7 @@ public class ReconocimientoNotificationService : IReconocimientoNotificationServ
                     _logger.LogError(ex, $"Error al enviar email de aprobación al reconocedor {reconocedorEmail}");
                 }
             }
-
+            templateAprobado = tieneComentario ? "ReconocimientoAprobadoConComentario" : "ReconocimientoAprobadoSinComentario";
             // Correo al reconocido
             if (!string.IsNullOrEmpty(reconocidoEmail))
             {
