@@ -53,51 +53,48 @@ const CertificadoComponent = forwardRef(({
     <Box
       sx={{
         position: 'relative',
-        width: `1024px`,
+        width: '1024px',
         mx: 'auto',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        background: 'none',
       }}
     >
-      
       <Paper
         ref={ref}
         elevation={3}
         sx={{
           p: 0,
-          width: `1024px`,
-          height: `1024px`,
+          width: '1024px',
+          minHeight: '1024px', // Mínimo 1024px, crece si el contenido lo requiere
           backgroundImage: `url(${fondo})`,
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'space-between',
           mx: 'auto',
           borderRadius: 2,
           overflow: 'hidden',
           position: 'relative',
-          zIndex: 1,
         }}
       >
-        {/* Icono de la organización dentro del área capturada */}
+        {/* Logo de la organización en la cabecera, centrado, sobre el fondo */}
         {organizacion?.iconSvg && (
           <Box
             sx={{
-              position: 'absolute',
-              zIndex: 10,
-              top: 64,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              p: 2,
+              width: '720px',
+              maxWidth: '90%',
+              mt: 6,
+              mb: 2,
+              mx: 'auto',
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              width: '720px',
-              mx: 'auto',
               color: '#fff',
               '& svg': {
                 width: '100%',
-                height: 'auto',
+                height: '120px',
                 display: 'block',
                 filter: 'drop-shadow(0 4px 24px rgba(0,0,0,0.6))',
               },
@@ -115,6 +112,8 @@ const CertificadoComponent = forwardRef(({
             width: { xs: '98%', sm: '95%', md: '90%' },
             mx: 'auto',
             textAlign: 'center',
+            mt: 2,
+            mb: 4,
           }}
         >
           <Typography
@@ -148,7 +147,6 @@ const CertificadoComponent = forwardRef(({
                       backgroundColor: "primary.main",
                       borderRadius: 2,
                       boxShadow: 5,
-                      margin: "0 auto",
                     }}
                   >
                     <SvgFromString svgString={iconSvg} width="80px" height="80px" color="#fff" />
