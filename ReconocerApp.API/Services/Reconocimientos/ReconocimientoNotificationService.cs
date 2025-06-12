@@ -140,8 +140,11 @@ public class ReconocimientoNotificationService : IReconocimientoNotificationServ
                     FechaResolucion = reviewRequest.FechaResolucion.ToString("dd/MM/yyyy HH:mm"),
                     ReconocimientoId = reconocimiento.ReconocimientoId,
                     ComentarioAprobacion = reviewRequest.ComentarioAprobacion,
-                    ReconocedorFrase = $"que recibiste de <strong>{reconocedorNombre}</strong>"
+                    ReconocedorFrase = $"que recibiste de <strong>{reconocedorNombre}</strong>",
+                    CertificadoUrl = $"<a href='{_configuration["FrontendUrl"]}/certificados/{reconocimiento.ReconocimientoId}' target='_blank'>aquí</a>"
                 };
+
+               
 
                 try
                 {

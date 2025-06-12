@@ -1,38 +1,71 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>Reconocimiento Aprobado</title>
     <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { color: #2c3e50; }
-        .content { background-color: #f9f9f9; padding: 20px; border-radius: 5px; }
-        .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #7f8c8d; }
-        .highlight { background-color: #e8f4f8; padding: 15px; border-left: 4px solid #3498db; margin: 15px 0; }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+        }
+
+        .content {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        .highlight {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            margin: 15px 0;
+        }
     </style>
 </head>
+
 <body>
     <div class="header">
-        <h1>¡Reconocimiento Aprobado!</h1>
+        <h1>¡Felicidades!</h1>
     </div>
     <div class="content">
-        <p>Hola {{Nombre}},</p>
-        <p>Nos complace informarte que el reconocimiento
-        {{ReconocedorFrase}}
-        ha sido aprobado.</p>
+        <p>Nos enorgullece contar con colaboradores como tú. Agradecemos cada una de las acciones que realizas y nos llevan a cumplir con nuestro propósito día a día.</p>
+        <p>¡Cuéntaselo a todos! Postea este reconocimiento en tu perfil de LinkedIn. Accede desde {{CertificadoUrl}} y descarga tu certificado.</p>
+        </p>
         <div class="highlight">
-            <p><strong>Detalles del reconocimiento:</strong></p>
+            <p><strong>Detalles la solicitud:</strong></p>
             <ul>
-                <li>Reconocido: {{ReconocidoNombre}} ({{ReconocidoEmail}})</li>
-                <li>Reconocedor: {{ReconocedorNombre}} ({{ReconocedorEmail}})</li>
-                <li>ID del reconocimiento: {{ReconocimientoId}}</li>
+                <li><strong>Reconocimiento enviado por:</strong> ({{ReconocedorEmail}})</li>
+                <li><strong>Colaborador reconocido:</strong> ({{ReconocidoEmail}})</li>
             </ul>
         </div>
-        <p>Gracias por participar en nuestro programa de reconocimientos y contribuir a crear un ambiente positivo de trabajo.</p>
+        <p>Atentamente,</p>
+        <p><strong>Talento y Cultura - ReconoSER</strong></p>
     </div>
     <div class="footer">
         <p>Este es un correo automático, por favor no responder.</p>
     </div>
 </body>
+
 </html>

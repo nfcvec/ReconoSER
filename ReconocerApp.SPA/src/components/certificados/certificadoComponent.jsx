@@ -83,7 +83,7 @@ const CertificadoComponent = forwardRef(({
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    backgroundColor: "white",
+                    backgroundColor: "primary.main",
                     borderRadius: 1,
                     boxShadow: 1,
                     margin: "0 auto",
