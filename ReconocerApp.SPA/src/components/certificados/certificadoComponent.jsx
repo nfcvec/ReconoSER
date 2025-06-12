@@ -46,7 +46,7 @@ const CertificadoComponent = forwardRef(({
     >
       <Box
         sx={{
-          backgroundColor: 'rgba(221, 13, 65, 0.7)',
+          backgroundColor: 'primary.main',
           borderRadius: 2,
           padding: { xs: 2, sm: 3 },
           boxShadow: 1,
