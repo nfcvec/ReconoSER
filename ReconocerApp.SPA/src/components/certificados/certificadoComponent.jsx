@@ -26,6 +26,29 @@ const CertificadoComponent = forwardRef(({
     color: "#fff"
   };
 
+  // Componente auxiliar para renderizar SVG string como React Element
+  function SvgFromString({ svgString, ...props }) {
+    if (!svgString) return null;
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(svgString, 'image/svg+xml');
+      const svg = doc.documentElement;
+      // Forzamos tamaño y color si es necesario
+      svg.setAttribute('width', props.width || '100%');
+      svg.setAttribute('height', props.height || 'auto');
+      if (props.color) svg.setAttribute('color', props.color);
+      // Convertimos el SVG DOM a JSX
+      return (
+        <span
+          style={{ display: 'inline-block', width: props.width, height: props.height }}
+          dangerouslySetInnerHTML={{ __html: svg.outerHTML }}
+        />
+      );
+    } catch {
+      return null;
+    }
+  }
+
   return (
     <Box
       sx={{
@@ -34,64 +57,7 @@ const CertificadoComponent = forwardRef(({
         mx: 'auto',
       }}
     >
-      {/* Fundido a negro arriba */}
-      <Box
-        sx={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '200px',
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0))',
-          zIndex: 2,
-          pointerEvents: 'none',
-          borderTopLeftRadius: 16,
-          borderTopRightRadius: 16,
-        }}
-      />
-      {/* Fundido a negro abajo */}
-      <Box
-        sx={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          width: '100%',
-          height: '200px',
-          background: 'linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0))',
-          zIndex: 2,
-          pointerEvents: 'none',
-          borderBottomLeftRadius: 16,
-          borderBottomRightRadius: 16,
-        }}
-      />
-      {/* Icono de la organización por encima del fundido */}
-      {organizacion?.iconSvg && (
-        <Box
-          sx={{
-            position: 'absolute',
-            zIndex: 10, // Más alto que los fundidos
-            top: 64,
-            left: '50%',
-            transform: 'translateX(-50%)',
-            p: 2,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            width: '720px',
-            mx: 'auto',
-            color: '#fff',
-            '& svg': {
-              width: '100%',
-              height: 'auto',
-              display: 'block',
-              filter: 'drop-shadow(0 4px 24px rgba(0,0,0,0.6))',
-            },
-          }}
-          dangerouslySetInnerHTML={{
-            __html: organizacion.iconSvg
-          }}
-        />
-      )}
+      
       <Paper
         ref={ref}
         elevation={3}
@@ -113,6 +79,33 @@ const CertificadoComponent = forwardRef(({
           zIndex: 1,
         }}
       >
+        {/* Icono de la organización dentro del área capturada */}
+        {organizacion?.iconSvg && (
+          <Box
+            sx={{
+              position: 'absolute',
+              zIndex: 10,
+              top: 64,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              p: 2,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '720px',
+              mx: 'auto',
+              color: '#fff',
+              '& svg': {
+                width: '100%',
+                height: 'auto',
+                display: 'block',
+                filter: 'drop-shadow(0 4px 24px rgba(0,0,0,0.6))',
+              },
+            }}
+          >
+            <SvgFromString svgString={organizacion.iconSvg} width="100%" height="120px" color="#fff" />
+          </Box>
+        )}
         <Box
           sx={{
             backgroundColor: 'primary.main',
@@ -158,10 +151,7 @@ const CertificadoComponent = forwardRef(({
                       margin: "0 auto",
                     }}
                   >
-                    <span
-                      style={{ width: "80px", height: "80px" }}
-                      dangerouslySetInnerHTML={{ __html: iconSvg.replace('<svg', '<svg width="80px" height="80px" color="#ffffff" preserveAspectRatio="xMidYMid meet"') }}
-                    />
+                    <SvgFromString svgString={iconSvg} width="80px" height="80px" color="#fff" />
                   </Box>
                 )}
                 <Typography variant="body1" sx={{ mt: 1, ...textShadowStyle, fontSize: '1.1rem' }}>
