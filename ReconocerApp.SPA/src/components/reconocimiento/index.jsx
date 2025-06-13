@@ -191,7 +191,7 @@ export default function Reconocimiento() {
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        label="Seleccionar Colaborador"
+                        label="Seleccionar Colaborador (Correo)"
                         placeholder="Busca un colaborador..."
                         onChange={(e) => setSearchTerm(e.target.value)}
                       />
@@ -268,7 +268,7 @@ export default function Reconocimiento() {
 
                   <TextField
                     id="certificate"
-                    label="Texto del Certificado"
+                    label="Texto del Certificado (Visible en el certificado)"
                     multiline
                     rows={3}
                     placeholder="Texto que aparecerá en el certificado..."

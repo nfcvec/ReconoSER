@@ -195,8 +195,10 @@ public class ReconocimientoNotificationService : IReconocimientoNotificationServ
             var templateModel = new
             {
                 ReconocedorNombre = reconocedorNombre,
+                ReconocedorEmail = reconocedorEmail,
                 ReconocidoNombre = reconocidoNombre,
                 ReconocidoEmail = reconocidoEmail,
+                TextoReconocimiento = reconocimiento.Texto,
                 FechaResolucion = reviewRequest.FechaResolucion.ToString("dd/MM/yyyy HH:mm"),
                 ReconocimientoId = reconocimiento.ReconocimientoId,
                 ComentarioAprobacion = reviewRequest.ComentarioAprobacion
