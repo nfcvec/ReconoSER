@@ -14,7 +14,6 @@ import {
     Container,
     Snackbar,
     Alert,
-    MenuItem,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -25,7 +24,7 @@ import {
     updateComportamiento,
     deleteComportamiento,
 } from "../../../utils/services/comportamientos";
-import { getOrganizaciones } from "../../../utils/services/organizaciones";
+import { useOrganizacion } from "../../../contexts/OrganizacionContext";
 
 const defaultForm = { nombre: "", descripcion: "", walletOtorgados: 0, organizacionId: 1, iconSvg: "" };
 
@@ -43,32 +42,34 @@ const SvgPreview = ({ svg, size = 48, emptyText = "Sin icono" }) => svg ? (
 
 const CRUDComportamientos = () => {
     const [comportamientos, setComportamientos] = useState([]);
-    const [organizaciones, setOrganizaciones] = useState([]);
+    const { organizacion } = useOrganizacion();
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedComportamiento, setSelectedComportamiento] = useState(null);
     const [formValues, setFormValues] = useState(defaultForm);
     const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
-    // Cargar comportamientos y organizaciones al montar el componente
+    // Cargar comportamientos al montar el componente
     useEffect(() => {
         (async () => {
             try {
-                const [comps, orgs] = await Promise.all([
-                    getComportamientos({}),
-                    getOrganizaciones()
-                ]);
+                const comps = await getComportamientos({ 
+                    filters: [{ field: "OrganizacionId", operator: "eq", value: `${organizacion.organizacionId}` }],
+                });
                 setComportamientos(comps);
-                setOrganizaciones(orgs);
             } catch (error) {
                 console.error("Error al cargar los datos:", error);
             }
         })();
-    }, []);
+    }, [organizacion.organizacionId]);
 
     // Manejar apertura del diálogo
     const handleOpenDialog = (comportamiento = null) => {
         setSelectedComportamiento(comportamiento);
-        setFormValues(comportamiento || defaultForm);
+        if (comportamiento) {
+            setFormValues(comportamiento);
+        } else {
+            setFormValues({ ...defaultForm, organizacionId: organizacion.organizacionId });
+        }
         setOpenDialog(true);
     };
 
@@ -101,14 +102,14 @@ const CRUDComportamientos = () => {
     // Guardar o editar comportamiento
     const handleSave = async () => {
         try {
-            const payload = { ...formValues, walletOtorgados: Number(formValues.walletOtorgados) };
+            const payload = { ...formValues, walletOtorgados: Number(formValues.walletOtorgados), organizacionId: organizacion.organizacionId };
             if (selectedComportamiento) {
                 // Asegurarse de enviar el id correcto
                 await updateComportamiento(selectedComportamiento.comportamientoId, payload);
             } else {
                 await createComportamiento(payload);
             }
-            setComportamientos(await getComportamientos({}));
+            setComportamientos(await getComportamientos({ filters: [{ field: "OrganizacionId", operator: "eq", value: `${organizacion.organizacionId}` }] }));
             setSnackbar({ open: true, message: "Comportamiento guardado correctamente", severity: "success" });
             handleCloseDialog();
         } catch (error) {
@@ -140,7 +141,7 @@ const CRUDComportamientos = () => {
             field: "organizacionId",
             headerName: "Organización",
             width: 200,
-            renderCell: ({ value }) => organizaciones.find(o => o.organizacionId === value)?.nombre || value,
+            renderCell: () => organizacion.nombre,
         },
         {
             field: "actions",
@@ -179,11 +180,8 @@ const CRUDComportamientos = () => {
                     {[{ label: "Nombre", name: "nombre" }, { label: "Descripción", name: "descripcion" }, { label: "ULIs otorgados", name: "walletOtorgados", type: "number" }].map(({ label, name, type }) => (
                         <TextField key={name} margin="dense" label={label} name={name} fullWidth value={formValues[name]} onChange={handleChange} type={type || 'text'} />
                     ))}
-                    <TextField margin="dense" label="Organización" name="organizacionId" select fullWidth value={formValues.organizacionId} onChange={handleChange}>
-                        {organizaciones.map(org => (
-                            <MenuItem key={org.organizacionId} value={org.organizacionId}>{org.nombre}</MenuItem>
-                        ))}
-                    </TextField>
+                    {/* Mostrar la organización como texto, no como select */}
+                    <TextField margin="dense" label="Organización" name="organizacionId" fullWidth value={organizacion.nombre} InputProps={{ readOnly: true }} />
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mt: 2 }}>
                         <input
                             accept=".svg"
