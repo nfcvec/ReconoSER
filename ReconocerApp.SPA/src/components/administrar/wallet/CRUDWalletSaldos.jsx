@@ -65,7 +65,10 @@ const CRUDWalletSaldos = () => {
       setLoading(true);
       try {
         const filters = [{ field: "TokenColaborador", operator: "eq", value: colaboradorSeleccionado.id }];
-        setWalletTransacciones(await getWalletTransaction(filters));
+        let transacciones = await getWalletTransaction(filters);
+        // Ordenar de más reciente a más antiguo por fecha
+        transacciones = transacciones.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+        setWalletTransacciones(transacciones);
       } catch {
         showAlert('Error al obtener transacciones', 'error');
         setWalletTransacciones([]);
@@ -81,7 +84,10 @@ const CRUDWalletSaldos = () => {
       await refreshWallet();
       await fetchData();
       const filters = [{ field: "TokenColaborador", operator: "eq", value: colaboradorSeleccionado.id }];
-      setWalletTransacciones(await getWalletTransaction(filters));
+      let transacciones = await getWalletTransaction(filters);
+      // Ordenar de más reciente a más antiguo por fecha
+      transacciones = transacciones.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+      setWalletTransacciones(transacciones);
       showAlert("Bono otorgado correctamente", "success");
     } catch {
       showAlert("Error al otorgar el bono", "error");
@@ -103,7 +109,10 @@ const CRUDWalletSaldos = () => {
       await refreshWallet();
       await fetchData();
       const filters = [{ field: "TokenColaborador", operator: "eq", value: colaboradorSeleccionado.id }];
-      setWalletTransacciones(await getWalletTransaction(filters));
+      let transacciones = await getWalletTransaction(filters);
+      // Ordenar de más reciente a más antiguo por fecha
+      transacciones = transacciones.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+      setWalletTransacciones(transacciones);
       showAlert("Ajuste realizado correctamente", "success");
       setAjusteOpen(false);
       setAjusteMonto(0);
@@ -151,7 +160,7 @@ const CRUDWalletSaldos = () => {
         </Box>
       </Box>
       <Typography variant="h6" sx={{ mb: 2 }}>Selecciona un colaborador para visualizar sus transacciones y otorgar un bono</Typography>
-      <Box sx={{ mb: 2, maxWidth: 400 }}>
+      <Box sx={{ mb: 2, maxWidth: 600, display: 'flex', alignItems: 'center', gap: 2 }}>
         <Autocomplete
           options={colaboradores}
           getOptionLabel={o => o.displayName || o.id}
@@ -159,7 +168,34 @@ const CRUDWalletSaldos = () => {
           onChange={(_, v) => setColaboradorSeleccionado(v)}
           renderInput={params => <TextField {...params} label="Selecciona un colaborador" variant="outlined" />}
           isOptionEqualToValue={(o, v) => o.id === v.id}
+          sx={{ minWidth: 300 }}
         />
+        <Typography variant="subtitle1">
+          ULIs:&nbsp;
+          <b>
+            {colaboradorSeleccionado
+              ? (
+                  (() => {
+                    // LOGS para depuración
+                    console.log('colaboradorSeleccionado:', colaboradorSeleccionado);
+                    console.log('walletSaldos:', walletSaldos);
+                    const saldoObj = walletSaldos.find(
+                      s => {
+                        const match = String(s.tokenColaborador) === String(colaboradorSeleccionado.tokenColaborador) ||
+                                      String(s.tokenColaborador) === String(colaboradorSeleccionado.id);
+                        if (match) {
+                          console.log('Match encontrado:', s);
+                        }
+                        return match;
+                      }
+                    );
+                    console.log('saldoObj:', saldoObj);
+                    return saldoObj ? saldoObj.saldoActual : 0;
+                  })()
+                )
+              : '--'}
+          </b>
+        </Typography>
       </Box>
       <DataGrid
         rows={walletTransacciones}
