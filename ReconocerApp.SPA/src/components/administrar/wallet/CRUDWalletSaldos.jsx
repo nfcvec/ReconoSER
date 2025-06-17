@@ -6,12 +6,13 @@ import {
 import {
   getWalletBalance, otorgarBono, corregirSaldo
 } from "../../../utils/services/walletBalance";
-import { getColaboradoresFromBatchIds } from "../../../utils/services/colaboradores";
+import { getColaboradores } from "../../../utils/services/colaboradores";
 import { getWalletTransaction } from '../../../utils/services/walletTransaccion';
 import { getWalletCategorias } from '../../../utils/services/walletCategorias';
 import { useAlert } from "../../../contexts/AlertContext";
 import { useLoading } from "../../../contexts/LoadingContext";
 import { useWallet } from "../../../contexts/WalletContext";
+import { useOrganizacion } from '../../../contexts/OrganizacionContext';
 import FechaFormateada from '../../../ui-components/FechaFormateada';
 
 const CRUDWalletSaldos = () => {
@@ -26,9 +27,11 @@ const CRUDWalletSaldos = () => {
   const [ajusteOpen, setAjusteOpen] = useState(false);
   const [ajusteMonto, setAjusteMonto] = useState(0);
   const [ajusteCategoria, setAjusteCategoria] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const showAlert = useAlert();
   const { showLoading, hideLoading } = useLoading();
   const { refreshWallet } = useWallet();
+  const { organizacion } = useOrganizacion();
 
   // Fetch wallet balances
   const fetchData = useCallback(async () => {
@@ -42,21 +45,23 @@ const CRUDWalletSaldos = () => {
     }
   }, [showAlert]);
 
-  // Fetch colaboradores
-  const fetchColaboradores = useCallback(async () => {
-    if (!walletSaldos.length) return;
-    try {
-      const ids = [...new Set(walletSaldos.map(i => i.tokenColaborador))];
-      setColaboradores(await getColaboradoresFromBatchIds(ids));
-    } catch {
-      showAlert("Error al obtener colaboradores", "error");
-    }
-  }, [walletSaldos, showAlert]);
+  // Buscar colaboradores por searchTerm
+  useEffect(() => {
+    const fetchColaboradores = async () => {
+      try {
+        setColaboradores(await getColaboradores(searchTerm));
+      } catch {
+        showAlert("Error al obtener colaboradores", "error");
+      }
+    };
+    fetchColaboradores();
+  }, [searchTerm, showAlert]);
 
   // Fetch wallet categories
-  useEffect(() => { getWalletCategorias().then(setWalletCategorias).catch(() => showAlert('Error al obtener categorías de wallet', 'error')); }, [showAlert]);
+  useEffect(() => {
+    getWalletCategorias().then(setWalletCategorias).catch(() => showAlert('Error al obtener categorías de wallet', 'error'));
+  }, [showAlert]);
   useEffect(() => { fetchData(); }, [fetchData]);
-  useEffect(() => { if (walletSaldos.length) fetchColaboradores(); }, [walletSaldos, fetchColaboradores]);
 
   // Fetch transactions for selected collaborator
   useEffect(() => {
@@ -66,9 +71,7 @@ const CRUDWalletSaldos = () => {
       try {
         const filters = [{ field: "TokenColaborador", operator: "eq", value: colaboradorSeleccionado.id }];
         let transacciones = await getWalletTransaction(filters);
-        // Ordenar de más reciente a más antiguo por fecha
-        transacciones = transacciones.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-        setWalletTransacciones(transacciones);
+        setWalletTransacciones(transacciones.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)));
       } catch {
         showAlert('Error al obtener transacciones', 'error');
         setWalletTransacciones([]);
@@ -85,9 +88,7 @@ const CRUDWalletSaldos = () => {
       await fetchData();
       const filters = [{ field: "TokenColaborador", operator: "eq", value: colaboradorSeleccionado.id }];
       let transacciones = await getWalletTransaction(filters);
-      // Ordenar de más reciente a más antiguo por fecha
-      transacciones = transacciones.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-      setWalletTransacciones(transacciones);
+      setWalletTransacciones(transacciones.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)));
       showAlert("Bono otorgado correctamente", "success");
     } catch {
       showAlert("Error al otorgar el bono", "error");
@@ -110,9 +111,7 @@ const CRUDWalletSaldos = () => {
       await fetchData();
       const filters = [{ field: "TokenColaborador", operator: "eq", value: colaboradorSeleccionado.id }];
       let transacciones = await getWalletTransaction(filters);
-      // Ordenar de más reciente a más antiguo por fecha
-      transacciones = transacciones.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-      setWalletTransacciones(transacciones);
+      setWalletTransacciones(transacciones.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)));
       showAlert("Ajuste realizado correctamente", "success");
       setAjusteOpen(false);
       setAjusteMonto(0);
@@ -146,13 +145,18 @@ const CRUDWalletSaldos = () => {
     },
   ];
 
+  // Obtener saldo actual del colaborador seleccionado
+  const saldoActual = colaboradorSeleccionado
+    ? (walletSaldos.find(s => String(s.tokenColaborador) === String(colaboradorSeleccionado.tokenColaborador) || String(s.tokenColaborador) === String(colaboradorSeleccionado.id))?.saldoActual ?? 0)
+    : '--';
+
   return (
     <Container>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
         <Typography variant="h4">Administrar ULIs</Typography>
         <Box>
           <Button variant="contained" color="primary" onClick={() => setEditOpen(true)} disabled={!colaboradorSeleccionado} sx={{ mr: 1 }}>
-            Dar Bono
+            Dar ULIs
           </Button>
           <Button variant="outlined" color="secondary" onClick={() => setAjusteOpen(true)} disabled={!colaboradorSeleccionado}>
             Ajuste de ULIs
@@ -166,36 +170,31 @@ const CRUDWalletSaldos = () => {
           getOptionLabel={o => o.displayName || o.id}
           value={colaboradorSeleccionado}
           onChange={(_, v) => setColaboradorSeleccionado(v)}
-          renderInput={params => <TextField {...params} label="Selecciona un colaborador" variant="outlined" />}
+          renderInput={params => (
+            <TextField {...params} label="Selecciona un colaborador" variant="outlined" onChange={e => setSearchTerm(e.target.value)} />
+          )}
           isOptionEqualToValue={(o, v) => o.id === v.id}
           sx={{ minWidth: 300 }}
         />
-        <Typography variant="subtitle1">
-          ULIs:&nbsp;
-          <b>
-            {colaboradorSeleccionado
-              ? (
-                  (() => {
-                    // LOGS para depuración
-                    console.log('colaboradorSeleccionado:', colaboradorSeleccionado);
-                    console.log('walletSaldos:', walletSaldos);
-                    const saldoObj = walletSaldos.find(
-                      s => {
-                        const match = String(s.tokenColaborador) === String(colaboradorSeleccionado.tokenColaborador) ||
-                                      String(s.tokenColaborador) === String(colaboradorSeleccionado.id);
-                        if (match) {
-                          console.log('Match encontrado:', s);
-                        }
-                        return match;
-                      }
-                    );
-                    console.log('saldoObj:', saldoObj);
-                    return saldoObj ? saldoObj.saldoActual : 0;
-                  })()
-                )
-              : '--'}
-          </b>
-        </Typography>
+        {/* Recuadro para ULIs con color de la organización activa */}
+        <Box
+          sx={{
+            background: organizacion?.colorPrincipal || '#1976d2',
+            color: '#fff',
+            px: 3,
+            py: 1.5,
+            borderRadius: 2,
+            minWidth: 150,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+            boxShadow: 2,
+            justifyContent: 'center',
+          }}
+        >
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold', fontSize: 20 }}>ULIs:</Typography>
+          <Typography variant="h4" sx={{ fontWeight: 'bold' }}>{saldoActual}</Typography>
+        </Box>
       </Box>
       <DataGrid
         rows={walletTransacciones}
@@ -208,13 +207,13 @@ const CRUDWalletSaldos = () => {
       />
       {/* Dialog Bono */}
       <Dialog open={editOpen} onClose={() => setEditOpen(false)}>
-        <DialogTitle>Otorgar Bono</DialogTitle>
+        <DialogTitle>Dar ULIs</DialogTitle>
         <DialogContent>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
             <Typography>ID: {colaboradorSeleccionado?.walletSaldoId || colaboradorSeleccionado?.id}</Typography>
             <Typography>Colaborador: {colaboradorSeleccionado?.displayName || colaboradorSeleccionado?.id}</Typography>
             <TextField
-              label="Monto del Bono"
+              label="Monto de ULIs"
               type="number"
               value={bonoMonto}
               onChange={e => setBonoMonto(Number(e.target.value))}
@@ -224,7 +223,7 @@ const CRUDWalletSaldos = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setEditOpen(false)}>Cancelar</Button>
-          <Button onClick={handleBonoSave} variant="contained" color="primary" disabled={bonoMonto <= 0 || !colaboradorSeleccionado}>Otorgar Bono</Button>
+          <Button onClick={handleBonoSave} variant="contained" color="primary" disabled={bonoMonto <= 0 || !colaboradorSeleccionado}>Dar ULIs</Button>
         </DialogActions>
       </Dialog>
       {/* Dialog Ajuste */}
