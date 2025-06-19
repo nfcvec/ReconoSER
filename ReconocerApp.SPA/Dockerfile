@@ -29,7 +29,7 @@ COPY package*.json ./
 RUN rm -rf node_modules package-lock.json
 
 # Instalar las dependencias
-RUN npm install 
+RUN npm install --loglevel=verbose
 
 # Copiar el resto del código de la aplicación
 COPY . .
