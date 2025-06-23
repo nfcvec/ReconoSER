@@ -33,6 +33,10 @@ services:
       Email__Password: "ekinotificaciones"
       Email__EnableSsl: "true"
       Email__FromAddress: "notificaciones@upsecuador.com"
+      GraphEmail__ClientId: "9b9b617d-16a4-4371-b015-1433fb9c1251"
+      GraphEmail__TenantId: "abcce23f-bc94-47e2-834f-01fd1e3d7f7b"
+      GraphEmail__ClientSecret: "6ee8Q~IjuqOsk0nFrSI5DCUhfq6nGJn4XGwm1awT"
+      GraphEmail__UserId: "preparat@academikus.com
       AzureAd__ClientId: "3c1288d3-314b-4ab3-9669-11ab1909e1ab"
       AzureAd__TenantId: "05b4b405-3325-479b-88fd-f6c25ea40a8c"
       AzureAd__ClientSecret: "4dQ8Q~i-K~.biFHAyxERbzj3_G7f62K7KdbDfduR"

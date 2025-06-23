@@ -29,7 +29,8 @@ namespace ReconocerApp.API.Extensions
         public static IServiceCollection AddNotificationServices(this IServiceCollection services, IConfiguration configuration)
         {
             services.Configure<EmailConfiguration>(configuration.GetSection("EmailSettings"));
-            services.AddScoped<IEmailNotificationService, EmailNotificationService>();
+            // Cambia la siguiente línea para usar GraphEmailNotificationService
+            services.AddScoped<IEmailNotificationService, GraphEmailNotificationService>();
             return services;
         }
 
@@ -39,7 +40,7 @@ namespace ReconocerApp.API.Extensions
             services.AddScoped<IGraphService, GraphService>();
             
             // Email Services
-            services.AddScoped<IEmailNotificationService, EmailNotificationService>();
+            services.AddScoped<IEmailNotificationService, GraphEmailNotificationService>();
             services.AddScoped<IEmailTemplateProvider, EmailTemplateProvider>(provider =>
                 new EmailTemplateProvider(
                     provider.GetRequiredService<IWebHostEnvironment>(),
