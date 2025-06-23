@@ -7,7 +7,7 @@ import {
   getWalletBalance, otorgarBono, corregirSaldo
 } from "../../../utils/services/walletBalance";
 import { getColaboradores } from "../../../utils/services/colaboradores";
-import { getWalletTransaction } from '../../../utils/services/walletTransaccion';
+import { getWallets, getWalletTransaction } from '../../../utils/services/walletTransaccion';
 import { getWalletCategorias } from '../../../utils/services/walletCategorias';
 import { useAlert } from "../../../contexts/AlertContext";
 import { useLoading } from "../../../contexts/LoadingContext";
@@ -24,6 +24,7 @@ const CRUDWalletSaldos = () => {
   const [editOpen, setEditOpen] = useState(false);
   const [colaboradorSeleccionado, setColaboradorSeleccionado] = useState(null);
   const [walletTransacciones, setWalletTransacciones] = useState([]);
+  const [walletColaborador, setWalletColaborador] = useState(null);
   const [ajusteOpen, setAjusteOpen] = useState(false);
   const [ajusteMonto, setAjusteMonto] = useState(0);
   const [ajusteCategoria, setAjusteCategoria] = useState("");
@@ -68,6 +69,21 @@ const CRUDWalletSaldos = () => {
     if (!colaboradorSeleccionado) return setWalletTransacciones([]);
     (async () => {
       setLoading(true);
+      try {
+        const filters = [{ field: "TokenColaborador", operator: "eq", value: colaboradorSeleccionado.id }];
+        let wallets = await getWallets(filters);
+        if (wallets.length === 0) {
+          showAlert("No se encontraron transacciones para el colaborador seleccionado", "info");
+          setWalletColaborador(null);
+          return;
+        }
+        setWalletColaborador(wallets[0]);
+      }
+      catch {
+        showAlert("Error al obtener el saldo del colaborador", "error");
+        setWalletColaborador(null);
+      }
+      finally { setLoading(false); }
       try {
         const filters = [{ field: "TokenColaborador", operator: "eq", value: colaboradorSeleccionado.id }];
         let transacciones = await getWalletTransaction(filters);
@@ -193,7 +209,9 @@ const CRUDWalletSaldos = () => {
           }}
         >
           <Typography variant="subtitle1" sx={{ fontWeight: 'bold', fontSize: 20 }}>ULIs:</Typography>
-          <Typography variant="h4" sx={{ fontWeight: 'bold' }}>{saldoActual}</Typography>
+          <Typography variant="h4" sx={{ fontWeight: 'bold' }}>
+            {walletColaborador ? walletColaborador.saldoActual : '--'}
+          </Typography>
         </Box>
       </Box>
       <DataGrid

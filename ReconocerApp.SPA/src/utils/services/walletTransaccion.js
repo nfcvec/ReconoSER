@@ -15,6 +15,21 @@ export const getWalletTransaction = async (filters = null) => {
     }
 }
 
+export const getWallets = async (filters) => {
+    try {
+        let url = "/WalletSaldos?page=1&pageSize=100";
+        if (filters) {
+            url += `&filters=${encodeURIComponent(JSON.stringify(filters))}`;
+        }
+        const response = await api.get(url);
+        return response.data; // Devuelve los datos de la respuesta
+    }
+    catch (error) {
+        console.error("Error al obtener las billeteras:", error.message);
+        throw error; // Lanza el error para manejarlo en el componente
+    }
+}
+
 //Función para crear una transacción
 export const createWalletTransaction = async (data) => {
     try {
