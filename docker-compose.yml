@@ -1,32 +1,19 @@
-services:
-  spa:
-    image: ghcr.io/nfcvec/reconoser-spa:latest
-    build:
-      context: ./ReconocerApp.SPA
-      dockerfile: Dockerfile
-      args:
-        - SKIP_PREFLIGHT_CHECK=SKIP_PREFLIGHT_CHECK=true
-        - BROWSER=BROWSER=none
-        # - VITE_CLIENT_ID=6885bc59-dbd5-4d8b-a3b2-b753ca53d2c4
-        # - VITE_AUTHORITY=https://login.microsoftonline.com/abcce23f-bc94-47e2-834f-01fd1e3d7f7b
-        - VITE_CLIENT_ID=3c1288d3-314b-4ab3-9669-11ab1909e1ab
-        - VITE_AUTHORITY=https://login.microsoftonline.com/05b4b405-3325-479b-88fd-f6c25ea40a8c
-        - VITE_POPUP_REDIRECT_URI=/redirect
-        - VITE_TITLE=ReconoSER
-        - VITE_API_URL=https://reconoser-api.lerolero.com.ec/api
+version: '3.8'
 
+services:
   api:
+    container_name: reconoser_api
     image: ghcr.io/nfcvec/reconoser-api:latest
     build:
       context: ./ReconocerApp.API
       dockerfile: Dockerfile
     environment:
-      ConnectionStrings__DefaultConnection: "Host=192.168.10.40;Port=5432;Username=postgres;Password=Artes@nas240;Database=reconoser"
+      ConnectionStrings__DefaultConnection: "DATABASE_URL=postgresql+psycopg2://postgres:Carlos78102@192.168.1.168:5432/udlatester"
       DatabaseProvider: "PostgreSQL"
       Minio__Endpoint: "192.168.10.56:9000"
-      Minio__AccessKey: "minioadmin" # Usuario de acceso
-      Minio__SecretKey: "Artes@nas240" # Contraseña de acceso
-      Minio__BucketName: "reconoser" # Nombre del bucket
+      Minio__AccessKey: "minioadmin"
+      Minio__SecretKey: "Artes@nas240"
+      Minio__BucketName: "reconoser"
       Email__SmtpServer: "mail.upsecuador.com"
       Email__Port: "465"
       Email__Username: "notificaciones@upsecuador.com"
@@ -40,12 +27,38 @@ services:
       AzureAd__ClientId: "3c1288d3-314b-4ab3-9669-11ab1909e1ab"
       AzureAd__TenantId: "05b4b405-3325-479b-88fd-f6c25ea40a8c"
       AzureAd__ClientSecret: "4dQ8Q~i-K~.biFHAyxERbzj3_G7f62K7KdbDfduR"
-      FrontendUrl: "https://reconoser.lerolero.com.ec"
+      FrontendUrl: "https://reconoser.cjdevlabs.com"
+    restart: always
 
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    command: tunnel --no-autoupdate run --token eyJhIjoiY2VjODk5MGQ1YWM2ODk5NzlkOWU1ZGE2MWZkNzQ4YzEiLCJ0IjoiODg1NmU2NWYtYWUxOC00NDZmLWI5ZTItY2UzOWVhN2E0ODI2IiwicyI6Ik1tVmxNR05sTTJVdE1XWmhZUzAwTXpCbUxXRTRaVGt0TmpVNU5HUmlOemRoWVRkbCJ9
-    restart: unless-stopped
+  spa:
+    container_name: reconoser_spa
+    image: ghcr.io/nfcvec/reconoser-spa:latest
+    build:
+      context: ./ReconocerApp.SPA
+      dockerfile: Dockerfile
+      args:
+        - SKIP_PREFLIGHT_CHECK=SKIP_PREFLIGHT_CHECK=true
+        - BROWSER=BROWSER=none
+        - VITE_CLIENT_ID=3c1288d3-314b-4ab3-9669-11ab1909e1ab
+        - VITE_AUTHORITY=https://login.microsoftonline.com/05b4b405-3325-479b-88fd-f6c25ea40a8c
+        - VITE_POPUP_REDIRECT_URI=/redirect
+        - VITE_TITLE=ReconoSER
+        - VITE_API_URL=https://reconoser-api.cjdevlabs.com/api
+    environment:
+      - NODE_ENV=production
+    restart: always
+
+  nginx:
+    image: nginx:latest
+    container_name: reconoser_nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - spa
+      - api
+    restart: always
 
 volumes:
   minio_data:
