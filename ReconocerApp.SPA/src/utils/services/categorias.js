@@ -1,13 +1,19 @@
 import api from "../api";
 
 // Funcion para obtener la lista de categorias
-export const getCategorias = async () => {
+export const getCategorias = async (filters = [], page = 1, pageSize = 100) => {
     try {
-        const response = await api.get("/Categoria");
-        return response.data; // Devuelve los datos de la respuesta
+        const response = await api.get("/Categoria", {
+            params: {
+                filters: JSON.stringify(filters),
+                page,
+                pageSize
+            }
+        });
+        return response.data;
     } catch (error) {
         console.error("Error al obtener las categorias:", error.message);
-        throw error; // Lanza el error para manejarlo en el componente
+        throw error;
     }
 };
 
