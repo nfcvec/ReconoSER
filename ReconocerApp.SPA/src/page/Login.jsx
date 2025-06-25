@@ -3,7 +3,7 @@ import Typography from "@mui/material/Typography";
 import Home from "./Home.jsx";
 import { Container, Box } from "@mui/material";
 import SignInSignOutButton from "./../ui-components/SignInSignOutButton.jsx";
-import reconoserConsorcio from '../assets/RECONOCER_CONSORCIO.png';
+import homeReconoser from '../assets/home_reconoser.png';
 
 export function Login() {
   return (
@@ -19,7 +19,7 @@ export function Login() {
                 sx={{ width: { xs: '100%', md: 900 }, height: { xs: 220, md: 500 }, bgcolor: '#e3f2fd', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 2, borderRadius: 2, overflow: 'hidden' }}
               >
                 <img
-                  src={reconoserConsorcio}
+                  src={homeReconoser}
                   alt="Bienvenida"
                   id="login-img"
                   style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
@@ -29,7 +29,7 @@ export function Login() {
                 sx={{width: { xs: '100%', md: 320 }, bgcolor: '#3f4042', boxShadow: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', borderRadius: 2, p: 3, ml: { xs: 0, md: 0 }, mt: { xs: 2, md: 0 }, height: { xs: 'auto', md: 500 }}}
               >
                 <Typography variant="h4" sx={{ mb: 2, fontWeight: 700, textAlign: 'center', color: '#fff', p: 2, borderRadius: 1 }}>
-                  ¡Bienvenidos <br /> a <br /> Reconocer!
+                  ¡Bienvenidos <br /> a <br /> ReconoSER!
                 </Typography>
                 <SignInSignOutButton variant="contained" color="primary" size="large" fullWidth sx={{ mt: 2, bgcolor:'#0847f' }} />
               </Box>
