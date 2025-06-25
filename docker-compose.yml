@@ -27,7 +27,7 @@ services:
       AzureAd__ClientId: "3c1288d3-314b-4ab3-9669-11ab1909e1ab"
       AzureAd__TenantId: "05b4b405-3325-479b-88fd-f6c25ea40a8c"
       AzureAd__ClientSecret: "4dQ8Q~i-K~.biFHAyxERbzj3_G7f62K7KdbDfduR"
-      FrontendUrl: "https://reconoser.cjdevlabs.com"
+      FrontendUrl: "https://reconoser.lerolero.com.ec"
     restart: always
 
   spa:
@@ -43,7 +43,7 @@ services:
         - VITE_AUTHORITY=https://login.microsoftonline.com/05b4b405-3325-479b-88fd-f6c25ea40a8c
         - VITE_POPUP_REDIRECT_URI=/redirect
         - VITE_TITLE=ReconoSER
-        - VITE_API_URL=https://reconoser-api.cjdevlabs.com/api
+        - VITE_API_URL=https://reconoser-api.lerolero.com.ec/api
     environment:
       - NODE_ENV=production
     restart: always
