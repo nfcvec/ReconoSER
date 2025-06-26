@@ -35,6 +35,7 @@ import { useAlert } from "../../../contexts/AlertContext";
 import EditIcon from '@mui/icons-material/Edit';
 import { useWallet } from "../../../contexts/WalletContext";
 import FechaFormateada from '../../../ui-components/FechaFormateada';
+import { useOrganizacion } from "../../../contexts/OrganizacionContext";
 
 const CRUDReconocimientos = () => {
   const [reconocimientos, setReconocimientos] = useState([]);
@@ -43,14 +44,15 @@ const CRUDReconocimientos = () => {
   const [selectedReconocimiento, setSelectedReconocimiento] = useState(null);
   const [comentarioAprobacion, setComentarioAprobacion] = useState("");
   const [generaULIS, setGeneraULIs] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
   const { instance } = useMsal();
-  const { showLoading, hideLoading } = useLoading();
+  const { showLoading, hideLoading, loading } = useLoading();
   const showAlert = useAlert();
   const { refreshWallet } = useWallet();
+  const {organizacion} = useOrganizacion();
 
   useEffect(() => {
     const fetchData = async () => {
+      showLoading("Cargando reconocimientos...");
       try {
         const data = await getReconocimientos({
           filters: [
@@ -63,18 +65,35 @@ const CRUDReconocimientos = () => {
           page: 1,
           pageSize: 100
         });
-        setReconocimientos(data);
+        const organizacionId = organizacion?.organizacionId;
+        
+        // Filtrar reconocimientos por organización del primer comportamiento
+        const reconocimientosFiltrados = data.filter(reconocimiento => {
+          if (!reconocimiento.comportamientos || reconocimiento.comportamientos.length === 0) {
+            return false;
+          }
+          const primerComportamiento = reconocimiento.comportamientos[0];
+          return primerComportamiento.organizacionId === organizacionId;
+        });
+        
+        setReconocimientos(reconocimientosFiltrados);
       } catch (error) {
         console.error("Error al cargar los reconocimientos:", error);
+        showAlert("Error al cargar los reconocimientos", "error");
+      } finally {
+        hideLoading();
       }
     };
     fetchData();
-  }, []);
+  }, [showLoading, hideLoading, showAlert]);
 
 
   useEffect(() => {
     console.log("Reconocimientos:", reconocimientos);
     const fetchColaboradores = async () => {
+      if (reconocimientos.length === 0) return; // No hay reconocimientos, no necesitamos cargar colaboradores
+      
+      showLoading("Cargando información de colaboradores...");
       try {
         let ids = [...new Set(reconocimientos.map((rec) => rec.reconocedorId))];
         ids = [...ids, ...reconocimientos.map((rec) => rec.reconocidoId)];
@@ -84,10 +103,13 @@ const CRUDReconocimientos = () => {
         setColaboradores(users);
       } catch (error) {
         console.error("Error al obtener colaboradores:", error);
+        showAlert("Error al cargar la información de colaboradores", "error");
+      } finally {
+        hideLoading();
       }
     };
     fetchColaboradores();
-  }, [reconocimientos]);
+  }, [reconocimientos, showLoading, hideLoading, showAlert]);
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
@@ -97,7 +119,6 @@ const CRUDReconocimientos = () => {
 
   const handleReview = async (action) => {
     showLoading(action === "aprobado" ? "Aprobando reconocimiento..." : "Rechazando reconocimiento...");
-    setIsLoading(true);
     try {
       const payload = {
         aprobar: action === "aprobado",
@@ -116,7 +137,6 @@ const CRUDReconocimientos = () => {
       console.error("Error al revisar el reconocimiento:", error);
       showAlert(`Error al ${action === "aprobado" ? "aprobar" : "rechazar"} el reconocimiento.`, "error");
     } finally {
-      setIsLoading(false);
       hideLoading();
     }
   };
@@ -152,11 +172,11 @@ const CRUDReconocimientos = () => {
 
   return (
     <Container>
-      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-        <Typography variant="h4" gutterBottom>
+      <Box sx={{ display: "flex", flexDirection: "column", mb: 2 }}>
+        <Typography variant="h4" color="white" gutterBottom>
           Revisar reconocimientos
         </Typography>
-        <Typography variant="h5" color="textSecondary">
+        <Typography variant="h5"  color="white">
           Tienes {reconocimientos.length} solicitudes pendientes
         </Typography>
       </Box>
@@ -291,7 +311,7 @@ const CRUDReconocimientos = () => {
             variant="outlined"
             color="secondary"
             onClick={handleCloseDialog}
-            disabled={isLoading}
+            disabled={loading.loading}
           >
             Cerrar
           </Button>
@@ -300,19 +320,19 @@ const CRUDReconocimientos = () => {
               variant="contained"
               color="error"
               onClick={() => handleReview("rechazado")}
-              disabled={!comentarioAprobacion || isLoading}
+              disabled={!comentarioAprobacion || loading.loading}
               sx={{ mx: 1 }}
             >
-              {isLoading ? <CircularProgress size={24} color="inherit" /> : "Rechazar"}
+              {loading.loading ? <CircularProgress size={24} color="inherit" /> : "Rechazar"}
             </Button>
             <Button
               variant="contained"
               color="success"
               onClick= {() => handleReview("aprobado")}
-              disabled={isLoading}
+              disabled={loading.loading}
               sx={{ mx: 1 }}
             >
-              {isLoading ? <CircularProgress size={24} color="inherit" /> : "Aceptar"}
+              {loading.loading ? <CircularProgress size={24} color="inherit" /> : "Aceptar"}
             </Button>
           </Box>
         </DialogActions>
