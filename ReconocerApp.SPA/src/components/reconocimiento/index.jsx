@@ -165,10 +165,10 @@ export default function Reconocimiento() {
             textAlign: "center",
           }}
         >
-          <Typography variant="h4" component="h1" gutterBottom sx={{ fontWeight: "bold" }}>
+          <Typography variant="h4" component="h1" color="white" gutterBottom sx={{ fontWeight: "bold" }}>
             Dar Reconocimiento
           </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+          <Typography variant="body1" color="white" sx={{ mb: 4 }}>
             Reconoce a tus colaboradores por demostrar comportamientos.
           </Typography>
 

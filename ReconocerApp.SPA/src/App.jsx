@@ -42,6 +42,7 @@ import { AlertProvider } from "./contexts/AlertContext.jsx";
 import { LoadingProvider } from "./contexts/LoadingContext.jsx";
 import CRUDComportamientos from "./components/administrar/comportamientos/CRUDComportamientos.jsx";
 import CRUDOrganizaciones from "./components/administrar/organizaciones/CRUDOrganizaciones.jsx";
+import FondoLayout from "./contexts/FondoLayout.jsx";
 
 function App({ pca }) {
   // The next 3 lines are optional. This is how you configure MSAL to take advantage of the router's navigate functions when MSAL redirects between pages in your app
@@ -51,22 +52,23 @@ function App({ pca }) {
 
   return (
     <MsalProvider instance={pca}>
-      <ThemeProvider>
-        <AlertProvider>
-          <LoadingProvider>
-            <OrganizacionProvider>
-              <WalletProvider>
-                <PageLayout>
-                  <Grid container justifyContent="center">
-                    <Pages />
-                  </Grid>
-                </PageLayout>
-              </WalletProvider>
-            </OrganizacionProvider>
-          </LoadingProvider>
-        </AlertProvider>
-      </ThemeProvider>
-
+      <FondoLayout>
+        <ThemeProvider>
+          <AlertProvider>
+            <LoadingProvider>
+              <OrganizacionProvider>
+                <WalletProvider>
+                  <PageLayout>
+                    <Grid container justifyContent="center">
+                      <Pages />
+                    </Grid>
+                  </PageLayout>
+                </WalletProvider>
+              </OrganizacionProvider>
+            </LoadingProvider>
+          </AlertProvider>
+        </ThemeProvider>
+      </FondoLayout>
     </MsalProvider>
   );
 }

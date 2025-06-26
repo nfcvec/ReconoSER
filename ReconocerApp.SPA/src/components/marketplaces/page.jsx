@@ -100,13 +100,13 @@ export default function Marketplace() {
         textAlign: "center",
       }}
     >
-      <Typography variant="h4">
+      <Typography variant="h4" color="white">
         <strong>Marketplace</strong>
       </Typography>
-      <Typography variant="body1">
+      <Typography variant="body1" color="white">
         Canjea tus ULIs por premios exclusivos.
       </Typography>
-      <Typography variant="body2" sx={{ mb: 2 }} color="text.secondary">
+      <Typography variant="body2" sx={{ mb: 2 }} color="white">
         Solo los premios con el botón <strong>Canjear</strong> activado pueden ser canjeados con tu saldo actual.
       </Typography>
       <Box sx={{ width: "100%", maxWidth: 600, mb: 2 }}>
@@ -125,7 +125,7 @@ export default function Marketplace() {
         />
       </Box>
       <Box>
-        <Typography gutterBottom>Filtrar por rango de ULIs:</Typography>
+        <Typography  color="white" gutterBottom>Filtrar por rango de ULIs:</Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <IconButton onClick={handleDecrease} aria-label="Disminuir rango" size="small">
             <RemoveIcon sx={{ color: organizacion?.colorPrincipal || 'primary.main' }} />
@@ -142,7 +142,7 @@ export default function Marketplace() {
             <AddIcon sx={{ color: organizacion?.colorPrincipal || 'primary.main' }} />
           </IconButton>
         </Box>
-        <Typography>
+        <Typography color="white">
           Rango seleccionado: {priceRange[0]} - {priceRange[1]} ULIs
         </Typography>
       </Box>

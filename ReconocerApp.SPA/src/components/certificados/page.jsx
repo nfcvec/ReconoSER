@@ -52,12 +52,12 @@ const Certificados = () => {
     <>
       <FondoLayout />
       <Box>
-        <Typography variant="h4" component="h1">
+        <Typography variant="h4" component="h1" color="white">
           Mis Certificados
         </Typography>
-        <Typography variant="body1">
+        <Typography variant="body1" color="white">
           Aquí puedes consultar tus certificados de reconocimiento. Haz clic en un certificado para verlo en detalle.
-        </Typography>
+        </Typography><br />
         <Box>
           <DataGrid
             rows={certificates}

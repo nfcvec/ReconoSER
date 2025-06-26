@@ -53,11 +53,54 @@ export default function CertificadoView() {
 
   return (
     <Box sx={{ minHeight: '100vh', p: 3 }}>
-      <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-        <IconButton onClick={() => navigate(-1)} aria-label="volver">
-          <ArrowBackIcon />
-        </IconButton>
-        <Typography variant="h5" sx={{ ml: 1, color: '#fff' }}>Certificado de Reconocimiento</Typography>
+      <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <IconButton 
+            onClick={() => navigate(-1)} 
+            aria-label="volver"
+            sx={{
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 1)',
+              }
+            }}
+          >
+            <ArrowBackIcon />
+          </IconButton>
+          <Typography variant="h5" sx={{ ml: 1, color: '#fff' }}>Certificado de Reconocimiento</Typography>
+        </Box>
+        {certificado && (
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            <Box sx={{
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              borderRadius: '50%',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 1)',
+              }
+            }}>
+              <PdfDownloadButton
+                targetRef={certificadoRef}
+                fileName={`certificado-${certificado.reconocimientoId}`}
+                ariaLabel="descargar-pdf"
+              />
+            </Box>
+            {isWebShareSupported && (
+              <IconButton 
+                color="success" 
+                onClick={handleShare} 
+                aria-label="compartir"
+                sx={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 255, 255, 1)',
+                  }
+                }}
+              >
+                <ShareIcon />
+              </IconButton>
+            )}
+          </Box>
+        )}
       </Box>
       {certificado ? (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -68,18 +111,6 @@ export default function CertificadoView() {
               Reconocido={reconocido}
               ref={certificadoRef}
             />
-          </Box>
-          <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
-            <PdfDownloadButton
-              targetRef={certificadoRef}
-              fileName={`certificado-${certificado.reconocimientoId}`}
-              ariaLabel="descargar-pdf"
-            />
-            {isWebShareSupported && (
-              <IconButton color="success" onClick={handleShare} aria-label="compartir">
-                <ShareIcon />
-              </IconButton>
-            )}
           </Box>
         </Box>
       ) : (
