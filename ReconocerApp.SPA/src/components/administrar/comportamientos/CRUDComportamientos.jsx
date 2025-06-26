@@ -14,10 +14,13 @@ import {
     Container,
     Snackbar,
     Alert,
+    Paper,
+    Typography,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+import { useTheme } from "@mui/material/styles";
 import {
     getComportamientos,
     createComportamiento,
@@ -25,24 +28,63 @@ import {
     deleteComportamiento,
 } from "../../../utils/services/comportamientos";
 import { useOrganizacion } from "../../../contexts/OrganizacionContext";
+import { useLoading } from "../../../contexts/LoadingContext";
 
 const defaultForm = { nombre: "", descripcion: "", walletOtorgados: 0, organizacionId: 1, iconSvg: "" };
 
 // Componente para previsualizar SVG
-const SvgPreview = ({ svg, size = 48, emptyText = "Sin icono" }) => svg ? (
-    <span
-        title="SVG"
-        style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            width: size, height: size, background: '#f5f5f5', borderRadius: 4, border: '1px solid #eee', overflow: 'hidden',
-        }}
-        dangerouslySetInnerHTML={{ __html: svg.replace('<svg', `<svg width=\"${size - 8}\" height=\"${size - 8}\" style=\"display:block;margin:auto;\"`) }}
-    />
-) : <span style={{ color: '#aaa' }}>{emptyText}</span>;
+const SvgPreview = ({ svg, size = 48, emptyText = "Sin icono" }) => {
+    const theme = useTheme();
+    
+    return svg ? (
+        <Paper
+            elevation={2}
+            sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: size,
+                height: size,
+                borderRadius: 1,
+                backgroundColor: theme.palette.primary.main,
+                overflow: 'hidden',
+                '& svg': {
+                    fill: 'white',
+                    stroke: 'white'
+                }
+            }}
+            title="SVG"
+        >
+            <span
+                dangerouslySetInnerHTML={{ 
+                    __html: svg.replace('<svg', `<svg width="${size - 8}" height="${size - 8}" style="display:block;margin:auto;"`) 
+                }}
+            />
+        </Paper>
+    ) : (
+        <Paper
+            elevation={1}
+            sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: size,
+                height: size,
+                borderRadius: 1,
+                backgroundColor: '#f5f5f5',
+                color: '#aaa'
+            }}
+        >
+            <span>{emptyText}</span>
+        </Paper>
+    );
+};
 
 const CRUDComportamientos = () => {
     const [comportamientos, setComportamientos] = useState([]);
     const { organizacion } = useOrganizacion();
+    const { showLoading, hideLoading } = useLoading();
+    const theme = useTheme();
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedComportamiento, setSelectedComportamiento] = useState(null);
     const [formValues, setFormValues] = useState(defaultForm);
@@ -51,6 +93,7 @@ const CRUDComportamientos = () => {
     // Cargar comportamientos al montar el componente
     useEffect(() => {
         (async () => {
+            showLoading("Cargando comportamientos...");
             try {
                 const comps = await getComportamientos({ 
                     filters: [{ field: "OrganizacionId", operator: "eq", value: `${organizacion.organizacionId}` }],
@@ -58,9 +101,11 @@ const CRUDComportamientos = () => {
                 setComportamientos(comps);
             } catch (error) {
                 console.error("Error al cargar los datos:", error);
+            } finally {
+                hideLoading();
             }
         })();
-    }, [organizacion.organizacionId]);
+    }, [organizacion.organizacionId, showLoading, hideLoading]);
 
     // Manejar apertura del diálogo
     const handleOpenDialog = (comportamiento = null) => {
@@ -101,6 +146,7 @@ const CRUDComportamientos = () => {
 
     // Guardar o editar comportamiento
     const handleSave = async () => {
+        showLoading("Guardando comportamiento...");
         try {
             const payload = { ...formValues, walletOtorgados: Number(formValues.walletOtorgados), organizacionId: organizacion.organizacionId };
             if (selectedComportamiento) {
@@ -115,11 +161,14 @@ const CRUDComportamientos = () => {
         } catch (error) {
             setSnackbar({ open: true, message: "Error al guardar el comportamiento", severity: "error" });
             console.error("Error al guardar el comportamiento:", error);
+        } finally {
+            hideLoading();
         }
     };
 
     // Eliminar comportamiento
     const handleDelete = useCallback(async (id) => {
+        showLoading("Eliminando comportamiento...");
         try {
             await deleteComportamiento(id);
             setComportamientos((prev) => prev.filter((c) => c.comportamientoId !== id));
@@ -127,8 +176,10 @@ const CRUDComportamientos = () => {
         } catch (error) {
             setSnackbar({ open: true, message: "Error al eliminar el comportamiento", severity: "error" });
             console.error("Error al eliminar el comportamiento:", error);
+        } finally {
+            hideLoading();
         }
-    }, []);
+    }, [showLoading, hideLoading]);
 
     // Columnas de la tabla
     const columns = [
@@ -158,7 +209,7 @@ const CRUDComportamientos = () => {
     return (
         <Container>
             <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-                <h1>Administrar Comportamientos</h1>
+                <Typography variant="h4" color="white">Administrar Comportamientos</Typography>
                 <Button variant="contained" onClick={() => handleOpenDialog()}>
                     Añadir Comportamiento
                 </Button>

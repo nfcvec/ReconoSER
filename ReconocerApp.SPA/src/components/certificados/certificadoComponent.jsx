@@ -12,15 +12,6 @@ const CertificadoComponent = forwardRef(({
   const { organizacion } = useOrganizacion();
   const texto = Certificado?.texto || "Texto no disponible";
 
-  // Medidas A4 en px para pantalla (aprox. 1pt = 1.333px)
-  const A4_WIDTH_PX = 595.28 * 1.333; // ≈ 793px
-  const A4_HEIGHT_PX = 841.89 * 1.333; // ≈ 1122px
-  const [imageSize, setImageSize] = useState({ width: A4_WIDTH_PX, height: A4_HEIGHT_PX });
-
-  useEffect(() => {
-    setImageSize({ width: A4_WIDTH_PX, height: A4_HEIGHT_PX });
-  }, []);
-
   const textShadowStyle = {
     textShadow: "2px 2px 2px rgba(0, 0, 0, 0.7)",
     color: "#fff"
@@ -136,25 +127,49 @@ const CertificadoComponent = forwardRef(({
           <Grid container spacing={3} justifyContent="center" mt={2}>
             {Certificado?.comportamientos?.map(({ iconSvg, nombre }, idx) => (
               <Grid item xs={3} key={idx} textAlign="center" display="flex" flexDirection="column" alignItems="center">
-                {iconSvg && (
-                  <Box component={Paper}
-                    sx={{
-                      width: "80px",
-                      height: "80px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      backgroundColor: "primary.main",
-                      borderRadius: 2,
-                      boxShadow: 5,
+                <Box
+                  sx={{
+                    width: "120px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    mx: "auto",
+                  }}
+                >
+                  {iconSvg && (
+                    <Box component={Paper}
+                      sx={{
+                        width: "80px",
+                        height: "80px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: "primary.main",
+                        borderRadius: 2,
+                        boxShadow: 5,
+                        flexShrink: 0,
+                      }}
+                    >
+                      <SvgFromString svgString={iconSvg} width="80px" height="80px" color="#fff" />
+                    </Box>
+                  )}
+                  <Typography 
+                    variant="body1" 
+                    sx={{ 
+                      mt: 1, 
+                      ...textShadowStyle, 
+                      fontSize: '1.1rem',
+                      width: "100%",
+                      wordWrap: "break-word",
+                      hyphens: "auto",
+                      textAlign: "center",
+                      lineHeight: 1.2,
+                      minHeight: "2.4em", // Altura mínima para 2 líneas
                     }}
                   >
-                    <SvgFromString svgString={iconSvg} width="80px" height="80px" color="#fff" />
-                  </Box>
-                )}
-                <Typography variant="body1" sx={{ mt: 1, ...textShadowStyle, fontSize: '1.1rem' }}>
-                  {nombre}
-                </Typography>
+                    {nombre}
+                  </Typography>
+                </Box>
               </Grid>
             ))}
           </Grid>

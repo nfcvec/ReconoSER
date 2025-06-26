@@ -12,6 +12,7 @@ import {
     TextField,
     Box,
     Container,
+    Typography
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -21,11 +22,13 @@ import {
     deleteCategoria,
     createCategoria,
 } from "../../../utils/services/categorias";
+import { useLoading } from "../../../contexts/LoadingContext";
 
 const CRUDCategorias = () => {
     const [categorias, setCategorias] = useState([]);
     const [openDialog, setOpenDialog] = useState(false);
     const [selectedCategoria, setSelectedCategoria] = useState(null);
+    const { showLoading, hideLoading } = useLoading();
     const [formValues, setFormValues] = useState({
         nombre: "",
         descripcion: "",
@@ -34,15 +37,18 @@ const CRUDCategorias = () => {
     // Cargar categorías al montar el componente
     useEffect(() => {
         const fetchCategorias = async () => {
+            showLoading("Cargando categorías...");
             try {
                 const data = await getCategorias();
                 setCategorias(data);
             } catch (error) {
                 console.error("Error al cargar las categorías:", error);
+            } finally {
+                hideLoading();
             }
         };
         fetchCategorias();
-    }, []);
+    }, [showLoading, hideLoading]);
 
     // Manejar apertura del diálogo
     const handleOpenDialog = (categoria = null) => {
@@ -70,6 +76,7 @@ const CRUDCategorias = () => {
 
     // Guardar o editar categoría
     const handleSave = async () => {
+        showLoading("Guardando categoría...");
         try {
             const payload = { ...formValues };
             if (selectedCategoria) {
@@ -84,20 +91,25 @@ const CRUDCategorias = () => {
             handleCloseDialog();
         } catch (error) {
             console.error("Error al guardar la categoría:", error);
+        } finally {
+            hideLoading();
         }
     };
 
     // Eliminar categoría
     const handleDelete = useCallback(
         async (id) => {
+            showLoading("Eliminando categoría...");
             try {
                 await deleteCategoria(id);
                 setCategorias((prev) => prev.filter((categoria) => categoria.categoriaId !== id));
             } catch (error) {
                 console.error("Error al eliminar la categoría:", error);
+            } finally {
+                hideLoading();
             }
         },
-        []
+        [showLoading, hideLoading]
     );
 
     // Columnas de la tabla
@@ -128,7 +140,7 @@ const CRUDCategorias = () => {
     return (
         <Container>
             <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
-                <h1>Administrar Categorías</h1>
+                <Typography variant="h4" color="white">Administrar Categorias</Typography>
                 <Button variant="contained" onClick={() => handleOpenDialog()}>
                     Añadir Categoría
                 </Button>
@@ -141,9 +153,9 @@ const CRUDCategorias = () => {
                 getRowId={(row) => row.categoriaId} // Especifica que `categoriaId` es el identificador único
                 sx={{
                     '& .MuiDataGrid-columnHeaderTitle': {
-                      fontWeight: 'bold',
+                        fontWeight: 'bold',
                     },
-                  }}
+                }}
             />
             <Dialog open={openDialog} onClose={handleCloseDialog}>
                 <DialogTitle>

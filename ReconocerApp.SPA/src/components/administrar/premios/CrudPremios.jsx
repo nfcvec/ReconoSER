@@ -13,19 +13,20 @@ import {
   getPremios,
 } from "../../../utils/services/premios";
 import { useAlert } from "../../../contexts/AlertContext";
+import { useLoading } from "../../../contexts/LoadingContext";
 import PremioForm from "./PremioForm";
 import { useOrganizacion } from "../../../contexts/OrganizacionContext";
 
 const CrudPremios = () => {
   const [premios, setPremios] = useState([]);
   const [selectedPremio, setSelectedPremio] = useState(null); // Premio seleccionado para editar
-  const [loading, setLoading] = useState(false);
   const [openPremioDialog, setOpenPremioDialog] = useState(false); // Controla el diálogo de Premio
   const showAlert = useAlert();
+  const { showLoading, hideLoading } = useLoading();
   const {organizacion} = useOrganizacion();
 
   const fetchPremios = async () => {
-    setLoading(true);
+    showLoading("Cargando premios...");
     try {
       const data = await getPremios({
         filters: [
@@ -41,7 +42,7 @@ const CrudPremios = () => {
       showAlert("Error al cargar los premios.", "error");
       console.error("Error al cargar los premios:", error);
     } finally {
-      setLoading(false);
+      hideLoading();
     }
   }
 
@@ -78,7 +79,7 @@ const CrudPremios = () => {
   return (
     <Container>
       <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2, width: "100%", overflow: "auto" }}>
-        <Typography variant="h4">Gestión de Premios</Typography>
+        <Typography variant="h4" color="white">Administrar Premios</Typography>
         <Button
           variant="contained"
           color="primary"
@@ -87,14 +88,12 @@ const CrudPremios = () => {
           Agregar Premio
         </Button>
       </Box>
-      <Typography variant="h6" padding={2}>Haz click en los premios para revisar su información</Typography>
       <DataGrid
         rows={premios}
         columns={columns}
         pageSize={5}
         rowsPerPageOptions={[5]}
         getRowId={(row) => row.premioId}
-        loading={loading}
         onRowClick={(params) => handleOpenPremioDialog(params.row)}
       />
 
